@@ -19,7 +19,7 @@ void translateToLiteralDate(int year, int day)
 		if (daysLeft <= daysOfMonth[i])
 		{
 			printf("year %d , %d%s: %s %d, %d\n", 
-						year, day, day % 10 == 1 ? "st" : "th", months[i], daysLeft, year);
+						year, day, day % 10 == 1 ? "st" :( day %10 ==2 ? "nd": "th"), months[i], daysLeft, year);
 			break;
 		}
 

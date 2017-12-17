@@ -6,7 +6,7 @@ typedef struct IncomeTaxInfo
 {
 	float taxThreshold;
 	float baseTax;
-	int rate;
+	float rate;
 } IncomeTaxInfo;
 
 int compareByTaxThreshold(const void* l, const void* r)
@@ -19,25 +19,24 @@ int compareByTaxThreshold(const void* l, const void* r)
 
 static const IncomeTaxInfo taxInfoMap[] = {
 	{0, 0, 0},
-	{2200, 0, 14},
-	{2700, 70, 15},
-	{3200, 145, 16},
-	{3700, 225, 17},
-	{4200, 310, 18},
+	{2200, 0, .14},
+	{2700, 70, .15},
+	{3200, 145, .16},
+	{3700, 225, .17},
+	{4200, 310, .18},
 };
 
 // return the last element that is no larger than key
 // It has not done any sanity check, make sure inputs are valid 
-void* bsearch_self(const void* key, const void* ptr, size_t elementCount, size_t elementSize,
+const void* bsearch_self(const void* key, const void* ptr, size_t elementCount, size_t elementSize,
 		int (*comp)(const void*, const void*))
 {
 	size_t start = 0;
 	size_t end = elementCount - 1;
-	size_t mid = 0;
 
 	while(start<=end)
 	{
-		mid = start + (end-start)/2;
+		size_t mid = start + (end-start)/2;
 		if(comp(ptr+mid*elementSize, key) <= 0) {
 			start = ++mid;
 		} else {
@@ -45,21 +44,30 @@ void* bsearch_self(const void* key, const void* ptr, size_t elementCount, size_t
 		}
 	}
 
-	return ptr+mid*elementSize;
+	end = (end <= 0) ? 0 : end;
+	return ptr+end*elementSize;
 }
+
+// It will act abnormally when you have input non-numberic characters
 
 int main()
 {
 	IncomeTaxInfo input;
 
-	printf("Enter your income >>> ");
-	scanf("%f", &input.taxThreshold);
+	while (1) {
+		printf("Enter your income >>> ");
+		scanf("%f", &input.taxThreshold);
 
-	IncomeTaxInfo* taxInfo = (IncomeTaxInfo*)bsearch_self(&input, taxInfoMap, 
-		element_of(taxInfoMap), sizeof(IncomeTaxInfo), compareByTaxThreshold);
+		if(input.taxThreshold <= 0.0f)
+			break;
 
-	float tax = taxInfo->baseTax + (input.taxThreshold-taxInfo->taxThreshold)*taxInfo->rate/100.0f;
-	printf("Your tax: %f\n", tax);
+		const IncomeTaxInfo* taxInfo = (const IncomeTaxInfo*)bsearch_self(&input, taxInfoMap, 
+							element_of(taxInfoMap), sizeof(IncomeTaxInfo), compareByTaxThreshold);
+
+		float tax = taxInfo->baseTax + (input.taxThreshold-taxInfo->taxThreshold)*taxInfo->rate;
+		printf("Your tax: %f\n", tax);
+
+	}
 
 	return 0;
 }
