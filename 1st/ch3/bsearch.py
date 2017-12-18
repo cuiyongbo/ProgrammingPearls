@@ -5,8 +5,8 @@ def bsearch_floor(key, nums):
 	"""
 	find the largest element in nums not greater than key
 	"""
-	if key <= nums[0]:
-		return 0, nums[0]
+	if key < nums[0]:
+		return (None, "key should be not less than the smallest element in nums")
 	elif key >= nums[-1]:
 		return len(nums)-1, nums[-1]
 
@@ -28,7 +28,7 @@ def bsearch_ceil(key, nums):
 	"""
 
 	if key > nums[-1]:
-		return len(nums)-1, nums[-1]
+		return (None,  "key should be not greater the largest element in nums")
 
 	start = 0
 	end = len(nums) - 1
