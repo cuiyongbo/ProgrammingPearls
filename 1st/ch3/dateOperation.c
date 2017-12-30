@@ -4,10 +4,14 @@
 #include <unistd.h>
 #include <ctype.h>
 
+static const int daysOfMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+static const char* weekDescription[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+
 typedef struct DateInfo {
 	int tm_year;	// years since 1900
 	int tm_mon;	// months since January - [0, 11]
 	int tm_mday;	// day of month - [1, 31]
+	int tm_wday;	// week day num [0-6], Sunday - 0
 } DateInfo;
 
 inline int isLeapYear(int year);
@@ -28,11 +32,13 @@ void usage(const char* prog)
 }
 
 int dateDifferenceInDay(DateInfo from, DateInfo to);
-const char* weekdayNumofDate(const DateInfo date);
-void printCalendarOfDate(const DateInfo date);
+int weekdayNumofDate(const DateInfo date);
+void printCalendarOfDate(DateInfo date);
 
 void dateDifferenceParser(const char* from, const char* to);
-void weekdayNumParser(const char* date);
+void weekdayNumParser(const char* input);
+void calendarParser(const char* input);
+
 
 // Date Format: YYYYmmdd, like 20171103, 20120504
 DateInfo parseDateFromString(const char* dateStr)
@@ -74,7 +80,7 @@ int main(int argc, char* argv[])
 					dateDifferenceParser(argv[optind-1], argv[optind]);				
 				break;
 			case 'c':
-				printf("%s -c %s\n", argv[0], argv[optind-1]);
+				calendarParser(argv[optind-1]);
 				break;
 			case 'w':
 				weekdayNumParser(argv[optind-1]);
@@ -101,7 +107,6 @@ void dateDifferenceParser(const char* from, const char* to)
 	printf("%d\n", difference);
 }
 
-
 int dateDifferenceInDay(DateInfo from, DateInfo to)
 {
 	int ordinalDayOfFrom = ordinalDayOfDate(from);
@@ -117,8 +122,6 @@ int dateDifferenceInDay(DateInfo from, DateInfo to)
 
 int ordinalDayOfDate(DateInfo dateOfInterest)
 {
-	static const int daysOfMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-	
 	int ordinalDay = 0;
 	for(int i=0; i<dateOfInterest.tm_mon-1; ++i)
 		ordinalDay += daysOfMonth[i];	
@@ -139,34 +142,74 @@ void weekdayNumParser(const char* input)
 	}
 
 	DateInfo inputDate = parseDateFromString(input);
+	int weekdayNum = weekdayNumofDate(inputDate);
 	
-	const char* weekday = weekdayNumofDate(inputDate);
-	printf("%s\n", weekday);
+	printf("%s\n", weekDescription[weekdayNum]);
 }
 
-const char* weekdayNumofDate(const DateInfo date)
+int weekdayNumofDate(const DateInfo date)
 {
-	static const char* weekDays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 	DateInfo baseDate;
 	baseDate.tm_year = 1970;
 	baseDate.tm_mon = 1;
 	baseDate.tm_mday = 1;
 
-	int weekDayNumOfBaseDate = 4; // Thursday
-
+	static const int weekDayNumOfBaseDate = 4; // Thursday
 	int differenceInDay = dateDifferenceInDay(baseDate, date);
 
-	int weekDayNumOfInterest = (differenceInDay%7 + weekDayNumOfBaseDate) % 7;
-	
-	return weekDays[weekDayNumOfInterest];
+	return (differenceInDay%7 + weekDayNumOfBaseDate) % 7;
 }
 
-void printCalendarOfDate(const DateInfo date)
+void calendarParser(const char* input)
 {
+	if(isInvalidInput(input)==0) {
+		fprintf(stderr, "Invalid input(s)! DateFormat: yyyymmdd\n");
+		return;
+	}
 
-
-
-
+	DateInfo inputDate = parseDateFromString(input);
+	printCalendarOfDate(inputDate);
 }
 
+void printCalendarOfDate(DateInfo inputDate)
+{
+	static const char* offsetOfWeekDay[] = {
+		"", /* first day is Sunday*/ 
+		"   \t",
+		"   \t   \t",
+		"   \t   \t   \t",
+		"   \t   \t   \t   \t",
+		"   \t   \t   \t   \t   \t",
+		"   \t   \t   \t   \t   \t   \t", /* first day is Saturday*/
+	};
+
+	static const char dilimiter = '\t';
+	
+	printf("\t\t\t%d-%d\t\t\t\n", inputDate.tm_year, inputDate.tm_mon);
+	printf("Sun\tMon\tTue\tWed\tThu\tFri\tSat\n");
+
+	int oldOrdinalDay = inputDate.tm_mday;
+	
+	inputDate.tm_mday = 1;
+	int weekdayNum = weekdayNumofDate(inputDate); // the weekday number of the first day of the give month
+	int dayNum = daysOfMonth[inputDate.tm_mon-1];
+	
+	printf("%s", offsetOfWeekDay[weekdayNum]); // print the offset of the first day
+	
+	for(int i=1; i<=dayNum; ++i) {
+		if(i == oldOrdinalDay)
+			printf("\033[1;32m%*d\033[0m", -3, i);
+		else
+			printf("%*d", -3, i);
+
+		weekdayNum = (weekdayNum+1)%7;
+
+		if(weekdayNum == 0)
+			printf("\n");
+		else
+			printf("\t");
+	}
+
+	printf("\n");
+}
 
