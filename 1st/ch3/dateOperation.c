@@ -182,8 +182,6 @@ void printCalendarOfDate(DateInfo inputDate)
 		"   \t   \t   \t   \t   \t",
 		"   \t   \t   \t   \t   \t   \t", /* first day is Saturday*/
 	};
-
-	static const char dilimiter = '\t';
 	
 	printf("\t\t\t%d-%d\t\t\t\n", inputDate.tm_year, inputDate.tm_mon);
 	printf("Sun\tMon\tTue\tWed\tThu\tFri\tSat\n");
