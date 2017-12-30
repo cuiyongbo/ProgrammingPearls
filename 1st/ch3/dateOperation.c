@@ -8,13 +8,10 @@ typedef struct DateInfo {
 	int tm_year;	// years since 1900
 	int tm_mon;	// months since January - [0, 11]
 	int tm_mday;	// day of month - [1, 31]
-	int tm_wday;	// days since Sunday - [0, 6]
-	int tm_yday;	// days since January 1 - [0, 365]
 } DateInfo;
 
 inline int isLeapYear(int year);
 int ordinalDayOfDate(DateInfo date);
-void DateDifferenceParser(const char* from, const char* to);
 int isLeapYear(int year) {
     return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0); 
 }
@@ -30,10 +27,12 @@ void usage(const char* prog)
 		"Date format: yyyymmdd\n", prog);
 }
 
-int DateDifferenceInDay(DateInfo from, DateInfo to);
-int weekdayNumofDate(const DateInfo date);
+int dateDifferenceInDay(DateInfo from, DateInfo to);
+const char* weekdayNumofDate(const DateInfo date);
 void printCalendarOfDate(const DateInfo date);
 
+void dateDifferenceParser(const char* from, const char* to);
+void weekdayNumParser(const char* date);
 
 // Date Format: YYYYmmdd, like 20171103, 20120504
 DateInfo parseDateFromString(const char* dateStr)
@@ -72,13 +71,13 @@ int main(int argc, char* argv[])
 				if(argv[optind]==NULL || argv[optind-1]==NULL)
 					usage(argv[0]);
 				else
-					DateDifferenceParser(argv[optind-1], argv[optind]);				
+					dateDifferenceParser(argv[optind-1], argv[optind]);				
 				break;
 			case 'c':
 				printf("%s -c %s\n", argv[0], argv[optind-1]);
 				break;
 			case 'w':
-				printf("%s -w %s\n", argv[0], argv[optind-1]);
+				weekdayNumParser(argv[optind-1]);
 				break;
 		}
 	}
@@ -86,7 +85,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void DateDifferenceParser(const char* from, const char* to)
+void dateDifferenceParser(const char* from, const char* to)
 {
 	// sanity check
 	if(isInvalidInput(from)==0 || isInvalidInput(to)==0) {
@@ -97,13 +96,13 @@ void DateDifferenceParser(const char* from, const char* to)
 	DateInfo fromDate = parseDateFromString(from);
 	DateInfo toDate = parseDateFromString(to);
 	
-	int difference = DateDifferenceInDay(fromDate, toDate);
+	int difference = dateDifferenceInDay(fromDate, toDate);
 
 	printf("%d\n", difference);
 }
 
 
-int DateDifferenceInDay(DateInfo from, DateInfo to)
+int dateDifferenceInDay(DateInfo from, DateInfo to)
 {
 	int ordinalDayOfFrom = ordinalDayOfDate(from);
 	int ordinalDayOfTo = ordinalDayOfDate(to);
@@ -132,10 +131,34 @@ int ordinalDayOfDate(DateInfo dateOfInterest)
 	return ordinalDay;
 }
 
-int weekdayNumofDate(const DateInfo date)
+void weekdayNumParser(const char* input)
 {
+	if(isInvalidInput(input)==0) {
+		fprintf(stderr, "Invalid input(s)! DateFormat: yyyymmdd\n");
+		return;
+	}
 
-	return 0;
+	DateInfo inputDate = parseDateFromString(input);
+	
+	const char* weekday = weekdayNumofDate(inputDate);
+	printf("%s\n", weekday);
+}
+
+const char* weekdayNumofDate(const DateInfo date)
+{
+	static const char* weekDays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+	DateInfo baseDate;
+	baseDate.tm_year = 1970;
+	baseDate.tm_mon = 1;
+	baseDate.tm_mday = 1;
+
+	int weekDayNumOfBaseDate = 4; // Thursday
+
+	int differenceInDay = dateDifferenceInDay(baseDate, date);
+
+	int weekDayNumOfInterest = (differenceInDay%7 + weekDayNumOfBaseDate) % 7;
+	
+	return weekDays[weekDayNumOfInterest];
 }
 
 void printCalendarOfDate(const DateInfo date)
