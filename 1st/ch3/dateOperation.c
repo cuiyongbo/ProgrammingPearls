@@ -12,11 +12,12 @@ typedef struct DateInfo {
 	int tm_yday;	// days since January 1 - [0, 365]
 } DateInfo;
 
-int DateDifference(DateInfo from, DateInfo to);
-int weekdayNumofDate(const DateInfo date);
-void printCalendarOfDate(const DateInfo date);
-
+inline int isLeapYear(int year);
+int ordinalDayOfDate(DateInfo date);
 void DateDifferenceParser(const char* from, const char* to);
+int isLeapYear(int year) {
+    return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0); 
+}
 
 void usage(const char* prog)
 {
@@ -28,6 +29,10 @@ void usage(const char* prog)
 		"-w date Print the weekday number of date\n"
 		"Date format: yyyymmdd\n", prog);
 }
+
+int DateDifferenceInDay(DateInfo from, DateInfo to);
+int weekdayNumofDate(const DateInfo date);
+void printCalendarOfDate(const DateInfo date);
 
 
 // Date Format: YYYYmmdd, like 20171103, 20120504
@@ -92,16 +97,39 @@ void DateDifferenceParser(const char* from, const char* to)
 	DateInfo fromDate = parseDateFromString(from);
 	DateInfo toDate = parseDateFromString(to);
 	
-	int difference = DateDifference(fromDate, toDate);
+	int difference = DateDifferenceInDay(fromDate, toDate);
 
 	printf("%d\n", difference);
 }
 
 
-int DateDifference(DateInfo from, DateInfo to)
+int DateDifferenceInDay(DateInfo from, DateInfo to)
 {
+	int ordinalDayOfFrom = ordinalDayOfDate(from);
+	int ordinalDayOfTo = ordinalDayOfDate(to);
 
-	return 0;
+	int differenceInDay = ordinalDayOfTo - ordinalDayOfFrom;
+
+	for(int i=from.tm_year; i<to.tm_year; ++i)
+		differenceInDay += isLeapYear(i) ? 366 : 365;
+
+	return differenceInDay;
+}
+
+int ordinalDayOfDate(DateInfo dateOfInterest)
+{
+	static const int daysOfMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+	
+	int ordinalDay = 0;
+	for(int i=0; i<dateOfInterest.tm_mon-1; ++i)
+		ordinalDay += daysOfMonth[i];	
+
+	ordinalDay += dateOfInterest.tm_mday;
+	
+	if(dateOfInterest.tm_mon>2) 
+		ordinalDay += isLeapYear(dateOfInterest.tm_year);
+
+	return ordinalDay;
 }
 
 int weekdayNumofDate(const DateInfo date)
