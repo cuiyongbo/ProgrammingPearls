@@ -23,7 +23,7 @@ int main()
 	while (scanf("%d", &i) != EOF)
         set(i);
 
-	for (i = 0; i < N; i++)
+	for (i = 0; i < NUM; i++)
         if (test(i))
 			printf("%d\n", i);
 
