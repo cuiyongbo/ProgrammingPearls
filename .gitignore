@@ -5,6 +5,9 @@
 *.pyc
 *.out
 *.dSYM
+*.a
+*.so
+*.dylib
 /test.c
 /Git Tutorial.pdf
 /Introduction_to_Algorithms_3rd_Edition.pdf
