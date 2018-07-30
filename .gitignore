@@ -6,6 +6,7 @@
 *.out
 *.dSYM
 *.a
+*.o
 *.so
 *.dylib
 /test.c
