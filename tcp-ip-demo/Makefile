@@ -13,9 +13,9 @@ udp_serv: udp_server.o error.o
 	$(CC) $(CFLAGS) $? -o $@
 
 error.o: error.c
-read_stream.o: read_stream.c cliserv.h
-udp_client.o: udp_client.c cliserv.h
-udp_server.o: udp_server.c cliserv.h
+read_stream.o: read_stream.c cli_serv.h
+udp_client.o: udp_client.c cli_serv.h
+udp_server.o: udp_server.c cli_serv.h
 
 clean:
 	@rm -f *.o *.dSYM a.out $(PROGS)
