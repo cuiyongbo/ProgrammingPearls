@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 		if (bytesReceived < 0)
 			err_sys("recvfrom error");
 
-		printf("Receive %d bytes: %s\n", bytesReceived, request);
+		printf("Receive %zd bytes: %s\n", bytesReceived, request);
 
 		size_t replySize = strlen(reply) + 1;
 		if (sendto(sockFd, reply, replySize, 0, (SA)&cli, cliLen) != (ssize_t)replySize)
