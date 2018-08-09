@@ -1,7 +1,7 @@
 .PHONY: all clean
 
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -Wextra
 SRC = $(wildcard *.c)
 OBJ = $(SRC: %.c=%.o)
 PROGS = $(SRC: %.c=proc_%)
@@ -13,8 +13,7 @@ all: $(OBJ)
 %.o : %.c
 	$(CC) $< -c $@
 
-
 clean:
-	@rm -rf *.o *.dSYM *.pyc *.swap proc* *.out
-	@file * | grep executable | grep -v 'shell script' | cut -d: -f 1 | xargs rm
+	@rm -rf *.o *.dSYM *.pyc *.swap proc* a.out
+	@file * | grep executable | grep -v script | cut -d: -f1 | xargs rm
 
