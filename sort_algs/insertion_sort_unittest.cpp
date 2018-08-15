@@ -1,10 +1,6 @@
-#include "sort_algs.h"
 #include "util.h"
+#include "sort_algs.h"
 #include "gtest/gtest.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
 TEST(insertionSortTests, basic)
 {	

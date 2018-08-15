@@ -2,21 +2,21 @@
 #include "sort_algs.h"
 #include "gtest/gtest.h"
 
-TEST(mergeSortTests, bottomUp)
+TEST(heapSortTests, siftDown)
 {	
-	int size = 100; 
+	int size = 1000; 
 	int* a = genRandomArray(size);
-	mergeSort_bottomUp(a, size);
+	heapSort_siftDown(a, size);
 	bool isAscendingSorted = isSorted(a, size, true);
 	freeRandomArray(a);
 	EXPECT_TRUE(isAscendingSorted);
 }
 
-TEST(mergeSortTests, topDown)
+TEST(heapSortTests, siftUp)
 {
-	int size = 100; 
+	int size = 1000; 
 	int* a = genRandomArray(size);
-	mergeSort_topDown(a, size);
+	heapSort_siftUp(a, size);
 	bool isAscendingSorted = isSorted(a, size, true);
 	freeRandomArray(a);
 	EXPECT_TRUE(isAscendingSorted);

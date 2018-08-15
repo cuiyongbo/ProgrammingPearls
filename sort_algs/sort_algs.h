@@ -11,3 +11,6 @@ void insertionSort_noSwap(int* a, int count);
 void mergeSort_topDown(int* a, int count);
 void mergeSort_bottomUp(int* a, int count);
 
+void heapSort_siftUp(int* a, int count);
+void heapSort_siftDown(int* a, int count);
+
