@@ -15,7 +15,7 @@ static void _siftDownByLoop(int* a, int p, int count)
 		if(largest == p)
 			break;
 
-		exchage(a[p], a[largest]);
+		swapWithType(int, a[p], a[largest]);
 		p = largest;
 	}
 }
@@ -35,7 +35,7 @@ static void _siftDown(int* a, int p, int count)
 		largest = right;
 	if(largest != p)
 	{
-		exchage(a[largest], a[p]);
+		swapWithType(int, a[largest], a[p]);
 		_siftDown(a, largest, count);
 	}
 }
@@ -51,7 +51,7 @@ void heapSort_siftDown(int* a, int count)
 	for(int i=count-1; i>0; i--)
 	{
 		// sorted array +1
-		exchage(a[i], a[0]);
+		swapWithType(int, a[i], a[0]);
 
 	 	// heap size -1
 		// re-establish heap property
@@ -70,7 +70,7 @@ static void _siftUp(int* a, int start, int end)
 		int p = (i - 1)/2; // parent index of node i
 		if(a[p] < a[i])
 		{
-			exchage(a[p], a[i]);
+			swapWithType(int, a[p], a[i]);
 			i = p;
 		}
 		else
@@ -85,7 +85,7 @@ void heapSort_siftUp(int* a, int count)
 
 	for(int i = count-1; i>0; i--)
 	{
-		exchage(a[i], a[0]);
+		swapWithType(int, a[i], a[0]);
 		_siftDownByLoop(a, 0, i);
 	}
 }

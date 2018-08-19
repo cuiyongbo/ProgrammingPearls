@@ -1,4 +1,4 @@
-.PHONY: all clean insertionSort mergeSort heapSort
+.PHONY: all clean insertionSort mergeSort heapSort quickSort
 
 # Please tweak the following variable definitions as needed by your
 # project, except GTEST_HEADERS, which you can use in your own targets
@@ -24,6 +24,7 @@ CXXFLAGS += -g -Wall -Wextra
 INSERTION_SORT = insertion_sort_unittest
 MERGE_SORT = merge_sort_unittest
 HEAP_SORT = heap_sort_unittest
+QUICK_SORT = quick_sort_unittest
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -35,6 +36,7 @@ all: $(INSERTION_SORT) $(MERGE_SORT) $(HEAP_SORT)
 insertionSort: $(INSERTION_SORT)
 mergeSort: $(MERGE_SORT)
 heapSort: $(HEAP_SORT)
+quickSort: $(QUICK_SORT)
 
 
 clean:
@@ -83,4 +85,9 @@ merge_sort_unittest: main.o util.o merge_sort_alg.o merge_sort_unittest.o gtest.
 heap_sort_alg.o: $(USER_DIR)/sort_algs.h  $(USER_DIR)/util.h $(GTEST_HEADERS)
 heap_sort_unittest.o: $(USER_DIR)/sort_algs.h $(USER_DIR)/util.h  $(GTEST_HEADERS)
 heap_sort_unittest: main.o util.o heap_sort_alg.o heap_sort_unittest.o gtest.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
+quick_sort_alg.o: $(USER_DIR)/sort_algs.h  $(USER_DIR)/util.h $(GTEST_HEADERS)
+quick_sort_unittest.o: $(USER_DIR)/sort_algs.h $(USER_DIR)/util.h  $(GTEST_HEADERS)
+quick_sort_unittest: main.o util.o quick_sort_alg.o quick_sort_unittest.o gtest.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
