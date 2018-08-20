@@ -19,3 +19,5 @@ void heapSort_siftDown(int* a, int count);
 
 // Both l and r are inclusive
 void quickSort(int* a, int l, int r);
+void quickSort_hoare(int* a, int l, int r);
+void quickSort_threeWayPartition(int* a, int l, int r);
