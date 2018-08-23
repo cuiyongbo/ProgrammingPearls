@@ -21,3 +21,14 @@ void heapSort_siftDown(int* a, int count);
 void quickSort(int* a, int l, int r);
 void quickSort_hoare(int* a, int l, int r);
 void quickSort_threeWayPartition(int* a, int l, int r);
+
+void selectionSort(int* a, int count);
+
+// The element placed in the nth position is exactly 
+// the element that would occur in this position 
+// if the range was fully sorted.
+// if n is not in the range of [0, count)
+// it do nothing.
+// Cautious: n MUST fall in [1, count].
+int local_nth_element(int* a, int count, int n);
+
