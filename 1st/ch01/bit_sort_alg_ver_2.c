@@ -1,17 +1,17 @@
 /*
-	This version operates on int[] instead of char[]
+	This version operates on char[]
 */
 
 #include <stdio.h>
+#include <limits.h> // CHAR_BIT
 
 #define element_of(a) (sizeof(a)/sizeof(a[0]))
 
-#define SHIFT 5
-#define MASK 0x1F
-#define BITS_PER_WORD 32	/* 32 = 2^5 */
+#define SHIFT 3
+#define MASK 0x07
 
 #define NUM	10000000
-int a[1 + NUM/BITS_PER_WORD];
+char a[(NUM+7)/CHAR_BIT]; // make sure that element_of(a) * CHAR_BIT >= NUM
 
 void set(int i) {        a[i>>SHIFT] |=  (1<<(i & MASK)); }
 void clr(int i) {        a[i>>SHIFT] &= ~(1<<(i & MASK)); }

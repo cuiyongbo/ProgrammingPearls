@@ -16,5 +16,5 @@ all: $(OBJ)
 
 clean:
 	@rm -rf *.o *.dSYM *.pyc *.swap proc* *.out
-	@file * | grep executable | grep -v 'shell script' | cut -d: -f 1 | xargs rm
+	@file * | grep executable | grep -v script | cut -d: -f 1 | xargs rm
 

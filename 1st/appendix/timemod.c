@@ -14,9 +14,9 @@
 	for (int ex=0; ex<TRIALS; ++ex) {	\
 		k = 0;	\
 		clock_t start = clock();	\
-		for(i=1; i<=loops; ++i) {	\
+		for(int i=1; i<=loops; ++i) {	\
 			fi = (float)i;	\
-			for(j=1; j<=loops; ++j) { 	\
+			for(int j=1; j<=loops; ++j) { 	\
 				fj = (float)j;	\
 				op;	\
 			}	\
@@ -48,16 +48,10 @@ int maxfunc(int a, int b) { return a>b?a:b; }
 
 int main()
 {
-	int i = 0;
-	int j = 0;
 	int k = 0;
-
-	float fi = 0;
-	float fj = 0;
-	float fk = 0;
-
-	int loops;
-	loops = LOOPCOUNT;
+	int loops = LOOPCOUNT;
+	float fi, fj, fk;
+	fi = fj =  fk = 0;
 
 	T("Integer Algorithm");
 	M({});
@@ -72,6 +66,7 @@ int main()
 	M(k = i | j);
 
 	T("Float Algorithm");
+	M(fj = j);
 	M(fk = fi + fj);
 	M(fk = fi - fj);
 	M(fk = fi * fj);
