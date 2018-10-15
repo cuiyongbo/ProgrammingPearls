@@ -1,20 +1,25 @@
-.PHONY: all clean
+.PHONY: all clean sign squash
 
 CC = gcc
 CFLAGS = -g -Wall
-SRC = $(wildcard *.c)
-OBJ = $(SRC: %.c=%.o)
-PROGS = $(SRC: %.c=proc_%)
 
-all: $(OBJ) 
-	echo $(SRC)
-	echo $(OBJ)
+SIGN = proc_sign
+SQUASH = proc_squash
 
-%.o : %.c
-	$(CC) $< -c $@
-
+all: $(SIGN) $(SQUASH)
 
 clean:
 	@rm -rf *.o *.dSYM *.pyc *.swap proc* *.out
-	@file * | grep executable | grep -v 'shell script' | cut -d: -f 1 | xargs rm
+	@file * | grep executable | grep -v script | cut -d: -f 1 | xargs rm
+
+sign: $(SIGN)
+squash: $(SQUASH)
+
+sign.o: sign.c
+proc_sign: sign.o
+	$(CC) $(CFLAGS) $^ -o $@
+
+squash.o: squash.c
+proc_squash: squash.o
+	$(CC) $(CFLAGS) $^ -o $@
 

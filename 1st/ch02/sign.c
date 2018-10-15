@@ -4,7 +4,10 @@
 
 #define WORDMAX  100
 
-int charcmp(const char* x, const char* y) {return *x-*y;}
+int charcmp(const void* x, const void* y) 
+{
+	return *(char*)x - *(char*)y;
+}
 
 int main(void)
 {
