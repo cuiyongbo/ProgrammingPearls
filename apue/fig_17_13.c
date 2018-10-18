@@ -33,10 +33,9 @@ int send_fd(int fd, int fd_to_send)
 			return -1;
 		msg.msg_control = cmptr;
 		msg.msg_controllen = CONTROL_MSG_LEN;
-		struct cmsghdr* cmp;
-		cmp->cmsg_level = SOL_SOCKET;
-		cmp->cmsg_type = SCM_RIGHTS;
-		cmp->cmsg_len = RIGHTLEN;
+		cmptr->cmsg_level = SOL_SOCKET;
+		cmptr->cmsg_type = SCM_RIGHTS;
+		cmptr->cmsg_len = RIGHTLEN;
 		*(int*)CMSG_DATA(cmptr) = fd_to_send;
 		buf[1] = 0;
 	}

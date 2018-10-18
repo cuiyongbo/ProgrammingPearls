@@ -29,7 +29,6 @@
 	fprintf(stderr, ": %s\n", strerror(errno)); \
 	}
 
-
 #define err_ret(...) {	\
 	fprintf(stderr, __VA_ARGS__);\
 	fprintf(stderr, "\n");\
@@ -45,4 +44,6 @@ typedef ssize_t (*UnixDomainSocketUserFunc) (int, const void*, size_t);
 int send_fd(int fd, int fd_to_send); /* fig 17.13 */
 int send_err(int fd, int errcode, const char* errmsg); /* fig 17.12 */
 int recv_fd(int fd, UnixDomainSocketUserFunc func); /* fig 17.14 */
+
+int fd_pipe(int fd[2]); /* fig 17.2 */
 
