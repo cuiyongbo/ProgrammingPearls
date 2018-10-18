@@ -1,6 +1,6 @@
 #include "opend.h"
 
-void handle_request(char* buf, int nread, int fd)
+void handle_request_02(char* buf, int nread, int fd, uid_t uid)
 {
 	if(buf[nread-1] != 0)
 	{
@@ -9,6 +9,8 @@ void handle_request(char* buf, int nread, int fd)
 		send_err(fd, -1, errmsg);
 		return;
 	}
+
+	err_ret("request: %s, for uid: %ld", buf, (long)uid);
 	
 	if(buf_args(buf, cli_args) < 0)
 	{
@@ -30,3 +32,4 @@ void handle_request(char* buf, int nread, int fd)
 
 	close(newfd);
 }
+

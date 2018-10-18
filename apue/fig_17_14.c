@@ -28,12 +28,12 @@ int recv_fd(int fd, UnixDomainSocketUserFunc func)
 		int nr = recvmsg(fd, &msg, 0);
 		if(nr < 0)
 		{
-			err_ret("recvmsg error");
+			err_msg("recvmsg error");
 			return -1;
 		}
 		else if(nr == 0)
 		{
-			err_ret("connection closed by server");
+			err_msg("connection closed by server");
 			return -1;
 		}
 

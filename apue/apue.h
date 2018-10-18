@@ -14,27 +14,35 @@
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 #define DIR_MODE (FILE_MODE | S_IXUSR | S_IXGRP | S_IXOTH)
 
+#define max(a, b) ((a)>(b)?(a):(b))
+#define min(a, b) ((a)<(b)?(a):(b))
+
 #define err_sys(...) {	\
+	fprintf(stderr, "%s(%d): ", __FILE__, __LINE__); \
 	fprintf(stderr, __VA_ARGS__);\
 	fprintf(stderr, ": %s\n", strerror(errno)); \
 	exit(EXIT_FAILURE); }
 
 #define err_quit(...) {	\
+	fprintf(stderr, "%s(%d): ", __FILE__, __LINE__); \
 	fprintf(stderr, __VA_ARGS__);\
 	fprintf(stderr, "\n");\
 	exit(EXIT_FAILURE); }
 
 #define err_msg(...) {	\
+	fprintf(stderr, "%s(%d): ", __FILE__, __LINE__); \
 	fprintf(stderr, __VA_ARGS__);\
 	fprintf(stderr, ": %s\n", strerror(errno)); \
 	}
 
 #define err_ret(...) {	\
+	fprintf(stderr, "%s(%d): ", __FILE__, __LINE__); \
 	fprintf(stderr, __VA_ARGS__);\
 	fprintf(stderr, "\n");\
 	}
 
 #define err_dump(...) {	\
+	fprintf(stderr, "%s(%d): ", __FILE__, __LINE__); \
 	fprintf(stderr, __VA_ARGS__);\
 	fprintf(stderr, ": %s\n", strerror(errno)); \
 	abort();		\
@@ -46,6 +54,10 @@ int send_err(int fd, int errcode, const char* errmsg); /* fig 17.12 */
 int recv_fd(int fd, UnixDomainSocketUserFunc func); /* fig 17.14 */
 
 int fd_pipe(int fd[2]); /* fig 17.2 */
+
+int serv_accept(int listenfd, uid_t* uidptr);
+int serv_listen(const char* name);
+int cli_conn(const char* name);
 
 /*
 	fig 10.24 implementation using signal
