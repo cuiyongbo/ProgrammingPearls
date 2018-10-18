@@ -47,3 +47,15 @@ int recv_fd(int fd, UnixDomainSocketUserFunc func); /* fig 17.14 */
 
 int fd_pipe(int fd[2]); /* fig 17.2 */
 
+/*
+	fig 10.24 implementation using signal
+*/
+void TELL_WAIT(void);
+void TELL_PARENT(pid_t pid);
+void TELL_CHILD(pid_t pid);
+void WAIT_PARENT(void);
+void WAIT_CHILD(void);
+
+int set_cloexec(int fd);	/* fig 13.9*/
+void daemonize(const char* cmd); /* fig 13.1 */
+
