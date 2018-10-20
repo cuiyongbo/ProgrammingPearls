@@ -8,13 +8,14 @@ int buf_args(char* buf, int (*openfunc)(int, char**))
 	char* argv[MAXARGC];
 	char* ptr;
 	int argc = 0;
+	argv[argc] = buf;
 	while((ptr = strtok(NULL, WHITESPACE)) != NULL)
 	{
-		argv[argc] = ptr;
 		if(++argc >= MAXARGC-1)
 			return -1;
+		argv[argc] = ptr;
 	}
-	argv[argc] = (char*)NULL;
+	argv[++argc] = (char*)NULL;
 	return openfunc(argc, argv);
 }
 

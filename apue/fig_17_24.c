@@ -4,7 +4,7 @@ int cli_args(int argc, char** argv)
 {
 	if(argc != 4 || strcmp(argv[0], CL_OPEN) != 0)
 	{
-		snprintf(errmsg, BUFSIZ, "Usage: %s pathname oflag\n", argv[0]);
+		snprintf(errmsg, BUFSIZ, "Usage: pathname oflag\n");
 		for(int i=0; i<argc; i++)
 			sprintf(errmsg+strlen(errmsg), "%d: %s\n", i, argv[i]);
 		return -1;

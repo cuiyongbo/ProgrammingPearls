@@ -10,7 +10,8 @@ int csopen(char* name, int oflag)
 	static int csfd = -1;
 	if(csfd < 0)
 	{
-		if((csfd=cli_conn(CS_OPEN) < 0))
+		csfd=cli_conn(CS_OPEN);
+		if(csfd < 0)
 		{
 			err_msg("cli_conn error");
 			return -1;
