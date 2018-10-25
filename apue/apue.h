@@ -3,12 +3,15 @@
 #include <stddef.h>
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
 #include <time.h>
+#include <limits.h>
 #include <unistd.h>
 #include <signal.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 
 #include <pthread.h>
 
