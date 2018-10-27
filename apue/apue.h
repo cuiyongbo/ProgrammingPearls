@@ -82,3 +82,8 @@ void WAIT_CHILD(void);
 int set_cloexec(int fd);	/* fig 13.9*/
 void daemonize(const char* cmd); /* fig 13.1 */
 
+typedef void* (thread_func_t)(void*);
+
+int makeThread(thread_func_t func, void*);
+
+
