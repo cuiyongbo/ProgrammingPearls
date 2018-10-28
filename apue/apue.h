@@ -58,6 +58,10 @@
     fprintf(stderr, ": %s\n", strerror(err));   \
     exit(1); }
 
+#define err_cont(err, ...) {    \
+    fprintf(stderr, __VA_ARGS__);   \
+    fprintf(stderr, ": %s\n", strerror(err));   \
+    }
 
 typedef ssize_t (*UnixDomainSocketUserFunc) (int, const void*, size_t);
 int send_fd(int fd, int fd_to_send); /* fig 17.13 */
