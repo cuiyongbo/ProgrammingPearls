@@ -7,25 +7,6 @@
 #define MAXN	10000000
 #define Larger_Value(a, b)	((a)>(b)?(a):(b))
 
-int test_1()
-{
-	int arr[] = {1,2,3,4};
-	
-	int* cumArr = (int*)malloc(sizeof(arr));
-	memset(cumArr, 0, sizeof(arr));
-
-	cumArr[0] = arr[0];
-	for(int i=1; i<element_of(arr); ++i)
-		cumArr[i] = cumArr[i-1] + arr[i]; 
-
-	for(int i=0; i<element_of(arr); ++i)
-		printf("%d arr:%d, cumArr:%d\n", i, arr[i], cumArr[i]);
-	
-	free(cumArr);
-
-	return 0;
-}
-
 int n;
 float x[MAXN];
 
@@ -140,8 +121,6 @@ void sprinkle()
 
 int main()
 {
-	//test_1();
-
 	int algnum;
 	int start, clicks;
 	float thisans;
@@ -166,6 +145,8 @@ int main()
 				clicks, clicks/(float)CLOCKS_PER_SEC);
 		if(alg4() != thisans)
 			printf("maxsum error: mismatch with alg4: %f\n", alg4());
+		if(alg1() != alg2b())
+			printf("maxsum error: mismatch with alg2b: %f\n", alg2b());
 	}
 
 	return 0;
