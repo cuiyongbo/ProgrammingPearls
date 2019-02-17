@@ -1,31 +1,18 @@
 #include "apue.h"
+#include <arpa/inet.h>
 
-#define WHITESPACE " "
-#define MAXARGC 50
-
-int buf_args(char* buf)
-{
-	if(strtok(buf, WHITESPACE) == NULL)
-		return -1;
-
-	char* argv[MAXARGC];
-	char* ptr;
-	int argc = 0;
-	argv[argc] = buf;
-	while((ptr = strtok(NULL, WHITESPACE)) != NULL)
-	{
-		if(++argc >= MAXARGC-1)
-			return -1;
-		argv[argc] = ptr;
-	}
-	argv[++argc] = (char*)NULL;
-	return 0;
-}
 
 int main()
 {
-	char str[] = "open sample 4";
-	buf_args(str);
+	uint32_t a = 0x04030201;
+	uint8_t* bytes = (uint8_t*)&a;
+	printf("host byteorder: %u, %u, %u, %u\n", 
+			bytes[0], bytes[1], bytes[2], bytes[3]);
+	
+	uint32_t b = htonl(a);
+	bytes = (uint8_t*)&b;
+	printf("network byteorder: %u, %u, %u, %u\n", 
+			bytes[0], bytes[1], bytes[2], bytes[3]);
+		
 	return 0;
 }
-

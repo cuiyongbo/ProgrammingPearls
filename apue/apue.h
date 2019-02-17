@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
@@ -22,46 +23,45 @@
 #define max(a, b) ((a)>(b)?(a):(b))
 #define min(a, b) ((a)<(b)?(a):(b))
 
-#define err_sys(...) {	\
+#define err_sys(...) do {	\
 	fprintf(stderr, "%s(%d): ", __FILE__, __LINE__); \
 	fprintf(stderr, __VA_ARGS__);\
 	fprintf(stderr, ": %s\n", strerror(errno)); \
-	exit(EXIT_FAILURE); }
+	exit(EXIT_FAILURE); } while(0)
 
-#define err_quit(...) {	\
+#define err_quit(...) do {	\
 	fprintf(stderr, "%s(%d): ", __FILE__, __LINE__); \
 	fprintf(stderr, __VA_ARGS__);\
 	fprintf(stderr, "\n");\
-	exit(EXIT_FAILURE); }
+	exit(EXIT_FAILURE); } while(0)
 
-#define err_msg(...) {	\
+#define err_msg(...) do {	\
 	fprintf(stderr, "%s(%d): ", __FILE__, __LINE__); \
 	fprintf(stderr, __VA_ARGS__);\
 	fprintf(stderr, ": %s\n", strerror(errno)); \
-	}
+	} while(0)
 
-#define err_ret(...) {	\
+#define err_ret(...) do {	\
 	fprintf(stderr, "%s(%d): ", __FILE__, __LINE__); \
 	fprintf(stderr, __VA_ARGS__);\
 	fprintf(stderr, "\n");\
-	}
+	} while(0)
 
-#define err_dump(...) {	\
+#define err_dump(...) do {	\
 	fprintf(stderr, "%s(%d): ", __FILE__, __LINE__); \
 	fprintf(stderr, __VA_ARGS__);\
 	fprintf(stderr, ": %s\n", strerror(errno)); \
-	abort();		\
-	exit(EXIT_FAILURE); }
+	abort(); } while(0)
 
-#define err_exit(err, ...) {    \
+#define err_exit(err, ...) do {    \
     fprintf(stderr, __VA_ARGS__);   \
     fprintf(stderr, ": %s\n", strerror(err));   \
-    exit(1); }
+    exit(EXIT_FAILURE); } while(0)
 
-#define err_cont(err, ...) {    \
+#define err_cont(err, ...) do {    \
     fprintf(stderr, __VA_ARGS__);   \
     fprintf(stderr, ": %s\n", strerror(err));   \
-    }
+    } while(0)
 
 typedef ssize_t (*UnixDomainSocketUserFunc) (int, const void*, size_t);
 int send_fd(int fd, int fd_to_send); /* fig 17.13 */
