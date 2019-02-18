@@ -103,7 +103,7 @@ namespace s4
 		type m_coordinates[dimension];
 	};
 
-	template <class type, int dimension>
+	template <class type, int dimension> inline
 	ostream& operator<< (ostream& os, const Point<type, dimension>& pt)
 	{
 		os << "(";
