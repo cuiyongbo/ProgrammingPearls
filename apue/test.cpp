@@ -1,28 +1,44 @@
 #include <iostream>
-#include <memory>
+#include <algorithm>
+#include <functional>
+#include <iterator>
+#include <vector>
 
-using namespace std;
-
-struct Point3d
+template<class T>
+void printVector(std::vector<T>& v)
 {
-	int x, y, z;
-};
+    std::copy(v.begin(), v.end(), std::ostream_iterator<T>(std::cout, " "));
+    std::cout << '\n';
+}
 
-ostream& operator<<(ostream& out, const Point3d& p)
+template<class ForwardIt>
+void heapsort(ForwardIt first, ForwardIt last)
 {
-	out << '(' << p.x << ',' << p.y << ',' << p.z << ')';
-	return out;
+	size_t count = std::distance(first, last);
+	if(count < 2)
+		return;
+
+	ForwardIt p = std::next(first, count/2);
+	//auto mid1 = std::partition(first, last, [p](const typename ForwardIt::value_type& elem) {return elem < *p;});
+	//auto mid2 = std::partition(mid1, last, [p](const typename ForwardIt::value_type& elem) {return elem == *p;});
+	auto mid1 = std::partition(first, last, std::bind2nd(std::less<typename ForwardIt::value_type>(), *p));
+	auto mid2 = std::partition(mid1, last, std::bind1st(std::equal_to<typename ForwardIt::value_type>(), *p));
+	
+	heapsort(first, mid1);
+	heapsort(mid2, last);
 }
 
 int main()
 {
+	std::vector<int> vi {1,3,5,2,6,4,8,7,9,4};
+	std::cout << "Originally: ";
+	printVector(vi);
 
-	Point3d* p = new Point3d;
-	auto_ptr<Point3d> ap(p);
-	ap->x = 1;
-	ap->y = 2;
-	ap->z = 3;
-	cout << *ap << '\n';
+	heapsort(vi.begin(), vi.end());
+
+	std::cout << "heapsort: ";
+	printVector(vi);
+
 	return 0;
 }
 
