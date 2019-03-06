@@ -12,7 +12,7 @@ void printVector(std::vector<T>& v)
 }
 
 template<class ForwardIt>
-void heapsort(ForwardIt first, ForwardIt last)
+void quicksort(ForwardIt first, ForwardIt last)
 {
 	size_t count = std::distance(first, last);
 	if(count < 2)
@@ -24,8 +24,8 @@ void heapsort(ForwardIt first, ForwardIt last)
 	auto mid1 = std::partition(first, last, std::bind2nd(std::less<typename ForwardIt::value_type>(), *p));
 	auto mid2 = std::partition(mid1, last, std::bind1st(std::equal_to<typename ForwardIt::value_type>(), *p));
 	
-	heapsort(first, mid1);
-	heapsort(mid2, last);
+	quicksort(first, mid1);
+	quicksort(mid2, last);
 }
 
 int main()
@@ -34,9 +34,9 @@ int main()
 	std::cout << "Originally: ";
 	printVector(vi);
 
-	heapsort(vi.begin(), vi.end());
+	quicksort(vi.begin(), vi.end());
 
-	std::cout << "heapsort: ";
+	std::cout << "quicksort: ";
 	printVector(vi);
 
 	return 0;
