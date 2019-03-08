@@ -16,3 +16,12 @@
 /Programming.Pearls.pdf
 /Pro Git.pdf
 scaffold/
+path_finding_alg/_build/
+*.opensdf
+*.sdf
+*.sln
+*.suo
+*.user
+*.filters
+*.vcxproj
+
