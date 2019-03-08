@@ -1,13 +1,14 @@
 #pragma once
 
 #include <iostream>
+#include <tuple>
 #include <vector>
 #include <unordered_map>
 
 // an adjacency list notation
 struct SimpleGraph
 {
-	std::unordered_map<char, std::vector<char>> edges;
+	std::unordered_map<char, std::vector<char> > edges;
 	std::vector<char>& neighbors(char id) { return edges[id]; }
 };
 

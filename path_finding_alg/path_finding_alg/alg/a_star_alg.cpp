@@ -1,4 +1,4 @@
-#include "a_star.h"
+#include "a_star_alg.h"
 #include <iostream>
 #include <queue>
 #include <unordered_set>
