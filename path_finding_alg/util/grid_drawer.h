@@ -6,6 +6,23 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <iterator>
+
+template<typename Location>
+std::vector<Location> reconstructPath(Location start, Location goal,
+    std::unordered_map<Location, Location>& cameFrom)
+{
+    std::vector<Location> path;
+    Location current = goal;
+    while(current != start)
+    {
+        path.push_back(current);
+        current = cameFrom[current];
+    }
+    path.push_back(start);
+    std::reverse(path.begin(),path.end());
+    return path;
+}
 
 // This outputs a grid. Pass in a `distances` map if you want to print
 // the distances, or pass in a `point_to` map if you want to print
@@ -42,7 +59,18 @@ void draw_grid(const Graph& graph, int field_width,
 			}
 			else if (path != nullptr && std::find(path->begin(), path->end(), id) != path->end())
 			{
-				std::cout << '@';
+				if(id == *(path->begin()))
+				{
+					std::cout << 'S';
+				}
+				else if(id == *(path->rbegin()))
+				{
+					std::cout << 'E';
+				}
+				else
+				{
+					std::cout << '@';
+				}
 			}
 			else
 			{

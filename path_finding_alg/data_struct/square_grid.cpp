@@ -1,5 +1,14 @@
 #include "square_grid.h"
 
+
+#if defined(__GUN__)
+#pragma GCC diagnostic ignored "-Wmissing-braces"
+#elif defined(__clang__)
+#pragma clang diagnostic ignored "-Wmissing-braces"
+#else
+// do nothing
+#endif
+
 std::array<GridLocation, 4> SquareGrid::m_dirs =
 {
 	GridLocation{ 1, 0 },
