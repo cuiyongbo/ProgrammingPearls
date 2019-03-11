@@ -10,8 +10,6 @@ void terminationHandler(int signo)
 	g_goToExit = 1;
 }
 
-
-
 int main(int argc, char* argv[])
 {
 	if(argc != 2)
@@ -19,6 +17,7 @@ int main(int argc, char* argv[])
 
 	struct sigaction act;
 	sigemptyset(&act.sa_mask);
+	act.sa_flags = 0;
 	act.sa_handler = terminationHandler;
 	if(sigaction(SIGTERM, &act, NULL) < 0)
 		err_sys("sigaction(SIGTERM) error");
