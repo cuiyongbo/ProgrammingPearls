@@ -1,16 +1,31 @@
-#include "apue.h"
-#include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-int main()
-{
-	FILE* fp = fopen("sample", "wb");
-	if(fp == NULL)
-		err_sys("fopen error");
+int f1(int val);
 
-	printf("fileno: %d\n", STDOUT_FILENO);
-	printf("fileno: %d\n", STDERR_FILENO);
-	//fprintf(fp, "Hello world\n");
-	fwrite("Hello world", 1,  strlen("Hello world"), fp);
-	fclose(fp);	
-	return 0;
+int main(int argc, char *argv[]) {
+    printf("val = 2: %d <- should equal 1\n", f1(2));
+    printf("val = 0: %d <- should equal 6\n", f1(0));
+    return 0;
+}
+
+int f1(int val) {
+    int num = 0;
+    int *ptr = &num;
+    
+    if (val == 0) {
+        int val;
+        val = 5;
+        ptr = &val;
+    }
+    int i = 0;
+    char *waste;
+    while (i < 200) {
+        waste = calloc(100, 1000);
+        waste[80] = 1;
+        usleep(50000);
+        i++;
+    }
+    return (*ptr + 1);
 }
