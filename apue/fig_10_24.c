@@ -14,10 +14,12 @@ void TELL_WAIT(void)
         err_sys("signal(SIGUSR1) error");
     if (signal(SIGUSR2, sig_usr) == SIG_ERR)
         err_sys("signal(SIGUSR2) error");
+    
     sigemptyset(&zeromask);
     sigemptyset(&newmask);
     sigaddset(&newmask, SIGUSR1);
     sigaddset(&newmask, SIGUSR2);
+
     /* Block SIGUSR1 and SIGUSR2, and save current signal mask */
     if (sigprocmask(SIG_BLOCK, &newmask, &oldmask) < 0)
 		err_sys("SIG_BLOCK error");
@@ -37,7 +39,9 @@ void WAIT_PARENT(void)
 {
 	while (sigflag == 0)
 	    sigsuspend(&zeromask);  /* and wait for parent */
+
 	sigflag = 0;
+
 	/* Reset signal mask to original value */
 	if (sigprocmask(SIG_SETMASK, &oldmask, NULL) < 0)
 		err_sys("SIG_SETMASK error");
@@ -47,7 +51,9 @@ void WAIT_CHILD(void)
 {
 	while (sigflag == 0)
 	    sigsuspend(&zeromask);  /* and wait for parent */
+
 	sigflag = 0;
+
 	/* Reset signal mask to original value */
 	if (sigprocmask(SIG_SETMASK, &oldmask, NULL) < 0)
 		err_sys("SIG_SETMASK error");

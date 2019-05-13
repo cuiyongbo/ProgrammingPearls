@@ -1,3 +1,5 @@
+#include "apue.h"
+
 void pr_mask(const char *str)
 {
 	int errno_save = errno; /* we can be called by signal handlers */

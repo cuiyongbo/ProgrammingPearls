@@ -78,7 +78,7 @@ int main()
 	}
 	else
 	{
-		WAIT_CHILD(pid);
+		WAIT_CHILD();
 		charatatime("output from parent\n");
 		//TELL_CHILD(pid);
 	}

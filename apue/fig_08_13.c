@@ -3,9 +3,8 @@
 static void charatatime(char* str)
 {
 	setvbuf(stdout, NULL, _IONBF, 0);
-	int c;
-	for(char* ptr=str; (c=*ptr) != 0; ptr++)
-		putc(c, stdout);
+	for(char* ptr=str; *ptr != 0; ptr++)
+		putc(*ptr, stdout);
 }
 
 int main()
@@ -29,4 +28,3 @@ int main()
 	}
 	exit(0);
 }
-

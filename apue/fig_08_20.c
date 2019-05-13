@@ -1,14 +1,20 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/wait.h>
+#include "apue.h"
 
-void err_sys(const char* msg)
+/*
+natsume@ubuntu:apue $ cat ~/test_interpreter 
+#!/mnt/hgfs/scaffold/ProgrammingPearls/apue/hello ttt
+
+natsume@ubuntu:apue $ cat test.c
+#include <stdio.h>
+
+int main(int argc, char *argv[])
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    for(int i=0; i<argc; i++)
+        printf("%s ", argv[i]);
+    printf("\n");
+    return 0;
 }
+*/
 
 int main()
 {
@@ -19,8 +25,8 @@ int main()
 	}
 	else if(pid == 0)
 	{
-		if(execlp("testinterp", "testinterp", "arg1", (char*)0) < 0)
-		//if(execl("./awkTest", "awkTest", "arg1", (char*)0) < 0)
+		if(execlp("test_interpreter", "testinterp", "arg1", (char*)0) < 0)
+		// if(execl("/home/natsume/test_interpreter", "test_interpreter", "arg1", (char*)0) < 0)
 			err_sys("execl");
 	}
 
