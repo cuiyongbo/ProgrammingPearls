@@ -91,5 +91,5 @@ typedef void* (thread_func_t)(void*);
 
 int makeThread(thread_func_t func, void*);
 
-void pre_exit(int status); /* fig 8.5 */
+void pr_exit(int status); /* fig 8.5 */
 void pr_mask(const char *str);
