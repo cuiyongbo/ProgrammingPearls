@@ -13,13 +13,12 @@ int main()
 {
 	if(signal(SIGALRM, sig_alarm) == SIG_ERR)
 	{
-		perror("signal(SIGALRM) failed");
-		exit(EXIT_FAILURE);
+		err_sys("signal(SIGALRM) failed");
 	}
 
 	if(setjmp(env_alarm) != 0)
 	{
-		perror("read timeout");
+		fprintf(stderr, "read timeout\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -28,8 +27,7 @@ int main()
 	int n = read(STDIN_FILENO, line, MAXLINE);
 	if(n < 0)
 	{
-		perror("read");
-		exit(EXIT_FAILURE);
+		err_sys("read error");
 	}
 	alarm(0);
 	write(STDOUT_FILENO, line, n);

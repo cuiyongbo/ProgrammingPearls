@@ -2,7 +2,7 @@
 
 void pr_mask(const char* str)
 {
-	int errno_save = errno;
+	int errno_save = errno; 
 	
 	sigset_t sigset;
 	if(sigprocmask(0, NULL, &sigset) < 0)
