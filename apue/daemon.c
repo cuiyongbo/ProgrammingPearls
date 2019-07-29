@@ -20,11 +20,20 @@ static void go_daemonize()
     }
 
     /* Success: Let the parent terminate */
+    // so the orphaned child starts worked in background
     if (pid > 0) {
         exit(EXIT_SUCCESS);
     }
 
     /* On success: The child process becomes session leader */
+    /*
+        A process receives signals from the terminal that it is connected to, 
+        and each process inherits its parent's controlling tty. A server should not 
+        receive signals from the process that started it, so it must detach itself from its controlling tty.
+
+        start a new process group and session, so detaching the orphaned process
+        from its controlling tty
+    */
     if (setsid() < 0) {
         err_sys("setsid error");
     }
@@ -32,7 +41,10 @@ static void go_daemonize()
     signal(SIGCHLD, SIG_IGN);
     signal(SIGHUP, SIG_IGN);
 
+    // https://stackoverflow.com/questions/17954432/creating-a-daemon-in-linux
+    // https://stackoverflow.com/questions/881388/what-is-the-reason-for-performing-a-double-fork-when-creating-a-daemon
     /* Fork off for the second time*/
+    // ensure the double-forked process won't get a controlling tty
     pid = fork();
     if (pid < 0) {
         err_sys("fork error");

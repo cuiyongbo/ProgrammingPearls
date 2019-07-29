@@ -1,8 +1,4 @@
 #include "apue.h"
-#include <signal.h>
-#include <syslog.h>
-#include <sys/stat.h>
-#include <sys/resource.h>
 
 void daemonize(const char* cmd)
 {
@@ -45,9 +41,9 @@ void daemonize(const char* cmd)
 	else if(pid != 0)
 		exit(0);
 
-	if(chdir("/") < 0)
+	if(chdir("/home/natsume") < 0)
 	{
-		printf("%s: can't change directory to /", cmd);
+		printf("%s: can't change directory to /home/natsume", cmd);
 		return;
 	}
 

@@ -1,11 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "apue.h"
 
 int main(int argc, char *argv[])
 {
-    for(int i=0; i<argc; i++)
-        printf("%s ", argv[i]);
-    printf("\n");
+	daemonize("MyDaemon");
+
+	printf("Daemon [%d] started\n", (int)getpid());
+
+	while(1)
+	{
+		sleep(5);
+	}
     return 0;
 }
