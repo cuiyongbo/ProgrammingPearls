@@ -41,9 +41,10 @@ void daemonize(const char* cmd)
 	else if(pid != 0)
 		exit(0);
 
-	if(chdir("/home/natsume") < 0)
+	char* homeDir = getenv("HOME");
+	if(chdir(homeDir) < 0)
 	{
-		printf("%s: can't change directory to /home/natsume", cmd);
+		printf("%s: can't change directory to %s", cmd, homeDir);
 		return;
 	}
 

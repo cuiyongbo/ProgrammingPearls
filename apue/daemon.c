@@ -60,7 +60,8 @@ static void go_daemonize()
 
     /* Change the working directory to the root directory */
     /* or another appropriated directory */
-    if(chdir("/home/natsume") < 0)
+	char* homeDir = getenv("HOME");
+    if(chdir(homeDir) < 0)
     {
         err_sys("chdir error");
     }

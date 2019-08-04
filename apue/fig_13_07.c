@@ -54,6 +54,8 @@ int main(int argc, char* argv[])
 
     daemonize(cmd);
 
+	syslog(LOG_WARNING, "Daemon started by cyb");
+
     if(already_running())
     {
         syslog(LOG_ERR, "daemon already running");
@@ -80,7 +82,7 @@ int main(int argc, char* argv[])
     err = pthread_create(&tid, NULL, threadFunc, 0);
     if(err != 0)
     {
-        log_message(te"pthread_create error");
+        log_message("pthread_create error");
     }
 
     while(1)
