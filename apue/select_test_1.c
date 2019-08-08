@@ -17,14 +17,19 @@
      tv.tv_usec = 0;
 
      int retval = select(1, &rfds, NULL, NULL, &tv);
-     /* Don't rely on the value of tv now! */
-
      if (retval == -1)
          perror("select()");
      else if (retval) {
          printf("Data is available now.\n");
          int isReady = FD_ISSET(0, &rfds);
          printf("stdin is %s\n", isReady ? "ready" : "not ready");
+		int bytesRead;
+		char buf[256];
+		while((bytesRead=read(0, buf, sizeof(buf))) >0)
+		{
+			buf[bytesRead] = 0;
+			printf("%s", buf);
+		}
      }
      else
          printf("No data within five seconds.\n");
