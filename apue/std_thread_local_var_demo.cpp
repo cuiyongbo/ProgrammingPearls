@@ -7,7 +7,7 @@ void threadFunc(int i)
 {
 	tt = i;
 	tt++;
-	std::cout << tt << "\n";
+	std::cout << "thread: " << std::this_thread::get_id() << ", tt: " <<  tt << "\n";
 }
 
 int main()
@@ -19,5 +19,5 @@ int main()
 	t1.join();
 	t2.join();
 	
-	std::cout << tt << "\n";
+	std::cout << "thread: " << std::this_thread::get_id() << ", tt: " <<  tt << "\n";
 }
