@@ -11,8 +11,8 @@ int main(int argc, char** argv)
     struct sockaddr_in servAddr;
     bzero(&servAddr, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
-    //servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    //servAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     servAddr.sin_port = htons(SERVER_PORT);
     if(bind(listenFd, (SA*)&servAddr, sizeof(servAddr)) < 0)
     {
