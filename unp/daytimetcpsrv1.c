@@ -2,8 +2,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#define LISTEN_QUEUE_LEN 128
-
 int main(int argc, char** argv)
 {
 	int listenFd = socket(AF_INET, SOCK_STREAM, 0);
