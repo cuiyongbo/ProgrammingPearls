@@ -7,7 +7,10 @@ void str_echo(int sockFd)
 
 again:
     while((n=read(sockFd, buf, sizeof(buf))) > 0)
+    {
+        buf[n] = 0;
         write(sockFd, buf, n);
+    }
 
     if(n<0 && errno == EINTR)
         goto again;

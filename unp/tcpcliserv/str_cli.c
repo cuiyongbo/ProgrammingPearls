@@ -6,10 +6,8 @@ void str_cli(FILE* fp, int sockFd)
     while(fgets(sendBuf, sizeof(sendBuf), fp) != NULL)
     {
         write(sockFd, sendBuf, strlen(sendBuf));
-		//memset(sendBuf, 0, sizeof(sendBuf));
 
         ssize_t n = read(sockFd, recvBuf, sizeof(recvBuf));
-
         if(n < 0)
         {
             err_sys("read error");
@@ -20,6 +18,7 @@ void str_cli(FILE* fp, int sockFd)
         }
         else
         {
+            recvBuf[n] = 0;
             fputs(recvBuf, stdout);
         }
     }
