@@ -31,3 +31,12 @@ void Connect(int fd, const struct sockaddr *sa, socklen_t salen)
     if (connect(fd, sa, salen) < 0)
         err_sys("connect error");
 }
+
+int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+       struct timeval *timeout)
+{
+    int n = select(nfds, readfds, writefds, exceptfds, timeout);
+    if(n < 0)
+        err_sys("select error");
+    return n;
+}

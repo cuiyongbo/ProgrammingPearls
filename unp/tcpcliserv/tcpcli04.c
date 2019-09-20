@@ -25,14 +25,14 @@ int main(int argc, char** argv)
             err_sys("inet_pton error for %s", argv[1]);
         }
 
-        if(connect(sockFd, (SA*)&servAddr, sizeof(servAddr)) < 0)
+        if(connect(sockFds[i], (SA*)&servAddr, sizeof(servAddr)) < 0)
         {
             err_sys("connect error");
         }
 
     }
 
-    str_cli(stdin, sockFd);
+    str_cli(stdin, sockFds[0]);
 
     return 0;
 }

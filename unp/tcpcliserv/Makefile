@@ -4,7 +4,7 @@ CPPFLAGS += -I..
 CFLAGS += -g -Wall -Wpedantic
 
 COMM = ../lib
-CLIENTS = tcpcli01 tcpcli04
+CLIENTS = tcpcli01 tcpcli11 tcpcli04
 SERVERS = tcpserv01 tcpserv02 tcpserv03 tcpserv04
 BINS = $(CLIENTS) $(SERVERS)
 
@@ -14,22 +14,25 @@ client: $(CLIENTS)
 
 server: $(SERVERS)
 
-tcpcli01: tcpcli01.c str_cli.c
+tcpcli01: tcpcli01.c $(COMM)/str_cli.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
-tcpcli04: tcpcli04.c str_cli.c
+tcpcli11: tcpcli11.c str_cli11.c $(COMM)/sock_wrapper.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
-tcpserv01: tcpserv01.c str_echo.c
+tcpcli04: tcpcli04.c $(COMM)/str_cli.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
-tcpserv02: tcpserv02.c str_echo.c $(COMM)/signal.c $(COMM)/sig_child_waitpid.c
+tcpserv01: tcpserv01.c $(COMM)/str_echo.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
-tcpserv03: tcpserv03.c str_echo.c $(COMM)/signal.c
+tcpserv02: tcpserv02.c $(COMM)/str_echo.c $(COMM)/signal.c $(COMM)/sig_child_waitpid.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
-tcpserv04: tcpserv04.c str_echo.c $(COMM)/signal.c $(COMM)/sig_child_waitpid.c
+tcpserv03: tcpserv03.c $(COMM)/str_echo.c $(COMM)/signal.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
+
+tcpserv04: tcpserv04.c $(COMM)/str_echo.c $(COMM)/signal.c $(COMM)/sig_child_waitpid.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 clean:

@@ -24,3 +24,5 @@ void Listen(int fd, int backlog);
 void Connect(int fd, const struct sockaddr *sa, socklen_t salen);
 void Setsockopt(int fd, int level, int optname, const void *optval, socklen_t optlen);
 
+int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+       struct timeval *timeout);
