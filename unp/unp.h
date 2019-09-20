@@ -16,3 +16,11 @@ void sig_child(int signo);
 void str_echo(int sockFd);
 void str_cli(FILE* fp, int sockFd);
 
+// socket api wrappers in sock_wrapper.c
+
+int Socket(int family, int type, int protocol);
+void Bind(int fd, const struct sockaddr *sa, socklen_t salen);
+void Listen(int fd, int backlog);
+void Connect(int fd, const struct sockaddr *sa, socklen_t salen);
+void Setsockopt(int fd, int level, int optname, const void *optval, socklen_t optlen);
+

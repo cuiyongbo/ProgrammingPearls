@@ -25,6 +25,7 @@
 
 #define max(a, b) ((a)>(b)?(a):(b))
 #define min(a, b) ((a)<(b)?(a):(b))
+#define element_of(arr) (sizeof(arr)/sizeof(arr[0]))
 
 #define err_sys(...) do {	\
 	fprintf(stderr, "%s(%d): ", __FILE__, __LINE__); \
