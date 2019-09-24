@@ -9,7 +9,7 @@
 typedef struct sockaddr SA;
 
 typedef void (*sig_func_t)(int);
-sig_func_t signal_local(int signo, sig_func_t func);
+sig_func_t Signal(int signo, sig_func_t func);
 
 void sig_child(int signo);
 
@@ -26,3 +26,6 @@ void Setsockopt(int fd, int level, int optname, const void *optval, socklen_t op
 
 int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
        struct timeval *timeout);
+
+void Write(int fd, const void* ptr, size_t nbytes);
+ssize_t Readline(int fd, void* ptr, size_t maxlen);

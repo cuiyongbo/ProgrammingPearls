@@ -30,7 +30,7 @@ int main(int argc, char** argv)
         err_sys("listen error");
     }
 
-    if(signal_local(SIGCHLD, insufficient_sig_child_handler) == SIG_ERR)
+    if(Signal(SIGCHLD, insufficient_sig_child_handler) == SIG_ERR)
     {
         err_sys("signal error");
     }

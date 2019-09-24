@@ -23,9 +23,9 @@ int main(int argc, char** argv)
         err_sys("listen error");
     }
 
-    if(signal_local(SIGCHLD, sig_child) == SIG_ERR)
+    if(Signal(SIGCHLD, sig_child) == SIG_ERR)
     {
-        err_sys("signal error");
+        err_sys("Signal error");
     }
 
     socklen_t cliLen;

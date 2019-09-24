@@ -1,6 +1,6 @@
 #include "unp.h"
 
-sig_func_t signal_local(int signo, sig_func_t func)
+sig_func_t Signal(int signo, sig_func_t func)
 {
     struct sigaction act, oact;
     act.sa_handler = func;
