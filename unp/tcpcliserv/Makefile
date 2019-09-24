@@ -7,8 +7,8 @@ COMM = ../lib
 BACKBONE = $(COMM)/sock_wrapper.c $(COMM)/read_line.c $(COMM)/write_wrapper.c \
 				$(COMM)/signal.c $(COMM)/sig_child_waitpid.c
 
-CLIENTS = tcpcli01 tcpcli11 tcpcli04
-SERVERS = tcpserv01 tcpserv02 tcpserv03 tcpserv04 tcpserv41
+CLIENTS = tcpcli01 tcpcli11 tcpcli04 tcpcli09
+SERVERS = tcpserv01 tcpserv02 tcpserv03 tcpserv04 tcpserv08 tcpserv09
 BINS = $(CLIENTS) $(SERVERS)
 
 all: $(BINS)
@@ -26,6 +26,9 @@ tcpcli11: tcpcli11.c str_cli11.c $(BACKBONE)
 tcpcli04: tcpcli04.c $(COMM)/str_cli.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
+tcpcli09: tcpcli04.c str_cli09.c $(BACKBONE)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
+
 tcpserv01: tcpserv01.c $(COMM)/str_echo.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
@@ -38,7 +41,10 @@ tcpserv03: tcpserv03.c $(COMM)/str_echo.c $(COMM)/signal.c
 tcpserv04: tcpserv04.c $(COMM)/str_echo.c $(COMM)/signal.c $(COMM)/sig_child_waitpid.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
-tcpserv41: tcpserv04.c str_echo08.c $(BACKBONE)
+tcpserv08: tcpserv04.c str_echo08.c $(BACKBONE)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
+
+tcpserv09: tcpserv04.c str_echo09.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 clean:
