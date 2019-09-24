@@ -38,9 +38,6 @@ tcpserv03: tcpserv03.c $(COMM)/str_echo.c $(COMM)/signal.c
 tcpserv04: tcpserv04.c $(COMM)/str_echo.c $(COMM)/signal.c $(COMM)/sig_child_waitpid.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
-tcpserv04: tcpserv04.c $(COMM)/str_echo.c $(COMM)/signal.c $(COMM)/sig_child_waitpid.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
-
 tcpserv41: tcpserv04.c str_echo08.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
