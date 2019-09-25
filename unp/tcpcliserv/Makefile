@@ -5,9 +5,9 @@ CFLAGS += -g -Wall -Wpedantic
 
 COMM = ../lib
 BACKBONE = $(COMM)/sock_wrapper.c $(COMM)/read_line.c $(COMM)/write_wrapper.c \
-				$(COMM)/signal.c $(COMM)/sig_child_waitpid.c
+				$(COMM)/signal.c $(COMM)/sig_child_waitpid.c $(COMM)/unix_api_wrapper.c
 
-CLIENTS = tcpcli01 tcpcli11 tcpcli04 tcpcli09
+CLIENTS = tcpcli01 tcpcli11 tcpcli04 tcpcli09 tsigpipe
 SERVERS = tcpserv01 tcpserv02 tcpserv03 tcpserv04 tcpserv08 tcpserv09
 BINS = $(CLIENTS) $(SERVERS)
 
@@ -27,6 +27,9 @@ tcpcli04: tcpcli04.c $(COMM)/str_cli.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 tcpcli09: tcpcli04.c str_cli09.c $(BACKBONE)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
+
+tsigpipe: tsigpipe.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 tcpserv01: tcpserv01.c $(COMM)/str_echo.c

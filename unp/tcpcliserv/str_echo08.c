@@ -14,6 +14,6 @@ void str_echo(int sockFd)
         else
             snprintf(line, sizeof(line), "input error\n");
 
-        Write(sockFd, line, strlen(line));
+        Writen(sockFd, line, strlen(line));
     }
 }

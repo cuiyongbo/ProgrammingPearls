@@ -1,6 +1,6 @@
 #include "unp.h"
 
-sig_func_t Signal(int signo, sig_func_t func)
+sig_func_t signal_local(int signo, sig_func_t func)
 {
     struct sigaction act, oact;
     act.sa_handler = func;
@@ -25,3 +25,12 @@ sig_func_t Signal(int signo, sig_func_t func)
     else
         return oact.sa_handler;
 }
+
+sig_func_t Signal(int signo, sig_func_t func)
+{
+    sig_func_t f = signal_local(signo, func);
+    if(f == SIG_ERR)
+        err_sys("Signal error");
+    return f;
+}
+

@@ -5,10 +5,10 @@ CFLAGS += -g -Wall -Wpedantic
 
 COMM = ../lib
 BACKBONE = $(COMM)/sock_wrapper.c $(COMM)/read_line.c $(COMM)/write_wrapper.c \
-				$(COMM)/signal.c $(COMM)/sig_child_waitpid.c $(COMM)/unix_api_wrapper.c
+				$(COMM)/signal.c $(COMM)/sig_child_waitpid.c
 
-CLIENTS = tcpcli01 tcpcli02
-SERVERS =
+CLIENTS = daytimetcpcli
+SERVERS = daytimetcpsrv1
 BINS = $(CLIENTS) $(SERVERS)
 
 all: $(BINS)
@@ -17,10 +17,10 @@ client: $(CLIENTS)
 
 server: $(SERVERS)
 
-tcpcli01: tcpcli01.c strcli_select_01.c $(BACKBONE)
+daytimetcpcli: daytimetcpcli.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
-tcpcli02: tcpcli01.c strcli_select_02.c $(BACKBONE)
+daytimetcpsrv1: daytimetcpsrv1.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 clean:

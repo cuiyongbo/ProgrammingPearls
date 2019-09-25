@@ -28,6 +28,7 @@ int main(int argc, char** argv)
         err_sys("Signal error");
     }
 
+    char buff[MAXLINE];
     socklen_t cliLen;
     struct sockaddr_in cliAddr;
     while(1)
@@ -41,6 +42,10 @@ int main(int argc, char** argv)
             else
                 err_sys("accept error");
         }
+
+        printf("Connection from %s:%d\n",
+            inet_ntop(AF_INET, &cliAddr.sin_addr, buff, MAXLINE),
+            ntohs(cliAddr.sin_port));
 
         pid_t pid = fork();
         if(pid < 0)

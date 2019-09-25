@@ -14,7 +14,7 @@ void str_cli(FILE* fp, int sockfd)
             continue;
         }
 
-        Write(sockfd, &args, sizeof(args));
+        Writen(sockfd, &args, sizeof(args));
 
         if(read(sockfd, &result, sizeof(result)) == 0)
             err_quit("str_cli: server terminated prematurely");

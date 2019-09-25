@@ -28,4 +28,9 @@ int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
        struct timeval *timeout);
 
 void Write(int fd, const void* ptr, size_t nbytes);
+void Writen(int fd, const void* ptr, size_t nbytes);
+
+ssize_t Read(int fd, void *ptr, size_t nbytes);
 ssize_t Readline(int fd, void* ptr, size_t maxlen);
+
+void Shutdown(int fd, int how);

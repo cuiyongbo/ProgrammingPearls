@@ -21,7 +21,7 @@ ssize_t write_wrapper(int fd, const void* vptr, size_t n)
     return n;
 }
 
-void Write(int fd, const void* ptr, size_t nbytes)
+void Writen(int fd, const void* ptr, size_t nbytes)
 {
     if(write_wrapper(fd, ptr, nbytes) != nbytes)
         err_sys("Write error");

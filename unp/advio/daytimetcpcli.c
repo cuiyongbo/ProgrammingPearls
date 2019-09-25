@@ -30,8 +30,6 @@ int main(int argc, char** argv)
 
 	int n = 0;
 	char buff[MAXLINE];
-	struct sockaddr_in cliAddr;
-
 	while((n = read(sockFd, buff, sizeof(MAXLINE))) > 0)
 	{
 		buff[n] = 0;
