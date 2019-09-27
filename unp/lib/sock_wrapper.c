@@ -26,6 +26,25 @@ void Listen(int fd, int backlog)
         err_sys("listen error");
 }
 
+int Accept(int fd, struct sockaddr *sa, socklen_t *salenptr)
+{
+    int  n;
+
+again:
+    if ((n = accept(fd, sa, salenptr)) < 0)
+    {
+#ifdef  EPROTO
+        if (errno == EPROTO || errno == ECONNABORTED)
+#else
+        if (errno == ECONNABORTED)
+#endif
+            goto again;
+        else
+            err_sys("accept error");
+    }
+    return n;
+}
+
 void Connect(int fd, const struct sockaddr *sa, socklen_t salen)
 {
     if (connect(fd, sa, salen) < 0)

@@ -21,7 +21,9 @@ void str_cli(FILE* fp, int sockFd);
 int Socket(int family, int type, int protocol);
 void Bind(int fd, const struct sockaddr *sa, socklen_t salen);
 void Listen(int fd, int backlog);
+int Accept(int fd, struct sockaddr *sa, socklen_t *salenptr);
 void Connect(int fd, const struct sockaddr *sa, socklen_t salen);
+
 void Setsockopt(int fd, int level, int optname, const void *optval, socklen_t optlen);
 
 int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
