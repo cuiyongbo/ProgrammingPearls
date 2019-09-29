@@ -17,10 +17,15 @@ int main(int argc, char** argv)
 
     int maxi = 0;
     char buff[MAXLINE];
-    struct pollfd clients[OPEN_MAX];
+
+    long maxOpenFileCount = sysconf(_SC_OPEN_MAX);
+    if(maxOpenFileCount < 0)
+        err_sys("sysconf error");
+
+    struct pollfd* clients = (struct pollfd*)Malloc(maxOpenFileCount * sizeof(struct pollfd));
     clients[0].fd = listenFd;
     clients[0].events = POLLIN;
-    for (int i = 1; i < OPEN_MAX; ++i)
+    for (int i = 1; i < maxOpenFileCount; ++i)
     {
         clients[i].fd = -1;
     }
@@ -39,7 +44,7 @@ int main(int argc, char** argv)
                 ntohs(clientsAddr.sin_port));
 
             int isFull = 1;
-            for (int i = 1; i < OPEN_MAX; ++i)
+            for (int i = 1; i < maxOpenFileCount; ++i)
             {
                 if (clients[i].fd == -1)
                 {
@@ -96,4 +101,6 @@ int main(int argc, char** argv)
             }
         }
     }
+
+    free(clients);
 }

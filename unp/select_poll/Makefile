@@ -8,7 +8,7 @@ BACKBONE = $(COMM)/sock_wrapper.c $(COMM)/read_line.c $(COMM)/write_wrapper.c \
 				$(COMM)/signal.c $(COMM)/sig_child_waitpid.c $(COMM)/unix_api_wrapper.c \
 				$(COMM)/stdio_wrapper.c
 
-CLIENTS = tcpcli01 tcpcli02
+CLIENTS = tcpcli01 tcpcli02 tcpcli11
 SERVERS = tcpservselect01 tcpservpoll01
 BINS = $(CLIENTS) $(SERVERS)
 
@@ -22,6 +22,9 @@ tcpcli01: tcpcli01.c strcli_select_01.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 tcpcli02: tcpcli01.c strcli_select_02.c $(BACKBONE)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
+
+tcpcli11: tcpcli11.c strcli_select_02.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 tcpservselect01: tcpserv_select_01.c $(BACKBONE)

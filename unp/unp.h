@@ -8,10 +8,6 @@
 #define SERVER_PORT 9877
 #define LISTEN_QUEUE_LEN 256
 
-#if !defined(OPEN_MAX)
-#define OPEN_MAX FOPEN_MAX
-#endif
-
 typedef struct sockaddr SA;
 
 // stdio api wrappers in stdio_wrapper.c
@@ -63,3 +59,6 @@ void* Malloc(size_t size);
 ssize_t Read(int fd, void *ptr, size_t nbytes);
 void Write(int fd, const void* ptr, size_t nbytes);
 void Close(int fd);
+
+// in readable_timeo.c
+int readable_timeo(int fd, int sec);
