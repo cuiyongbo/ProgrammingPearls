@@ -71,3 +71,11 @@ void Sigprocmask(int how, const sigset_t *set, sigset_t *oset)
     if (sigprocmask(how, set, oset) == -1)
         err_sys("sigprocmask error");
 }
+
+int Fcntl(int fd, int cmd, int arg)
+{
+    int n;
+    if((n=fcntl(fd, cmd, arg)) == -1)
+        err_sys("fcntl error");
+    return n;
+}
