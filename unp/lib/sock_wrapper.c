@@ -60,6 +60,14 @@ int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
     return n;
 }
 
+int Poll(struct pollfd *fdarray, unsigned long nfds, int timeout)
+{
+    int n = poll(fdarray, nfds, timeout);
+    if(n < 0)
+        err_sys("poll error");
+    return n;
+}
+
 void Shutdown(int fd, int how)
 {
     if(shutdown(fd, how) < 0)

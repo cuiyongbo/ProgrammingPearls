@@ -5,10 +5,11 @@ CFLAGS += -g -Wall -Wpedantic
 
 COMM = ../lib
 BACKBONE = $(COMM)/sock_wrapper.c $(COMM)/read_line.c $(COMM)/write_wrapper.c \
-				$(COMM)/signal.c $(COMM)/sig_child_waitpid.c $(COMM)/unix_api_wrapper.c
+				$(COMM)/signal.c $(COMM)/sig_child_waitpid.c $(COMM)/unix_api_wrapper.c \
+				$(COMM)/stdio_wrapper.c
 
 CLIENTS = tcpcli01 tcpcli02
-SERVERS = tcpserv01
+SERVERS = tcpservselect01 tcpservpoll01
 BINS = $(CLIENTS) $(SERVERS)
 
 all: $(BINS)
@@ -23,7 +24,10 @@ tcpcli01: tcpcli01.c strcli_select_01.c $(BACKBONE)
 tcpcli02: tcpcli01.c strcli_select_02.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
-tcpserv01: tcpserv_select_01.c $(BACKBONE)
+tcpservselect01: tcpserv_select_01.c $(BACKBONE)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
+
+tcpservpoll01: tcpserv_poll_01.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 clean:

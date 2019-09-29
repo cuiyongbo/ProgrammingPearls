@@ -2,9 +2,15 @@
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/select.h>
+#include <poll.h>
 
 #define SERVER_PORT 9877
 #define LISTEN_QUEUE_LEN 256
+
+#if !defined(OPEN_MAX)
+#define OPEN_MAX FOPEN_MAX
+#endif
 
 typedef struct sockaddr SA;
 
@@ -43,6 +49,7 @@ void Connect(int fd, const struct sockaddr *sa, socklen_t salen);
 void Setsockopt(int fd, int level, int optname, const void *optval, socklen_t optlen);
 
 int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
+int Poll(struct pollfd *fdarray, unsigned long nfds, int timeout);
 
 ssize_t Readline(int fd, void* ptr, size_t maxlen);
 void Writen(int fd, const void* ptr, size_t nbytes);
@@ -55,3 +62,4 @@ char* Sock_ntop_host(const struct sockaddr *sa, socklen_t salen);
 void* Malloc(size_t size);
 ssize_t Read(int fd, void *ptr, size_t nbytes);
 void Write(int fd, const void* ptr, size_t nbytes);
+void Close(int fd);
