@@ -30,7 +30,7 @@ int Tcp_connect(const char *host, const char *serv)
 
     freeaddrinfo(ressave);
 
-    return(sockfd);
+    return sockfd;
 }
 
 int Tcp_listen(const char *host, const char *serv, socklen_t *addrlenp)

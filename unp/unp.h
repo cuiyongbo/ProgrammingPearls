@@ -43,6 +43,7 @@ void Listen(int fd, int backlog);
 int Accept(int fd, struct sockaddr *sa, socklen_t *salenptr);
 void Connect(int fd, const struct sockaddr *sa, socklen_t salen);
 
+void Getsockopt(int fd, int level, int optname, void *optval, socklen_t *optlenptr);
 void Setsockopt(int fd, int level, int optname, const void *optval, socklen_t optlen);
 char* Sock_ntop_host(const struct sockaddr *sa, socklen_t salen);
 

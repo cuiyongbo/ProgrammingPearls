@@ -1,19 +1,9 @@
 #include "unp.h"
 
-int listenFd, connFd;
-
-void sig_urg(int signo)
-{
-    printf("SIGURG received\n");
-
-    char buff[MAXLINE];
-    int n = Recv(connFd, buff, sizeof(buff)-1, MSG_OOB);
-    buff[n] = 0;
-    printf("read %d OOB byte: %s\n", n, buff);
-}
 
 int main(int argc, char** argv)
 {
+    int listenFd;
     if(argc == 2)
         listenFd = Tcp_listen(NULL, argv[1], NULL);
     else if(argc == 3)
@@ -24,14 +14,16 @@ int main(int argc, char** argv)
     const int on = 1;
     Setsockopt(listenFd, SOL_SOCKET, SO_OOBINLINE, &on, sizeof(on));
 
-    connFd = Accept(listenFd, NULL, NULL);
-    Signal(SIGURG, sig_urg);
-    Fcntl(connFd, F_SETOWN, getpid());
+    int connFd = Accept(listenFd, NULL, NULL);
+    sleep(5);
 
     int n = 0;
     char buff[MAXLINE];
     for(;;)
     {
+        if(sockatmark(connFd))
+            printf("at OOB mark");
+
         if((n = Read(connFd, buff, MAXLINE)) == 0)
             err_quit("EOF received\n");
 

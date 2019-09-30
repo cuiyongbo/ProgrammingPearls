@@ -6,7 +6,7 @@ void sig_urg(int signo)
 {
     printf("SIGURG received\n");
 
-    char buff[MAXLINE];
+    char buff[2048];
     int n = Recv(connFd, buff, sizeof(buff)-1, MSG_OOB);
     buff[n] = 0;
     printf("read %d OOB byte: %s\n", n, buff);
@@ -21,21 +21,18 @@ int main(int argc, char** argv)
     else
         err_quit("Usage: %s [host] <port#>", argv[0]);
 
-    const int on = 1;
+    const int on = 0;
     Setsockopt(listenFd, SOL_SOCKET, SO_OOBINLINE, &on, sizeof(on));
+
+    const int recvBufferSize = 4096;
+    Setsockopt(listenFd, SOL_SOCKET, SO_RCVBUF, &recvBufferSize, sizeof(recvBufferSize));
 
     connFd = Accept(listenFd, NULL, NULL);
     Signal(SIGURG, sig_urg);
     Fcntl(connFd, F_SETOWN, getpid());
 
-    int n = 0;
-    char buff[MAXLINE];
     for(;;)
     {
-        if((n = Read(connFd, buff, MAXLINE)) == 0)
-            err_quit("EOF received\n");
-
-        buff[n] = 0;
-        printf("read %d bytes: %s\n", n, buff);
+        pause();
     }
 }
