@@ -3,16 +3,9 @@
 int main(int argc, char** argv)
 {
 	if(argc != 2)
-	{
-		printf("Usage: %s server_ip\n", argv[0]);
-		exit(EXIT_FAILURE);
-	}
+		err_quit("Usage: %s server_ip\n", argv[0]);
 
-	int sockFd = socket(AF_INET, SOCK_STREAM, 0);
-	if(sockFd < 0)
-	{
-		err_sys("socket error");
-	}
+	int sockFd = Socket(AF_INET, SOCK_STREAM, 0);
 
 	struct sockaddr_in servAddr;
 	bzero(&servAddr, sizeof(servAddr));
@@ -23,10 +16,7 @@ int main(int argc, char** argv)
 		err_sys("inet_pton error for %s", argv[1]);
 	}
 
-	if(connect(sockFd, (const struct sockaddr*)&servAddr, sizeof(servAddr)) < 0)
-	{
-		err_sys("connect error");
-	}
+	Connect(sockFd, (const SA*)&servAddr, sizeof(servAddr));
 
 	int n = 0;
 	char buff[MAXLINE];
@@ -41,6 +31,6 @@ int main(int argc, char** argv)
 		err_msg("read error");
 	}
 
-	close(sockFd);
+	Close(sockFd);
 	return 0;
 }

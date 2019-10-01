@@ -8,8 +8,8 @@ BACKBONE = $(COMM)/sock_wrapper.c $(COMM)/read_line.c $(COMM)/write_wrapper.c \
 				$(COMM)/signal.c $(COMM)/sig_child_waitpid.c $(COMM)/sock_wrapper.c \
 				$(COMM)/stdio_wrapper.c $(COMM)/unix_api_wrapper.c
 
-CLIENTS = daytimetcpcli
-SERVERS = daytimetcpsrv1
+CLIENTS = daytimetcpcli daytimetcpcliv6
+SERVERS = daytimetcpserv
 BINS = $(CLIENTS) $(SERVERS)
 
 all: $(BINS)
@@ -19,9 +19,10 @@ client: $(CLIENTS)
 server: $(SERVERS)
 
 daytimetcpcli: daytimetcpcli.c $(BACKBONE)
+daytimetcpcliv6: daytimetcpcliv6.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
-daytimetcpsrv1: daytimetcpsrv1.c $(BACKBONE)
+daytimetcpserv: daytimetcpserv.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 clean:
