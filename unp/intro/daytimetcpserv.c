@@ -8,7 +8,8 @@ int main(int argc, char** argv)
     bzero(&servAddr, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servAddr.sin_port = htons(13);
+    //servAddr.sin_port = htons(13);
+    servAddr.sin_port = htons(9999);
 
     Bind(listenFd, (const struct sockaddr*)&servAddr, sizeof(servAddr));
 
@@ -27,7 +28,15 @@ int main(int argc, char** argv)
 
         time_t tick = time(NULL);
         snprintf(buff, sizeof(buff), "%.24s\r\n", ctime(&tick));
+
         Write(connfd, buff, strlen(buff));
+
+/*
+        for(int i=0; i<strlen(buff); ++i)
+        {
+            write(connfd, buff+i, 1);
+        }
+*/
         Close(connfd);
     }
 
