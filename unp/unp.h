@@ -1,15 +1,51 @@
-#include "../apue/apue.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+#include <errno.h>
+#include <assert.h>
+#include <time.h>
+#include <limits.h>
+#include <unistd.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/wait.h>
+#include <syslog.h>
+#include <pthread.h>
+
+#include <poll.h>
+#include <sys/select.h>
 
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <arpa/inet.h>
-#include <sys/select.h>
-#include <poll.h>
 #include <netdb.h>
 
+#define MAXLINE 4096
 #define SERVER_PORT 9877
 #define LISTEN_QUEUE_LEN 256
 
+#define max(a, b) ((a)>(b)?(a):(b))
+#define min(a, b) ((a)<(b)?(a):(b))
+#define element_of(arr) (sizeof(arr)/sizeof(arr[0]))
+
 typedef struct sockaddr SA;
+
+// log utilities
+void err_sys(const char *fmt, ...);
+void err_ret(const char *fmt, ...);
+void err_dump(const char *fmt, ...);
+void err_msg(const char *fmt, ...);
+void err_quit(const char *fmt, ...);
+
+// daemonization utility in daemon_helpers.c
+int daemon_init(const char* pname, int facility);
+void daemon_inetd(const char *pname, int facility);
 
 // stdio api wrappers in stdio_wrapper.c
 FILE* Fopen(const char *filename, const char *mode);
@@ -46,6 +82,7 @@ void Connect(int fd, const struct sockaddr *sa, socklen_t salen);
 void Getsockopt(int fd, int level, int optname, void *optval, socklen_t *optlenptr);
 void Setsockopt(int fd, int level, int optname, const void *optval, socklen_t optlen);
 char* Sock_ntop_host(const struct sockaddr *sa, socklen_t salen);
+void Getpeername(int fd, struct sockaddr *sa, socklen_t *salenptr);
 
 int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
 int Poll(struct pollfd *fdarray, unsigned long nfds, int timeout);
@@ -65,7 +102,9 @@ void Sendto(int fd, const void *ptr, size_t nbytes, int flags,
 void Sendmsg(int fd, const struct msghdr *msg, int flags);
 
 // in unix_api_wrapper.c
+pid_t Fork();
 void* Malloc(size_t size);
+void* Calloc(size_t n, size_t size);
 ssize_t Read(int fd, void *ptr, size_t nbytes);
 void Write(int fd, const void* ptr, size_t nbytes);
 void Close(int fd);

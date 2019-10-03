@@ -17,8 +17,8 @@ int main(int argc, char** argv)
     struct sockaddr_in servAddr;
     bzero(&servAddr, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
-    //servAddr.sin_port = htons(13);
-    servAddr.sin_port = htons(9999);
+    servAddr.sin_port = htons(13);
+    //servAddr.sin_port = htons(9999);
     if(inet_pton(AF_INET, argv[1], &servAddr.sin_addr) <= 0)
     {
         err_sys("inet_pton error for %s", argv[1]);

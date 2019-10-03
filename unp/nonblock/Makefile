@@ -14,7 +14,7 @@ client: $(CLIENTS)
 
 server: $(SERVERS)
 
-tcpcli03: tcpcli03.c $(COMM)/sock_wrapper.c
+tcpcli03: tcpcli03.c $(COMM)/sock_wrapper.c $(COMM)/error.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 clean:

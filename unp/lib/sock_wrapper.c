@@ -1,5 +1,11 @@
 #include "unp.h"
 
+void Getpeername(int fd, struct sockaddr *sa, socklen_t *salenptr)
+{
+    if (getpeername(fd, sa, salenptr) < 0)
+        err_sys("getpeername error");
+}
+
 void Getsockopt(int fd, int level, int optname, void *optval, socklen_t *optlenptr)
 {
     if (getsockopt(fd, level, optname, optval, optlenptr) < 0)

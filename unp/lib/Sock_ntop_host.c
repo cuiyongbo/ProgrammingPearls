@@ -6,6 +6,7 @@
 
 char* sock_ntop_host(const struct sockaddr *sa, socklen_t salen)
 {
+    char portstr[8];
     static char str[128];       /* Unix domain is largest */
 
     switch (sa->sa_family) {
@@ -13,6 +14,9 @@ char* sock_ntop_host(const struct sockaddr *sa, socklen_t salen)
         struct sockaddr_in  *sin = (struct sockaddr_in *) sa;
         if (inet_ntop(AF_INET, &sin->sin_addr, str, sizeof(str)) == NULL)
             return(NULL);
+
+        snprintf(portstr, sizeof(portstr), ":%d", ntohs(sin->sin_port));
+        strcat(str, portstr);
         return(str);
     }
 
@@ -21,13 +25,16 @@ char* sock_ntop_host(const struct sockaddr *sa, socklen_t salen)
         struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) sa;
         if (inet_ntop(AF_INET6, &sin6->sin6_addr, str, sizeof(str)) == NULL)
             return(NULL);
+
+        snprintf(portstr, sizeof(portstr), ":%d", ntohs(sin6->sin6_port));
+        strcat(str, portstr);
         return(str);
     }
 #endif
 
 #ifdef  AF_UNIX
     case AF_UNIX: {
-        struct sockaddr_un  *unp = (struct sockaddr_un *) sa;
+        struct sockaddr_un* unp = (struct sockaddr_un*) sa;
 
             /* OK to have no pathname bound to the socket: happens on
                every connect() unless client calls bind() first. */

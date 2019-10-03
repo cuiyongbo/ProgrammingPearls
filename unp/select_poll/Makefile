@@ -6,7 +6,7 @@ CFLAGS += -g -Wall -Wpedantic
 COMM = ../lib
 BACKBONE = $(COMM)/sock_wrapper.c $(COMM)/read_line.c $(COMM)/write_wrapper.c \
 				$(COMM)/signal.c $(COMM)/sig_child_waitpid.c $(COMM)/unix_api_wrapper.c \
-				$(COMM)/stdio_wrapper.c
+				$(COMM)/stdio_wrapper.c $(COMM)/error.c
 
 CLIENTS = tcpcli01 tcpcli02 tcpcli11
 SERVERS = tcpservselect01 tcpservpoll01

@@ -8,6 +8,22 @@ void* Malloc(size_t size)
     return ptr;
 }
 
+void* Calloc(size_t n, size_t size)
+{
+    void* ptr = calloc(n, size);
+    if(ptr == NULL)
+        err_sys("calloc error");
+    return ptr;
+}
+
+pid_t Fork()
+{
+    pid_t pid = fork();
+    if(pid == -1)
+        err_sys("fork error");
+    return pid;
+}
+
 ssize_t Read(int fd, void *ptr, size_t nbytes)
 {
     ssize_t n = read(fd, ptr, nbytes);
