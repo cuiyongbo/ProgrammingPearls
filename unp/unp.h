@@ -126,3 +126,6 @@ char* gf_time(void);
 
 // a non-blocked connect in connect_nonb.c
 int connect_nonb(int sockfd, const SA *saptr, socklen_t salen, int nsec);
+
+// in host_serv.c
+struct addrinfo* Host_serv(const char *host, const char *serv, int family, int socktype);
