@@ -134,3 +134,22 @@ void Sendmsg(int fd, const struct msghdr *msg, int flags)
         err_sys("sendmsg error");
 }
 
+const char* Inet_ntop(int family, const void *addrptr, char *strptr, size_t len)
+{
+    if(strptr == NULL)
+        return NULL;
+
+    const char* ptr = inet_ntop(family, addrptr, strptr, len);
+    if(ptr == NULL)
+        err_sys("inet_ntop error");
+    return ptr;
+}
+
+void Inet_pton(int family, const char* strptr, void* addrptr)
+{
+    int n = inet_pton(family, strptr, addrptr);
+    if(n < 0)
+        err_sys("inet_pton error for %s", strptr);
+    else if(n == 0)
+        err_quit("inet_pton error for %s", strptr);
+}
