@@ -8,8 +8,8 @@ int main(int argc, char** argv)
     bzero(&servAddr, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    //servAddr.sin_port = htons(13);
-    servAddr.sin_port = htons(9999);
+    servAddr.sin_port = htons(13);
+    //servAddr.sin_port = htons(9999);
 
     Bind(listenFd, (const struct sockaddr*)&servAddr, sizeof(servAddr));
 

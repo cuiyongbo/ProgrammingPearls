@@ -123,3 +123,6 @@ int Tcp_listen(const char *host, const char *serv, socklen_t *addrlenp);
 
 // int gf_time.c, output time in format such as 00:00:00.000000
 char* gf_time(void);
+
+// a non-blocked connect in connect_nonb.c
+int connect_nonb(int sockfd, const SA *saptr, socklen_t salen, int nsec);
