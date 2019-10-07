@@ -62,6 +62,8 @@ void sig_child(int signo);
 
 void str_echo(int sockFd);
 void str_cli(FILE* fp, int sockFd);
+void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen);
+void dg_echo(int sockfd, SA* pcliaddr, socklen_t clilen);
 
 // signal mask related api wrappers in unix_api_wrapper.c
 void Sigaddset(sigset_t *set, int signo);
