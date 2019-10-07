@@ -95,3 +95,11 @@ int Fcntl(int fd, int cmd, int arg)
         err_sys("fcntl error");
     return n;
 }
+
+int Ioctl(int fd, int request, void *arg)
+{
+    int n = ioctl(fd, request, arg);
+    if (n == -1)
+        err_sys("ioctl error");
+    return n;
+}

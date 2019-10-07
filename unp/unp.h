@@ -15,6 +15,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
+#include <sys/ioctl.h>
 #include <syslog.h>
 #include <pthread.h>
 
@@ -115,6 +116,7 @@ void Write(int fd, const void* ptr, size_t nbytes);
 void Close(int fd);
 
 int Fcntl(int fd, int cmd, int arg);
+int Ioctl(int fd, int request, void *arg);
 
 // in readable_timeo.c
 int readable_timeo(int fd, int sec);
