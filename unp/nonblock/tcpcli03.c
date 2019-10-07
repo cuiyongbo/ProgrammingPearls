@@ -3,9 +3,7 @@
 int main(int argc, char** argv)
 {
     if(argc != 2)
-    {
         err_quit("Usage: %s server_ip", argv[0]);
-    }
 
     int sockFd = Socket(AF_INET, SOCK_STREAM, 0);
 
@@ -13,11 +11,7 @@ int main(int argc, char** argv)
     bzero(&servAddr, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
     servAddr.sin_port = htons(SERVER_PORT);
-    if(inet_pton(AF_INET, argv[1], &servAddr.sin_addr) <= 0)
-    {
-        err_sys("inet_pton error for %s", argv[1]);
-    }
-
+    Inet_pton(AF_INET, argv[1], &servAddr.sin_addr);
     Connect(sockFd, (SA*)&servAddr, sizeof(servAddr));
 
     // this causes an RST to be sent on a TCP socket when the connection is closed.
