@@ -59,8 +59,6 @@ void Fputs(const char *ptr, FILE *stream);
 typedef void (*sig_func_t)(int);
 sig_func_t Signal(int signo, sig_func_t func);
 
-void sig_child(int signo);
-
 void str_echo(int sockFd);
 void str_cli(FILE* fp, int sockFd);
 void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen);
@@ -94,6 +92,7 @@ int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
 int Poll(struct pollfd *fdarray, unsigned long nfds, int timeout);
 void Shutdown(int fd, int how);
 
+ssize_t Readn(int fd, void *ptr, size_t nbytes);
 ssize_t Readline(int fd, void* ptr, size_t maxlen);
 void Writen(int fd, const void* ptr, size_t nbytes);
 
