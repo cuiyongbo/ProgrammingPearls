@@ -133,3 +133,10 @@ int connect_nonb(int sockfd, const SA *saptr, socklen_t salen, int nsec);
 
 // in host_serv.c
 struct addrinfo* Host_serv(const char *host, const char *serv, int family, int socktype);
+
+/* The structure returned by recvfrom_flags() */
+struct unp_in_pktinfo
+{
+    struct in_addr    ipi_addr;   /* dst IPv4 address */
+    int               ipi_ifindex;/* received interface index */
+};
