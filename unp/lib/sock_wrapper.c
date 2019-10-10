@@ -86,6 +86,13 @@ void Shutdown(int fd, int how)
         err_sys("shutdown error");
 }
 
+void Socketpair(int family, int type, int protocol, int *fd)
+{
+    int  n;
+    if ((n = socketpair(family, type, protocol, fd)) < 0)
+        err_sys("socketpair error");
+}
+
 ssize_t Recv(int fd, void *ptr, size_t nbytes, int flags)
 {
     ssize_t     n;

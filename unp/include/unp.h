@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -16,6 +18,7 @@
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <sys/ioctl.h>
+#include <sys/mman.h>
 #include <syslog.h>
 #include <pthread.h>
 
@@ -30,6 +33,10 @@
 #define MAXLINE 4096
 #define SERVER_PORT 9877
 #define LISTEN_QUEUE_LEN 256
+
+/* default file access permissions for new files and new directories */
+#define FILE_MODE   (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
+#define DIR_MODE    (FILE_MODE | S_IXUSR | S_IXGRP | S_IXOTH)
 
 #define max(a, b) ((a)>(b)?(a):(b))
 #define min(a, b) ((a)<(b)?(a):(b))
@@ -91,6 +98,7 @@ const char* Inet_ntop(int family, const void *addrptr, char *strptr, size_t len)
 int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
 int Poll(struct pollfd *fdarray, unsigned long nfds, int timeout);
 void Shutdown(int fd, int how);
+void Socketpair(int family, int type, int protocol, int *fd);
 
 ssize_t Readn(int fd, void *ptr, size_t nbytes);
 ssize_t Readline(int fd, void* ptr, size_t maxlen);
@@ -139,3 +147,13 @@ struct unp_in_pktinfo
     struct in_addr    ipi_addr;   /* dst IPv4 address */
     int               ipi_ifindex;/* received interface index */
 };
+
+int Open(const char *pathname, int oflag, mode_t mode);
+void Unlink(const char *pathname);
+int Mkstemp(char *template);
+void* Mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset);
+void Dup2(int fd1, int fd2);
+
+// in read_fd.c
+ssize_t Read_fd(int fd, void *ptr, size_t nbytes, int *recvfd);
+ssize_t Write_fd(int fd, void *ptr, size_t nbytes, int sendfd);

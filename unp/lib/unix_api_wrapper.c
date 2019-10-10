@@ -103,3 +103,47 @@ int Ioctl(int fd, int request, void *arg)
         err_sys("ioctl error");
     return n;
 }
+
+int Mkstemp(char *template)
+{
+    int i;
+
+#ifdef HAVE_MKSTEMP
+    if ((i = mkstemp(template)) < 0)
+        err_quit("mkstemp error");
+#else
+    if (mktemp(template) == NULL || template[0] == 0)
+        err_quit("mktemp error");
+    i = Open(template, O_CREAT | O_WRONLY, FILE_MODE);
+#endif
+
+    return i;
+}
+
+int Open(const char *pathname, int oflag, mode_t mode)
+{
+    int fd;
+    if ((fd = open(pathname, oflag, mode)) == -1)
+        err_sys("open error for %s", pathname);
+    return fd;
+}
+
+void Unlink(const char *pathname)
+{
+    if (unlink(pathname) == -1)
+        err_sys("unlink error for %s", pathname);
+}
+
+void* Mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset)
+{
+    void    *ptr;
+    if ((ptr = mmap(addr, len, prot, flags, fd, offset)) == MAP_FAILED)
+        err_sys("mmap error");
+    return ptr;
+}
+
+void Dup2(int fd1, int fd2)
+{
+    if (dup2(fd1, fd2) == -1)
+        err_sys("dup2 error");
+}
