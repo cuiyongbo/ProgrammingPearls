@@ -9,20 +9,22 @@ BACKBONE = $(COMM)/sock_wrapper.c $(COMM)/read_line.c $(COMM)/write_wrapper.c \
 				$(COMM)/error.c $(COMM)/stdio_wrapper.c $(COMM)/readn.c $(COMM)/tcp_helpers.c
 
 CLIENTS = client
-SERVERS = serv00 serv01
+SERVERS = serv00 serv01 serv02 serv021
 BINS = $(CLIENTS) $(SERVERS)
 
 all: $(BINS)
 
-client: $(CLIENTS)
+clients: $(CLIENTS)
 
-server: $(SERVERS)
+servers: $(SERVERS)
 
 client: client.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 serv00: serv00.c pr_cpu_time.c web_child.c $(BACKBONE)
 serv01: serv01.c pr_cpu_time.c web_child.c $(BACKBONE)
+serv02: serv02.c pr_cpu_time.c web_child.c child02.c $(BACKBONE)
+serv021: serv02.c pr_cpu_time.c web_child.c child021.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 clean:
