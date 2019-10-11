@@ -13,6 +13,7 @@ int main(int argc, char **argv)
     int nbytes = atoi(argv[5]);
     char request[MAXLINE], reply[MAXN];
     snprintf(request, sizeof(request), "%d\n", nbytes); /* newline at end */
+    size_t len = strlen(request);
 
     for (int i = 0; i < nchildren; i++)
     {
@@ -23,7 +24,7 @@ int main(int argc, char **argv)
             {
                 int fd = Tcp_connect(argv[1], argv[2]);
 
-                Write(fd, request, strlen(request));
+                Write(fd, request, len);
 
                 ssize_t n = Readn(fd, reply, nbytes);
                 if (n != nbytes)
