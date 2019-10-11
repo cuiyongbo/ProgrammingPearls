@@ -1,6 +1,6 @@
 .PHONY: all clean
 
-CPPFLAGS += -I.. -I../include -DHAVE_MSGHDR_MSG_CONTROL
+CPPFLAGS += -I../include -DHAVE_MSGHDR_MSG_CONTROL
 CFLAGS += -g -Wall -Wpedantic -pthread
 
 COMM = ../lib
@@ -10,7 +10,7 @@ BACKBONE = $(COMM)/sock_wrapper.c $(COMM)/read_line.c $(COMM)/write_wrapper.c \
 				$(COMM)/pthread_wrapper.c $(COMM)/read_fd.c $(COMM)/write_fd.c
 
 CLIENTS = client
-SERVERS = serv00 serv01 serv02 serv021 serv03 serv04 serv05
+SERVERS = serv00 serv01 serv02 serv021 serv03 serv04 serv05 serv06 serv07
 BINS = $(CLIENTS) $(SERVERS)
 
 all: $(BINS)
@@ -29,6 +29,8 @@ serv021: serv02.c pr_cpu_time.c web_child.c child021.c $(BACKBONE)
 serv03: serv03.c pr_cpu_time.c web_child.c child03.c lock_fcntl.c $(BACKBONE)
 serv04: serv03.c pr_cpu_time.c web_child.c child03.c lock_thread.c $(BACKBONE)
 serv05: serv05.c pr_cpu_time.c web_child.c child05.c $(BACKBONE)
+serv06: serv06.c pr_cpu_time.c web_child.c $(BACKBONE)
+serv07: serv07.c pr_cpu_time.c web_child.c pthread07.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 clean:

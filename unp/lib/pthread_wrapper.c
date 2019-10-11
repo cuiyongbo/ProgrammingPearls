@@ -1,13 +1,13 @@
 #include    "unp.h"
 #include    "unp_thread.h"
 
-void
-Pthread_create(pthread_t *tid, const pthread_attr_t *attr,
-               void * (*func)(void *), void *arg)
-{
-    int     n;
+typedef void* (*thread_func_t)(void*);
 
-    if ( (n = pthread_create(tid, attr, func, arg)) == 0)
+void Pthread_create(pthread_t *tid, const pthread_attr_t *attr,
+               thread_func_t func, void *arg)
+{
+    int n;
+    if ((n = pthread_create(tid, attr, func, arg)) == 0)
         return;
     errno = n;
     err_sys("pthread_create error");
@@ -24,12 +24,10 @@ Pthread_join(pthread_t tid, void **status)
     err_sys("pthread_join error");
 }
 
-void
-Pthread_detach(pthread_t tid)
+void Pthread_detach(pthread_t tid)
 {
-    int     n;
-
-    if ( (n = pthread_detach(tid)) == 0)
+    int n;
+    if ((n = pthread_detach(tid)) == 0)
         return;
     errno = n;
     err_sys("pthread_detach error");
