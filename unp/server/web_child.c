@@ -14,7 +14,7 @@ void web_child(int sockfd)
             return;     /* connection closed by other end */
 
         line[n] = 0;
-        printf("client asks for %s", line);
+        // printf("client asks for %s", line);
         int ntowrite = atol(line);
         if ((ntowrite <= 0) || (ntowrite > MAXN))
             err_quit("client request for %d bytes", ntowrite);

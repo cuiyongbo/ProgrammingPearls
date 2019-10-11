@@ -1,5 +1,17 @@
 #pragma once
 
+#if defined(__clang__)
+#  pragma clang diagnostic ignored "-Wint-to-void-pointer-cast"
+#  pragma clang diagnostic ignored "-Wgnu-folding-constant"
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#  pragma GCC diagnostic ignored "-Wint-to-void-pointer-cast"
+#  pragma GCC diagnostic ignored "-Wgnu-folding-constant"
+#endif
+#if defined(_MSC_VER)
+#  pragma warning(disable: 4068)
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>

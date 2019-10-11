@@ -10,7 +10,7 @@ BACKBONE = $(COMM)/sock_wrapper.c $(COMM)/read_line.c $(COMM)/write_wrapper.c \
 				$(COMM)/pthread_wrapper.c $(COMM)/read_fd.c $(COMM)/write_fd.c
 
 CLIENTS = client
-SERVERS = serv00 serv01 serv02 serv021 serv03 serv04 serv05 serv06 serv07
+SERVERS = serv00 serv01 serv02 serv021 serv03 serv04 serv05 serv06 serv07 serv08
 BINS = $(CLIENTS) $(SERVERS)
 
 all: $(BINS)
@@ -31,6 +31,7 @@ serv04: serv03.c pr_cpu_time.c web_child.c child03.c lock_thread.c $(BACKBONE)
 serv05: serv05.c pr_cpu_time.c web_child.c child05.c $(BACKBONE)
 serv06: serv06.c pr_cpu_time.c web_child.c $(BACKBONE)
 serv07: serv07.c pr_cpu_time.c web_child.c pthread07.c $(BACKBONE)
+serv08: serv08.c pr_cpu_time.c web_child.c pthread08.c $(BACKBONE)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 clean:

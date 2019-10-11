@@ -6,7 +6,7 @@ void sig_int(int signo);
 int main(int argc, char** argv)
 {
     int listenfd = 0;
-    socklen_t addrlen;
+    socklen_t addrlen = 0;
     if(argc == 2)
         listenfd = Tcp_listen(NULL, argv[1], &addrlen);
     else if(argc == 3)
