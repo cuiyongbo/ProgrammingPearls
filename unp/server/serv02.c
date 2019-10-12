@@ -23,6 +23,10 @@ int main(int argc, char **argv)
     for (int i = 0; i < g_nchildren; i++)
         g_pids[i] = child_make(i, listenfd, addrlen); /* parent returns */
 
+    // The parent keeps the listening socket open in case
+    // it needs to fork additional children at some later time,
+    // which would be an enhancement to our code
+
     Signal(SIGINT, sig_int);
 
     for ( ; ; )

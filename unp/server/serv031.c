@@ -2,6 +2,8 @@
 
 static int      g_nchildren;
 static pid_t*   g_pids;
+long* g_cptr;
+long* meter(int);
 
 int main(int argc, char **argv)
 {
@@ -20,6 +22,7 @@ int main(int argc, char **argv)
 
     g_nchildren = atoi(argv[argc-1]);
     g_pids = (pid_t*)Calloc(g_nchildren, sizeof(pid_t));
+    g_cptr = meter(g_nchildren);
 
     my_lock_init("/tmp/lock.XXXXXX");
 
@@ -45,5 +48,9 @@ void sig_int(int signo)
         err_sys("wait error");
 
     pr_cpu_time();
+
+    for(int i=0; i<g_nchildren; ++i)
+        printf("child %d, %ld connections\n", i, g_cptr[i]);
+
     exit(0);
 }

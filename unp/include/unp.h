@@ -4,12 +4,9 @@
 #  pragma clang diagnostic ignored "-Wint-to-void-pointer-cast"
 #  pragma clang diagnostic ignored "-Wgnu-folding-constant"
 #elif defined(__GNUC__)
-#  pragma GCC diagnostic ignored "-Wunknown-pragmas"
-#  pragma GCC diagnostic ignored "-Wint-to-void-pointer-cast"
-#  pragma GCC diagnostic ignored "-Wgnu-folding-constant"
-#endif
-#if defined(_MSC_VER)
-#  pragma warning(disable: 4068)
+#  pragma GCC diagnostic ignored "-Wpragmas"
+#  pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#  pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
 #endif
 
 #include <stdio.h>
