@@ -7,7 +7,7 @@ int readable_timeo(int fd, int sec)
     FD_SET(fd, &rset);
 
     struct timeval tv;
-    tv.second = sec;
+    tv.tv_sec = sec;
     tv.tv_usec = 0;
 
     return select(fd+1, &rset, NULL, NULL, &tv);

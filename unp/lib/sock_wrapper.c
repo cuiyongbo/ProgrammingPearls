@@ -6,6 +6,12 @@ void Getpeername(int fd, struct sockaddr *sa, socklen_t *salenptr)
         err_sys("getpeername error");
 }
 
+void Getsockname(int fd, struct sockaddr *sa, socklen_t *salenptr)
+{
+    if (getsockname(fd, sa, salenptr) < 0)
+        err_sys("getsockname error");
+}
+
 void Getsockopt(int fd, int level, int optname, void *optval, socklen_t *optlenptr)
 {
     if (getsockopt(fd, level, optname, optval, optlenptr) < 0)

@@ -43,6 +43,9 @@
 #define SERVER_PORT 9877
 #define LISTEN_QUEUE_LEN 256
 
+#define UNIXSTR_PATH    "/tmp/unix.str" /* Unix domain stream */
+#define UNIXDG_PATH     "/tmp/unix.dg"  /* Unix domain datagram */
+
 /* default file access permissions for new files and new directories */
 #define FILE_MODE   (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 #define DIR_MODE    (FILE_MODE | S_IXUSR | S_IXGRP | S_IXOTH)
@@ -100,6 +103,7 @@ void Getsockopt(int fd, int level, int optname, void *optval, socklen_t *optlenp
 void Setsockopt(int fd, int level, int optname, const void *optval, socklen_t optlen);
 char* Sock_ntop_host(const struct sockaddr *sa, socklen_t salen);
 void Getpeername(int fd, struct sockaddr *sa, socklen_t *salenptr);
+void Getsockname(int fd, struct sockaddr *sa, socklen_t *salenptr);
 
 void Inet_pton(int family, const char *strptr, void *addrptr);
 const char* Inet_ntop(int family, const void *addrptr, char *strptr, size_t len);
