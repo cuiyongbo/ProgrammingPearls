@@ -40,6 +40,8 @@
 #include <netdb.h>
 
 #define MAXLINE 4096
+#define BUFFSIZE    8192    /* buffer size for reads and writes */
+
 #define SERVER_PORT 9877
 #define LISTEN_QUEUE_LEN 256
 
@@ -129,6 +131,8 @@ void Sendmsg(int fd, const struct msghdr *msg, int flags);
 
 // in unix_api_wrapper.c
 pid_t Fork();
+pid_t Wait(int *iptr);
+pid_t Waitpid(pid_t pid, int *iptr, int options);
 void* Malloc(size_t size);
 void* Calloc(size_t n, size_t size);
 ssize_t Read(int fd, void *ptr, size_t nbytes);
