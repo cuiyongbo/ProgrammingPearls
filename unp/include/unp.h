@@ -7,6 +7,7 @@
 #  pragma GCC diagnostic ignored "-Wpragmas"
 #  pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 #  pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#  pragma GCC diagnostic ignored "-Wunused-result"
 #endif
 
 #include <stdio.h>
@@ -57,6 +58,20 @@
 #define element_of(arr) (sizeof(arr)/sizeof(arr[0]))
 
 typedef struct sockaddr SA;
+
+#if !defined(SCM_CREDENTIALS)
+#define SCM_CREDENTIALS 0x02
+#define CMGROUP_MAX 16
+struct cmsgcred
+{
+    pid_t   cmcred_pid;             /* PID of sending process */
+    uid_t   cmcred_uid;             /* real UID of sending process */
+    uid_t   cmcred_euid;            /* effective UID of sending process */
+    gid_t   cmcred_gid;             /* real GID of sending process */
+    short   cmcred_ngroups;         /* number or groups */
+    gid_t   cmcred_groups[CMGROUP_MAX];     /* groups */
+};
+#endif
 
 // log utilities
 void err_sys(const char *fmt, ...);

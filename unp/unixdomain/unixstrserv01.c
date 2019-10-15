@@ -8,7 +8,7 @@ int main(int argc, char **argv)
 
     unlink(UNIXSTR_PATH);
 
-    struct sockaddr_un  cliaddr, servaddr;
+    struct sockaddr_un cliaddr, servaddr;
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sun_family = AF_LOCAL;
     strcpy(servaddr.sun_path, UNIXSTR_PATH);
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
                 err_sys("accept error");
         }
 
-        printf("receive connection from %s\n", cliaddr.sun_path);
+        // printf("receive connection from %s\n", cliaddr.sun_path);
 
         pid_t childpid = Fork();
         if(childpid == 0)

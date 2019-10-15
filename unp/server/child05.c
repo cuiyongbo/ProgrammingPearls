@@ -28,13 +28,14 @@ pid_t child_make(int i, int listenfd, int addrlen)
     int sockfd[2];
     Socketpair(AF_LOCAL, SOCK_STREAM, 0, sockfd);
 
-    pid_t   pid;
-    if ((pid = Fork()) > 0) {
+    pid_t pid = Fork();
+    if (pid > 0)
+    { // parent
         Close(sockfd[1]);
         g_cptr[i].child_pid = pid;
         g_cptr[i].child_pipefd = sockfd[0];
         g_cptr[i].child_status = 0;
-        return pid;        /* parent */
+        return pid;
     }
 
     Dup2(sockfd[1], STDERR_FILENO);     /* child's stream pipe to parent */

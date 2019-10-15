@@ -6,8 +6,8 @@ CFLAGS += -g -Wall -Wpedantic -pthread
 COMM = ../lib
 LIBS = -lunp
 
-CLIENTS = unixstrcli01 unixdgcli01
-SERVERS = unixstrserv01 unixdgserv01
+CLIENTS = unixstrcli01 unixdgcli01 daytimetcpcli daytimeunixcli
+SERVERS = unixstrserv01 unixstrserv02 unixdgserv01 daytimetcpserv01 daytimeunixserv01 daytimeunixserv02
 OTHERS = unix_bind openfile my_cat
 BINS = $(CLIENTS) $(SERVERS) $(OTHERS)
 
@@ -24,6 +24,9 @@ unixstrcli01: unixstrcli01.c
 unixstrserv01: unixstrserv01.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
 
+unixstrserv02: unixstrserv01.c str_echo.c read_cred.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
+
 unixdgcli01: unixdgcli01.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
 
@@ -34,6 +37,21 @@ openfile: openfile.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
 
 my_cat: my_cat.c my_open.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
+
+daytimetcpcli: daytimetcpcli.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
+
+daytimetcpserv01: daytimetcpserv01.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
+
+daytimeunixcli: daytimeunixcli.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
+
+daytimeunixserv01: daytimeunixserv01.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
+
+daytimeunixserv02: daytimeunixserv02.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
 
 clean:

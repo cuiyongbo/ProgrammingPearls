@@ -33,7 +33,8 @@ char* sock_ntop_host(const struct sockaddr *sa, socklen_t salen)
 #endif
 
 #ifdef  AF_UNIX
-    case AF_UNIX: {
+    case AF_UNIX:
+    {
         struct sockaddr_un* unp = (struct sockaddr_un*) sa;
 
             /* OK to have no pathname bound to the socket: happens on
