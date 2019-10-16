@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
     ssize_t n = 0;
     char recvline[MAXLINE + 1];
-    while ((n = Read(sockfd, recvline, MAXLINE)) > 0)
+    while((n = Read(sockfd, recvline, MAXLINE)) > 0)
     {
         printf("receive %d bytes\n", (int)n);
         recvline[n] = 0;    /* null terminate */

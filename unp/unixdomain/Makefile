@@ -7,7 +7,8 @@ COMM = ../lib
 LIBS = -lunp
 
 CLIENTS = unixstrcli01 unixdgcli01 daytimetcpcli daytimeunixcli
-SERVERS = unixstrserv01 unixstrserv02 unixdgserv01 daytimetcpserv01 daytimeunixserv01 daytimeunixserv02
+SERVERS = unixstrserv01 unixstrserv02 unixdgserv01 daytimetcpserv01 \
+			daytimeunixserv01 daytimeunixserv02 daytimetcpserv02
 OTHERS = unix_bind openfile my_cat
 BINS = $(CLIENTS) $(SERVERS) $(OTHERS)
 
@@ -43,6 +44,9 @@ daytimetcpcli: daytimetcpcli.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
 
 daytimetcpserv01: daytimetcpserv01.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
+
+daytimetcpserv02: daytimetcpserv02.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $? -o $@ $(LIBS)
 
 daytimeunixcli: daytimeunixcli.c
