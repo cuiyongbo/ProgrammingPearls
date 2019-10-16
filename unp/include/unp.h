@@ -189,3 +189,6 @@ void Dup2(int fd1, int fd2);
 // in read_fd.c
 ssize_t Read_fd(int fd, void *ptr, size_t nbytes, int *recvfd);
 ssize_t Write_fd(int fd, void *ptr, size_t nbytes, int sendfd);
+
+int Sock_get_port(const struct sockaddr *sa, socklen_t salen);
+int Sock_bind_wild(int sockfd, int family);

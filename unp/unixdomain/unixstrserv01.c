@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     servaddr.sun_family = AF_LOCAL;
     strcpy(servaddr.sun_path, UNIXSTR_PATH);
 
-    Bind(listenfd, (SA *)&servaddr, sizeof(servaddr));
+    Bind(listenfd, (SA*)&servaddr, sizeof(servaddr));
 
     Listen(listenfd, LISTEN_QUEUE_LEN);
 
