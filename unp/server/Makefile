@@ -6,7 +6,7 @@ LIBS = -lunp -pthread
 
 CLIENTS = client
 SERVERS = serv00 serv01 serv02 serv021 serv03 serv031 \
-			serv04 serv05 serv06 serv07 serv08 serv09
+			serv04 serv05 serv051 serv06 serv07 serv08 serv09
 
 all: $(CLIENTS) $(SERVERS)
 clients: $(CLIENTS)
@@ -45,6 +45,10 @@ serv04: serv03.c pr_cpu_time.c web_child.c child03.c lock_thread.c
 
 # prefork, descriptor passing to children, similar to NSCA server
 serv05: serv05.c pr_cpu_time.c web_child.c child05.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@ $(LIBS)
+
+# prefork, descriptor passing to children, using unix domain socket datagram
+serv051: serv051.c pr_cpu_time.c web_child.c child051.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@ $(LIBS)
 
 # one thread per client

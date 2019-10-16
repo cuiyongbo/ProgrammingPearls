@@ -6,7 +6,7 @@ void web_child(int sockfd)
 {
     ssize_t  n = 0;
     char line[MAXLINE], result[MAXN];
-    for ( ; ; )
+    for(;;)
     {
         //if (Readline(sockfd, line, MAXLINE) == 0)
         n = Read(sockfd, line, MAXLINE);
