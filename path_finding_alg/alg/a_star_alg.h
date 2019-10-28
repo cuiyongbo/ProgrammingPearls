@@ -40,10 +40,10 @@ void aStarSearch(Graph& graph, Location start, Location goal,
 }
 
 template<typename Graph>
-void aStarSearch(Graph& graph, 
+void aStarSearch(Graph& graph,
     typename Graph::Location start,
     typename Graph::Location goal,
-    std::function<typename Graph::cost_t(typename Graph::Location, typename Graph::Location)> heuristic,
+    std::function<typename Graph::cost_t (typename Graph::Location, typename Graph::Location)> heuristic,
     std::unordered_map<typename Graph::Location, typename Graph::Location>& cameFrom,
     std::unordered_map<typename Graph::Location, typename Graph::cost_t>& costSofar)
 {
