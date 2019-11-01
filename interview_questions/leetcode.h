@@ -9,3 +9,7 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include <numeric>
+
+void printVector(std::vector<int>& input);
+
