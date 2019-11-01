@@ -1,8 +1,4 @@
-#include <iostream>
-#include <algorithm>
-#include <iterator>
-#include <vector>
-#include <stack>
+#include "leetcode.h"
 
 using namespace std;
 
