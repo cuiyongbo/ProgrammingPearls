@@ -2,16 +2,6 @@
 
 using namespace std;
 
-struct TreeNode
-{
-    int val;
-    TreeNode* left;
-    TreeNode* right;
-    TreeNode(int n)
-        : val(n), left(nullptr), right(nullptr)
-    {}
-};
-
 TreeNode* helper(vector<int> arr, int start, int end);
 
 TreeNode* arrayToBst(vector<int>& arr)
@@ -53,24 +43,12 @@ vector<int> inorderTraversal(TreeNode* root)
     return result;
 }
 
-// do postorder traversal
-void destroyBinaryTree(TreeNode* root)
-{
-    if(root == nullptr)
-        return;
-
-    destroyBinaryTree(root->left);
-    destroyBinaryTree(root->right);
-    delete root;
-}
-
 int main()
 {
     vector<int> input {9, 0, 8, 7, 6, 1, 2 , 3, 4, 5};
     TreeNode* root = arrayToBst(input);
     vector<int> result = inorderTraversal(root);
-    copy(result.begin(), result.end(), ostream_iterator<int>(cout, " "));
-    cout << "\n";
+    printVector(result);
     destroyBinaryTree(root);
     return 0;
 }
