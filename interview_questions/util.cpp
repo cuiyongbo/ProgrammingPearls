@@ -9,6 +9,30 @@ void printVector(vector<int>& input)
 	cout << "\n";
 }
 
+void printLinkedList(ListNode* head)
+{
+	ListNode* p = head;
+	while(p != NULL)
+	{
+		if(p != head)
+		{
+			cout << " -> ";
+		}
+		cout << p->val;
+		p = p->next;
+	}
+
+	if(p == head)
+	{
+		cout << "empty list\n";
+	}
+	else
+	{
+		cout << "\n";
+	}
+}
+
+
 void trimTrailingSpaces(std::string& input)
 {
 	trimLeftTrailingSpaces(input);
@@ -37,7 +61,7 @@ vector<int> stringToIntegerVector(string input)
 	string item;
 	char delim = ',';
 	stringstream ss(input);
-	while (getline(ss, item, delim)) 
+	while (getline(ss, item, delim))
 	{
 		output.push_back(stoi(item));
 	}
@@ -81,7 +105,7 @@ TreeNode* stringToTreeNode(string input)
 	{
 		if (!getline(ss, item, delimiter))
 			break;
-		
+
 		auto t = q.front(); q.pop();
 
 		// left child
@@ -114,4 +138,14 @@ void destroyBinaryTree(TreeNode* root)
 	destroyBinaryTree(root->left);
 	destroyBinaryTree(root->right);
 	delete root;
+}
+
+void destroyLinkedList(ListNode* head)
+{
+	while(head != NULL)
+	{
+		ListNode* p = head->next;
+		delete head;
+		head = p;
+	}
 }

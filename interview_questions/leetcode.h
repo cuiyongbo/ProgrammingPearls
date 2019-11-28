@@ -32,6 +32,7 @@ struct TreeNode
 };
 
 void printVector(std::vector<int>& input);
+void printLinkedList(ListNode* head);
 
 void trimTrailingSpaces(std::string& input);
 void trimLeftTrailingSpaces(std::string& input);
@@ -42,3 +43,4 @@ ListNode* stringToListNode(std::string input);
 TreeNode* stringToTreeNode(std::string input);
 
 void destroyBinaryTree(TreeNode* root);
+void destroyLinkedList(ListNode* head);
