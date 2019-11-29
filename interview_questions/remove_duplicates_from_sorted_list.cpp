@@ -4,7 +4,8 @@ using namespace std;
 
 class Solution {
 public:
-    ListNode* deleteDuplicates(ListNode* head) {
+    ListNode* deleteDuplicatesII(ListNode* head)
+    {
         ListNode* dummy = new ListNode(0);
         ListNode* newHead = dummy;
         while(head != NULL)
@@ -38,8 +39,29 @@ public:
         delete dummy;
         return newHead;
     }
-};
 
+    ListNode* deleteDuplicates(ListNode* head)
+    {
+
+        if(head == NULL || head->next == NULL)
+            return head;
+
+        ListNode* p = head;
+        ListNode* tmp = head;
+        while(p != NULL)
+        {
+            if(tmp->val != p->val)
+            {
+                tmp->next = p;
+                tmp = p;
+            }
+            p = p->next;
+        }
+        tmp->next = NULL;
+
+        return head;
+    }
+};
 
 int main()
 {
