@@ -71,16 +71,14 @@ vector<int> stringToIntegerVector(string input)
 ListNode* stringToListNode(string input)
 {
 	vector<int> vi = stringToIntegerVector(input);
-	ListNode* dummyRoot = new ListNode(0);
-	ListNode* p = dummyRoot;
+	ListNode dummy(0);
+	ListNode* p = &dummy;
 	for (auto n : vi)
 	{
 		p->next = new ListNode(n);
 		p = p->next;
 	}
-	p = dummyRoot->next;
-	delete dummyRoot;
-	return p;
+	return dummy.next;
 }
 
 // string in format like [1,2,null,3,null]
