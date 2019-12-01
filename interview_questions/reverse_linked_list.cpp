@@ -41,7 +41,43 @@ public:
         tail->next = cur;
         return dummy.next;
     }
+
+    ListNode* rotateRight(ListNode* head, int k) {
+
+        if(k==0 || head == NULL || head->next == NULL)
+            return head;
+
+        int n = 0;
+        ListNode* p = head;
+        ListNode* tail = NULL;
+        while(p != NULL)
+        {
+            ++n;
+            tail = p;
+            p = p->next;
+        }
+
+        k %= n;
+        if(k == 0) return head;
+
+        ListNode dummy(0);
+        dummy.next = head;
+        p = &dummy;
+
+        // find the (n-k)th node
+        for(int i=0; i<n-k; ++i)
+        {
+            p = p->next;
+        }
+
+        dummy.next = p->next;
+        tail->next = head;
+        p->next = NULL;
+
+        return dummy.next;
+    }
 };
+
 
 int main()
 {
@@ -55,6 +91,9 @@ int main()
     printLinkedList(newLL);
 
     newLL = ss.reverseBetween(newLL, 2, 4);
+    printLinkedList(newLL);
+
+    newLL = ss.rotateRight(newLL, 2);
     printLinkedList(newLL);
 
     destroyLinkedList(newLL);
