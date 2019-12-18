@@ -45,3 +45,41 @@ TreeNode* stringToTreeNode(std::string input);
 
 void destroyBinaryTree(TreeNode* root);
 void destroyLinkedList(ListNode* head);
+
+class DSU
+{
+public:
+    DSU(int count)
+    {
+        m_aux.resize(count);
+        for (int i = 0; i < count; ++i)
+            m_aux[i] = i;
+    }
+
+    int find(int x)
+    {
+        if(m_aux[x] != x)
+        {
+            m_aux[x] = find(m_aux[x]);
+        }
+        return m_aux[x];
+    }
+
+    int unionFunc(int x, int y)
+    {
+        m_aux[find(x)] = find(y);
+    }
+
+    int groupCount()
+    {
+    	std::unordered_set<int> groups;
+    	for(int i=0; i<m_aux.size(); ++i)
+    	{
+    		groups.emplace(find(i));
+    	}
+    	return groups.size();
+    }
+
+private:
+    std::vector<int> m_aux;
+};
