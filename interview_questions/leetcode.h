@@ -52,8 +52,7 @@ public:
     DSU(int count)
     {
         m_aux.resize(count);
-        for (int i = 0; i < count; ++i)
-            m_aux[i] = i;
+		std::iota(m_aux.begin(), m_aux.end(), 0);
     }
 
     int find(int x)
