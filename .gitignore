@@ -25,6 +25,5 @@ path_finding_alg/_build/
 *.user
 *.filters
 *.vcxproj
-apue/test.c
-apue/test.cpp
-
+test.cpp
+test.c
