@@ -64,7 +64,7 @@ public:
         return m_aux[x];
     }
 
-    int unionFunc(int x, int y)
+    void unionFunc(int x, int y)
     {
         m_aux[find(x)] = find(y);
     }
