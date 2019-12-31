@@ -11,6 +11,7 @@
 #include <unordered_set>
 #include <numeric>
 #include <functional>
+#include <cstring>
 
 struct ListNode
 {
