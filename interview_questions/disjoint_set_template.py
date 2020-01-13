@@ -41,7 +41,7 @@ class OptDSU(object):
         pu, pv = self.find(u), self.find(v)
 
         # no op since u and v are in the same set
-        if pu == pv: return
+        if pu == pv: return False
 
         if self.r[pu] < self.r[pv]:
             self.p[pu] = pv
@@ -49,6 +49,7 @@ class OptDSU(object):
             self.p[pv] = pu
             if self.r[pu] == self.r[pv]:
                 self.r[pu] += 1
+        return True
 
 if __name__ == "__main__":
 
