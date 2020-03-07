@@ -27,3 +27,4 @@ path_finding_alg/_build/
 *.vcxproj
 test.cpp
 test.c
+.vscode

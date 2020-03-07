@@ -3,6 +3,23 @@
 
 using namespace std;
 
+void generateTestArray(vector<int>& input, int arraySize, bool allEqual, bool sorted)
+{
+    input.resize(arraySize);
+    if (allEqual)
+    {
+        input.assign(arraySize, rand());
+    }
+    else
+    {
+        for(int i=0; i<arraySize; ++i)
+            input[i] = rand()%827396154;
+
+		if(sorted)
+        	sort(input.begin(), input.end());
+    }
+}
+
 void printVector(vector<int>& input)
 {
 	copy(input.begin(), input.end(), ostream_iterator<int>(cout, " "));

@@ -12,6 +12,7 @@
 #include <numeric>
 #include <functional>
 #include <cstring>
+#include <cassert>
 
 struct ListNode
 {
@@ -33,6 +34,7 @@ struct TreeNode
 	{}
 };
 
+void generateTestArray(std::vector<int>& input, int arraySize, bool allEqual, bool sorted=true);
 void printVector(std::vector<int>& input);
 void printLinkedList(ListNode* head);
 

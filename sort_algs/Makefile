@@ -14,7 +14,7 @@ USER_DIR = .
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS += -isystem $(GTEST_DIR)/include 
+CPPFLAGS += -isystem $(GTEST_DIR)/include
 
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g -Wall -Wextra
@@ -43,7 +43,7 @@ selectionSort: $(SELECTION_SORT)
 clean:
 	@rm -rf *.o *.dSYM a.out *.i *.s
 	@file * | grep executable | grep -v script | cut -d: -f1 | xargs rm -f
-	
+
 # Usually you shouldn't tweak such internal variables, indicated by a
 # trailing _.
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
@@ -97,3 +97,16 @@ selection_sort_alg.o: $(USER_DIR)/sort_algs.h  $(USER_DIR)/util.h $(GTEST_HEADER
 selection_sort_unittest.o: $(USER_DIR)/sort_algs.h $(USER_DIR)/util.h  $(GTEST_HEADERS)
 selection_sort_unittest: main.o util.o selection_sort_alg.o selection_sort_unittest.o gtest.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
+# Help Target
+help:
+	@echo "The following are some of the valid targets for this Makefile:"
+	@echo "... all (the default if no target is provided)"
+	@echo "... clean"
+	@echo "... insertionSort"
+	@echo "... mergeSort"
+	@echo "... heapSort"
+	@echo "... quickSort"
+	@echo "... selectionSort"
+
+.PHONY: help

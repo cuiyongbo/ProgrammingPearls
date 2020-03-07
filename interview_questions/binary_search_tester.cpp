@@ -1,15 +1,9 @@
-#include <iostream>
-#include <iterator>
-#include <algorithm>
-#include <numeric>
-#include <string>
-#include <vector>
+#include "leetcode.h"
 
 using namespace std;
 
 static const int LOOP_COUNT = 100;
 
-void generateTestArray(vector<int>& input, int arraySize, bool allEqual);
 void binarySearchTester(int arraySize);
 void lowerBoundSearchTester(int arraySize);
 void upperBoundSearchTester(int arraySize);
@@ -68,22 +62,6 @@ int main(int argc, char* argv[])
     }
 
     return 0;
-}
-
-void generateTestArray(vector<int>& input, int arraySize, bool allEqual)
-{
-    input.resize(arraySize);
-    if (allEqual)
-    {
-        input.assign(arraySize, rand());
-    }
-    else
-    {
-        for(int i=0; i<arraySize; ++i)
-            input[i] = rand()%827396154;
-
-        sort(input.begin(), input.end());
-    }
 }
 
 void binarySearchTester(int arraySize)
