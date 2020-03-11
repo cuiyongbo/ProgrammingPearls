@@ -12,6 +12,9 @@ void quickSort(vector<int>& input, int start, int end, partition_func_t partitio
 
 void quickSort_hoare(vector<int>& input);
 
+template<class ForwardIter>
+void quickSort_std(ForwardIter first, ForwardIter last);
+
 int main(int argc, char* argv[])
 {
     int arraySize = 0;
@@ -26,6 +29,7 @@ int main(int argc, char* argv[])
         cout << "\tTestType=1 quickSort with naive partitioner\n";
         cout << "\tTestType=2 quickSort with randomized naive partitioner\n";
         cout << "\tTestType=3 quickSort with hoare partitioner\n";
+        cout << "\tTestType=4 quickSort with std partitioner\n";
         return 1;
     }
     else
@@ -37,9 +41,9 @@ int main(int argc, char* argv[])
             cout << "ArraySize must be positive!\n";
             return 1;
         }
-        else if(testType<0 || testType>3)
+        else if(testType<0 || testType>4)
         {
-            cout << "TestType must be choosen from 0,1,2,3\n";
+            cout << "TestType must be choosen from 0,1,2,3,4\n";
             return 1;
         }
     }
@@ -54,6 +58,7 @@ int main(int argc, char* argv[])
         quickSort(input, naive_partitioner);
         quickSort(input, randomized_naive_partitioner);
         quickSort_hoare(input);
+        quickSort_std(input.begin(), input.end());
     }
     else if(testType == 1)
     {
@@ -66,6 +71,10 @@ int main(int argc, char* argv[])
     else if(testType == 3)
     {
         quickSort_hoare(input);
+    }
+    else if(testType == 4)
+    {
+        quickSort_std(input.begin(), input.end());
     }
     
     assert(is_sorted(input.begin(), input.end()) && "quickSort failed");
@@ -154,3 +163,19 @@ void quickSort_hoare(vector<int>& input)
 
     return workhorse(0, input.size());
 }
+
+template<class ForwardIter>
+void quickSort_std(ForwardIter first, ForwardIter last)
+{
+    size_t count = std::distance(first, last);
+    if(count < 2)
+        return;
+
+    auto p = std::next(first, count/2);
+    auto mid1 = partition(first, last, std::bind2nd(less<typename ForwardIter::value_type>(), *p));
+    auto mid2 = partition(mid1, last, std::bind2nd(equal_to<typename ForwardIter::value_type>(), *p));
+
+    quickSort_std(first, mid1);
+    quickSort_std(mid2, last);
+}
+
