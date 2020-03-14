@@ -178,4 +178,3 @@ void quickSort_std(ForwardIter first, ForwardIter last)
     quickSort_std(first, mid1);
     quickSort_std(mid2, last);
 }
-

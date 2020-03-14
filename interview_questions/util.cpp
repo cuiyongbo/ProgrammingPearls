@@ -20,12 +20,6 @@ void generateTestArray(vector<int>& input, int arraySize, bool allEqual, bool so
     }
 }
 
-void printVector(vector<int>& input)
-{
-	copy(input.begin(), input.end(), ostream_iterator<int>(cout, " "));
-	cout << "\n";
-}
-
 void printLinkedList(ListNode* head)
 {
 	ListNode* p = head;

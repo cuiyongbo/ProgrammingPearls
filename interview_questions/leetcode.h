@@ -34,8 +34,14 @@ struct TreeNode
 	{}
 };
 
+template<class T>
+void printVector(std::vector<T>& v)
+{
+    std::copy(v.begin(), v.end(), std::ostream_iterator<T>(std::cout, " "));
+    std::cout << '\n';
+}
+
 void generateTestArray(std::vector<int>& input, int arraySize, bool allEqual, bool sorted=true);
-void printVector(std::vector<int>& input);
 void printLinkedList(ListNode* head);
 
 void trimTrailingSpaces(std::string& input);
