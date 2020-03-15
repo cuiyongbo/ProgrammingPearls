@@ -33,10 +33,17 @@ int Solution::minDistance(string word1, string word2)
     return dp[n1][n2];
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    string w1 = "horse";
-    string w2 = "hope";
+    if(argc != 3)
+    {
+        cout << "Usage: prog src dest\n";
+        cout << "minimum operation(s) taken to transform src to dest\n";
+        return 1;
+    }
+
+    string w1 = argv[1];
+    string w2 = argv[2];
 
     Solution ss;
     int n = ss.minDistance(w1, w2);
