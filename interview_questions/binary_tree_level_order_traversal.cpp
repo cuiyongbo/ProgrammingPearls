@@ -6,10 +6,10 @@ class Solution
 {
 public:
     vector<vector<int>> levelOrder(TreeNode* root);
+    vector<vector<int>> levelOrder_bottomup(TreeNode* root);
     vector<int> rightSideView(TreeNode* root);
     vector<int> leftSideView(TreeNode* root);
 };
-
 
 vector<vector<int>> Solution::levelOrder(TreeNode* root)
 {
@@ -32,6 +32,29 @@ vector<vector<int>> Solution::levelOrder(TreeNode* root)
         ans.push_back(dummy);
     }
     return ans;
+}
+
+vector<vector<int>> Solution::levelOrder_bottomup(TreeNode* root)
+{
+    deque<vector<int>> store;
+    queue<TreeNode*> q;
+    if(root != NULL) q.push(root);
+    while(!q.empty())
+    {
+
+        int size = q.size();
+        vector<int> dummy;
+        dummy.reserve(size);
+        for(int i=0; i<size; i++)
+        {
+            auto t = q.front(); q.pop();
+            dummy.push_back(t->val);
+            if(t->left != NULL) q.push(t->left);
+            if(t->right != NULL) q.push(t->right);
+        }
+        store.push_front(dummy);
+    }
+    return vector<vector<int>> (store.begin(), store.end());
 }
 
 vector<int> Solution::rightSideView(TreeNode* root)
