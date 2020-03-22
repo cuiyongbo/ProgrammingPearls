@@ -14,6 +14,8 @@
 #include <cstring>
 #include <cassert>
 
+#include "log.h"
+
 struct ListNode
 {
 	int val;
@@ -29,7 +31,7 @@ struct TreeNode
 	TreeNode* left;
 	TreeNode* right;
 
-	TreeNode(int n) :
+	TreeNode(int n=0) :
 		val(n), left(nullptr), right(nullptr)
 	{}
 };
