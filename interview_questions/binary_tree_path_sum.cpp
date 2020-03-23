@@ -3,7 +3,9 @@
 using namespace std;
 using namespace osrm;
 
-class Solution 
+/*leetcode: 112, 113, 437*/
+
+class Solution
 {
 public:
     bool hasPathSum(TreeNode* root, int sum);
@@ -11,7 +13,7 @@ public:
     int pathSum_437(TreeNode* root, int sum);
 };
 
-bool Solution::hasPathSum(TreeNode* root, int sum) 
+bool Solution::hasPathSum(TreeNode* root, int sum)
 {
     if(root == NULL)
     {
@@ -91,15 +93,15 @@ void hasPathSum_scaffold(string input, int sum, bool expected)
     bool actual = ss.hasPathSum(t, sum);
     if (actual == expected)
     {
-        util::Log(logEssential) << "Case (" << input << ", " << sum << 
+        util::Log(logESSENTIAL) << "Case (" << input << ", " << sum <<
                 ", expectResult<" << expected << ">) passed";
     }
     else
     {
-        util::Log(logERROR) << "Case (" << input << ", " << sum << 
+        util::Log(logERROR) << "Case (" << input << ", " << sum <<
                 ", expectResult<" << expected << ">) failed";
     }
-    
+
     destroyBinaryTree(t);
 }
 
@@ -112,13 +114,13 @@ void pathSum_scaffold(string input, int sum, vector<vector<int>>& expectedResult
 
     if (equal(actual.begin(), actual.end(), expectedResult.begin()))
     {
-        util::Log(logEssential) << "Case (" << input << ", " << sum << ") passed";
+        util::Log(logESSENTIAL) << "Case (" << input << ", " << sum << ") passed";
     }
     else
     {
         util::Log(logERROR) << "Case (" << input << ", " << sum << ") failed";
     }
-    
+
     destroyBinaryTree(t);
 }
 
@@ -130,13 +132,13 @@ void pathSum_437_scaffold(string input, int sum, int expectedResult)
     int actual = ss.pathSum_437(t, sum);
     if (actual == expectedResult)
     {
-        util::Log(logEssential) << "Case (" << input << ", " << sum << ", " << expectedResult << ") passed";
+        util::Log(logESSENTIAL) << "Case (" << input << ", " << sum << ", " << expectedResult << ") passed";
     }
     else
     {
         util::Log(logERROR) << "Case (" << input << ", " << sum << ", " << expectedResult << ") failed";
     }
-    
+
     destroyBinaryTree(t);
 }
 

@@ -3,7 +3,9 @@
 using namespace std;
 using namespace osrm;
 
-class Solution 
+/*leetcode: 814, 669, 1325*/
+
+class Solution
 {
 public:
     TreeNode* pruneTree(TreeNode* root);
@@ -14,7 +16,7 @@ private:
     TreeNode* removeLeafNodes_helper(TreeNode* node, TreeNode* parent, int target);
 };
 
-TreeNode* Solution::pruneTree(TreeNode* root) 
+TreeNode* Solution::pruneTree(TreeNode* root)
 {
     if(root == NULL)
     {
@@ -24,7 +26,7 @@ TreeNode* Solution::pruneTree(TreeNode* root)
     {
         return root->val == 0 ? NULL : root;
     }
-    
+
     root->left = pruneTree(root->left);
     root->right = pruneTree(root->right);
     if(root->left == NULL && root->right == NULL)
@@ -49,7 +51,7 @@ bool Solution::isSameTree(TreeNode* p, TreeNode* q)
         return isSameTree(p->left, q->left) && isSameTree(p->right, q->right);
 }
 
-TreeNode* Solution::trimBST(TreeNode* root, int L, int R) 
+TreeNode* Solution::trimBST(TreeNode* root, int L, int R)
 {
     if(root == NULL)
     {
@@ -79,10 +81,10 @@ TreeNode* Solution::removeLeafNodes(TreeNode* root, int target)
 TreeNode* Solution::removeLeafNodes_helper(TreeNode* node, TreeNode* parent, int target)
 {
     if(node == NULL) return NULL;
-    
+
     node->left = removeLeafNodes_helper(node->left, node, target);
     node->right = removeLeafNodes_helper(node->right, node, target);
-    
+
     if(node->left == NULL && node->right == NULL && node->val == target)
     {
         if(parent != NULL)
@@ -110,7 +112,7 @@ void prune_tree_scaffold(string input1, string input2)
 
     if (ss.isSameTree(ans, t2))
     {
-        util::UnbufferedLog(logEssential) << "Case(" << input1 << ", " << input2 << "): " << "passed";
+        util::UnbufferedLog(logESSENTIAL) << "Case(" << input1 << ", " << input2 << "): " << "passed";
     }
     else
     {
@@ -131,7 +133,7 @@ void trim_bst_scaffold(string input1, int L, int R, string input2)
 
     if (ss.isSameTree(ans, t2))
     {
-        util::UnbufferedLog(logEssential) << "Case(" << input1 << ", " << L << ", " << R << ", " << input2 << "): " << "passed";
+        util::UnbufferedLog(logESSENTIAL) << "Case(" << input1 << ", " << L << ", " << R << ", " << input2 << "): " << "passed";
     }
     else
     {
@@ -152,7 +154,7 @@ void remove_leaf_scaffold(string input1, int target, string input2)
 
     if (ss.isSameTree(ans, t2))
     {
-        util::UnbufferedLog(logEssential) << "Case(" << input1 << ", " << target << ", " << input2 << "): " << "passed";
+        util::UnbufferedLog(logESSENTIAL) << "Case(" << input1 << ", " << target << ", " << input2 << "): " << "passed";
     }
     else
     {
