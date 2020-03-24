@@ -15,6 +15,7 @@
 #include <cassert>
 
 #include "log.h"
+#include "timing_util.h"
 
 struct ListNode
 {
