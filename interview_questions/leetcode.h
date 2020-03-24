@@ -54,6 +54,8 @@ std::vector<int> stringToIntegerVector(std::string input);
 ListNode* stringToListNode(std::string input);
 TreeNode* stringToTreeNode(std::string input);
 
+bool list_equal(ListNode* l1, ListNode* l2);
+
 void destroyBinaryTree(TreeNode* root);
 void destroyLinkedList(ListNode* head);
 
