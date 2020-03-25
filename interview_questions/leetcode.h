@@ -56,6 +56,7 @@ ListNode* stringToListNode(std::string input);
 TreeNode* stringToTreeNode(std::string input);
 
 bool list_equal(ListNode* l1, ListNode* l2);
+bool binaryTree_equal(TreeNode* t1, TreeNode* t2);
 
 void destroyBinaryTree(TreeNode* root);
 void destroyLinkedList(ListNode* head);

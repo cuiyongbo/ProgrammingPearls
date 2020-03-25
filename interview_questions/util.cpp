@@ -183,3 +183,28 @@ bool list_equal(ListNode* l1, ListNode* l2)
 
 	return l1==NULL && l2==NULL;
 }
+
+bool binaryTree_equal(TreeNode* t1, TreeNode* t2)
+{
+	function<bool(TreeNode*, TreeNode*)> isSame = [&](TreeNode* t1, TreeNode* t2)
+	{
+		if(t1 == NULL && t2 == NULL)
+		{
+			return true;
+		}
+		else if(t1 == NULL || t2 == NULL)
+		{
+			return false;
+		}
+		else if(t1->val != t2->val)
+		{
+			return false;
+		}
+		else
+		{
+			return isSame(t1->left, t2->left) && isSame(t1->right, t2->right);
+		}
+	};
+
+	return isSame(t1, t2);
+}
