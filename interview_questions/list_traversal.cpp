@@ -25,7 +25,7 @@ ListNode* Solution::addTwoNumbers(ListNode* l1, ListNode* l2)
     */
 
     int carry = 0;
-    ListNode dummy(0);
+    ListNode dummy;
     ListNode* head = &dummy;
     while(l1 != NULL && l2 != NULL)
     {
@@ -106,7 +106,7 @@ ListNode* Solution::addTwoNumbers_445(ListNode* l1, ListNode* l2)
     }
 
     int carry = 0;
-    ListNode dummy(0);
+    ListNode dummy;
     ListNode* head = &dummy;
     while(!s1.empty() || !s2.empty())
     {
@@ -157,7 +157,7 @@ ListNode* Solution::addTwoNumbers_445(ListNode* l1, ListNode* l2)
 
 ListNode* Solution::reverseList(ListNode* head)
 {
-    ListNode dummy(0);
+    ListNode dummy;
     ListNode* p = &dummy;
     while(head != NULL)
     {
@@ -176,7 +176,7 @@ ListNode* Solution::swapPairs(ListNode* head)
         You may not modify the values in the list's nodes, only nodes itself may be changed.
     */
 
-    ListNode dummy(0);
+    ListNode dummy;
     ListNode* p = &dummy;
     stack<ListNode*> s;
     while(head != NULL)

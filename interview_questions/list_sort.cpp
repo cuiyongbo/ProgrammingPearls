@@ -22,7 +22,7 @@ private:
 
 ListNode* Solution::mergeTwoLists(ListNode* l1, ListNode* l2)
 {
-    ListNode dummy(0);
+    ListNode dummy;
     ListNode* p = &dummy;
     while(l1 != NULL && l2 != NULL)
     {
@@ -81,7 +81,7 @@ ListNode* Solution::mergeKLists_minHeap(vector<ListNode*>& lists)
         }
     }
 
-    ListNode dummy(0);
+    ListNode dummy;
     ListNode* p = &dummy;
     while(!pq.empty())
     {
@@ -97,7 +97,7 @@ ListNode* Solution::insertionSortList(ListNode* head)
     if(head == NULL || head->next == NULL)
         return head;
 
-    ListNode dummy(0);
+    ListNode dummy;
     ListNode* sorted = &dummy;
     ListNode* tmp = head->next;
     head->next = sorted->next;

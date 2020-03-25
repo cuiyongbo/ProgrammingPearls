@@ -21,7 +21,7 @@ struct ListNode
 {
 	int val;
 	ListNode* next;
-	ListNode(int n):
+	ListNode(int n=0):
 		val(n), next(nullptr)
 	{}
 };
