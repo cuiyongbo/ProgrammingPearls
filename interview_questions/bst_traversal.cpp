@@ -3,9 +3,9 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode: 98, 530*/
+/* leetcode: 98, 530 */
 
-class Solution 
+class Solution
 {
 public:
     bool isValidBST(TreeNode* root);
@@ -40,7 +40,7 @@ bool Solution::isValidBST(TreeNode* root)
 int Solution::getMinimumDifference(TreeNode* root)
 {
     /*
-        Given a binary search tree with non-negative values, 
+        Given a binary search tree with non-negative values,
         find the minimum absolute difference between values of any two nodes.
     */
 
