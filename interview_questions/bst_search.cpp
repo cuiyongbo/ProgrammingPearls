@@ -3,7 +3,7 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode: 700, 701, 230, 99 */
+/* leetcode: 700, 701, 230, 99, 108 */
 
 class Solution
 {
@@ -12,6 +12,12 @@ public:
     TreeNode* insertIntoBST(TreeNode* root, int val);
     int kthSmallest(TreeNode* root, int k);
     void recoverTree(TreeNode *root);
+    TreeNode* sortedArrayToBST(vector<int>& nums);
+
+private:
+    void recoverTree_recursive(TreeNode*);
+    void recoverTree_array_failure(TreeNode*);
+    TreeNode* sortedArrayToBST_workhorse(vector<int>& nums, int left, int right);
 };
 
 TreeNode* Solution::searchBST(TreeNode* root, int val)
@@ -67,9 +73,9 @@ int Solution::kthSmallest(TreeNode* root, int k)
     int ans = 0;
     function<void(TreeNode*)> inorder = [&] (TreeNode* node)
     {
-        if(node == NULL || k == 0) 
+        if(node == NULL || k == 0)
             return;
-        
+
         inorder(node->left);
 
         if(--k == 0)
@@ -84,14 +90,20 @@ int Solution::kthSmallest(TreeNode* root, int k)
     return ans;
 }
 
-void Solution::recoverTree(TreeNode *root)
+void Solution::recoverTree(TreeNode* root)
+{
+    return recoverTree_recursive(root);
+    // return recoverTree_array(root);
+}
+
+void Solution::recoverTree_recursive(TreeNode *root)
 {
     TreeNode* prev = NULL;
     TreeNode* first = NULL;
     TreeNode* second = NULL;
     function<void(TreeNode*)> dfs = [&](TreeNode* node)
     {
-        if(node == NULL) 
+        if(node == NULL)
             return;
 
         dfs(node->left);
@@ -115,6 +127,67 @@ void Solution::recoverTree(TreeNode *root)
 
     if(first != NULL && second != NULL)
         swap(first->val, second->val);
+}
+
+void Solution::recoverTree_array_failure(TreeNode* root)
+{
+    vector<TreeNode*> inorderSeq;
+    function<void(TreeNode*)> dfs = [&](TreeNode* node)
+    {
+        if(node == NULL) return;
+
+        dfs(node->left);
+        inorderSeq.push_back(node);
+        dfs(node->right);
+    };
+
+    dfs(root);
+
+    TreeNode* first = NULL;
+    TreeNode* second = NULL;
+
+    int i = 0;
+    int size = inorderSeq.size();
+    for(; first == NULL && i<size-1; ++i)
+    {
+        if(inorderSeq[i]->val > inorderSeq[i+1]->val)
+            first = inorderSeq[i];
+    }
+
+    for(; second == NULL && i < size; ++i)
+    {
+        if(inorderSeq[i-1] > inorderSeq[i])
+            second = inorderSeq[i];
+    }
+
+    if(first != NULL && second != NULL)
+        swap(first->val, second->val);
+}
+
+TreeNode* Solution::sortedArrayToBST(vector<int>& nums)
+{
+    /*
+        Given an array where elements are sorted in ascending order, convert it to a height balanced BST.
+        For this problem, a height-balanced binary tree is defined as a binary tree in which the depth
+        of the two subtrees of every node never differ by more than 1.
+    */
+    return sortedArrayToBST_workhorse(nums, 0, nums.size());
+}
+
+TreeNode* Solution::sortedArrayToBST_workhorse(vector<int>& nums, int left, int right)
+{
+    if(left >= right)
+    {
+        return NULL;
+    }
+    else
+    {
+        int mid = left + (right - left)/2;
+        TreeNode* root = new TreeNode(nums[mid]);
+        root->left = sortedArrayToBST_workhorse(nums, left, mid);
+        root->right = sortedArrayToBST_workhorse(nums, mid+1, right);
+        return root;
+    }
 }
 
 void searchBST_scaffold(string input, int val, bool expectedResult)
@@ -193,6 +266,25 @@ void recoverTree_scaffold(string input, string expectedResult)
     destroyBinaryTree(expected);
 }
 
+void sortedArrayToBST_scaffold(string input, string expectedResult)
+{
+    Solution ss;
+    vector<int> vi = stringToIntegerVector(input);
+    TreeNode* root = ss.sortedArrayToBST(vi);
+    TreeNode* expected = stringToTreeNode(expectedResult);
+    if(binaryTree_equal(root, expected))
+    {
+        util::Log(logESSENTIAL) << "Case (" << input  << ", expected: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case (" << input  << ", expected: " << expectedResult << ") failed";
+    }
+
+    destroyBinaryTree(root);
+    destroyBinaryTree(expected);
+}
+
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
@@ -228,9 +320,20 @@ int main()
 
     util::Log(logESSENTIAL) << "Running recoverTree tests:";
     TIMER_START(recoverTree);
+    recoverTree_scaffold("[1]", "[1]");
+    recoverTree_scaffold("[1,2]", "[2,1]");
     recoverTree_scaffold("[5,3,6,2,1,null,null,4]", "[5,3,6,2,4,null,null,1]");
     recoverTree_scaffold("[5,3,2,6,4,null,null,1]", "[5,3,6,2,4,null,null,1]");
     recoverTree_scaffold("[5,2,6,3,4,null,null,1]", "[5,3,6,2,4,null,null,1]");
     TIMER_STOP(recoverTree);
     util::Log(logESSENTIAL) << "recoverTree using " << TIMER_MSEC(recoverTree) << " milliseconds.";
+
+    util::Log(logESSENTIAL) << "Running sortedArrayToBST tests:";
+    TIMER_START(sortedArrayToBST);
+    sortedArrayToBST_scaffold("[1]", "[1]");
+    sortedArrayToBST_scaffold("[1,2]", "[2,1]");
+    sortedArrayToBST_scaffold("[1,2,3,4,5]", "[3,2,5,1,null,4]");
+    sortedArrayToBST_scaffold("[-10,-3,0,5,9]", "[0,-3,9,-10,null,5]");
+    TIMER_STOP(sortedArrayToBST);
+    util::Log(logESSENTIAL) << "sortedArrayToBST using " << TIMER_MSEC(sortedArrayToBST) << " milliseconds.";
 }
