@@ -3,13 +3,15 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode: 700, 701 */
+/* leetcode: 700, 701, 230, 99 */
 
 class Solution
 {
 public:
     TreeNode* searchBST(TreeNode* root, int val);
     TreeNode* insertIntoBST(TreeNode* root, int val);
+    int kthSmallest(TreeNode* root, int k);
+    void recoverTree(TreeNode *root);
 };
 
 TreeNode* Solution::searchBST(TreeNode* root, int val)
@@ -60,6 +62,61 @@ TreeNode* Solution::insertIntoBST(TreeNode* root, int val)
     return root;
 }
 
+int Solution::kthSmallest(TreeNode* root, int k)
+{
+    int ans = 0;
+    function<void(TreeNode*)> inorder = [&] (TreeNode* node)
+    {
+        if(node == NULL || k == 0) 
+            return;
+        
+        inorder(node->left);
+
+        if(--k == 0)
+        {
+            ans = node->val;
+        }
+
+        inorder(node->right);
+    };
+
+    inorder(root);
+    return ans;
+}
+
+void Solution::recoverTree(TreeNode *root)
+{
+    TreeNode* prev = NULL;
+    TreeNode* first = NULL;
+    TreeNode* second = NULL;
+    function<void(TreeNode*)> dfs = [&](TreeNode* node)
+    {
+        if(node == NULL) 
+            return;
+
+        dfs(node->left);
+
+        if(prev != NULL && prev->val > node->val)
+        {
+            if(first == NULL)
+            {
+                first = prev;
+            }
+
+            second = node;
+        }
+
+        prev = node;
+
+        dfs(node->right);
+    };
+
+    dfs(root);
+
+    if(first != NULL && second != NULL)
+        swap(first->val, second->val);
+}
+
 void searchBST_scaffold(string input, int val, bool expectedResult)
 {
     TreeNode* root = stringToTreeNode(input);
@@ -98,6 +155,44 @@ void insertIntoBST_scaffold(string input, int val, string expectedResult)
     destroyBinaryTree(expected);
 }
 
+void kthSmallest_scaffold(string input, int k, int expectedResult)
+{
+    TreeNode* root = stringToTreeNode(input);
+
+    Solution ss;
+    int actual = ss.kthSmallest(root, k);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case (" << input  << ", " << k << ", expected: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case (" << input  << ", " << k << ", expected: " << expectedResult << ") failed";
+    }
+
+    destroyBinaryTree(root);
+}
+
+void recoverTree_scaffold(string input, string expectedResult)
+{
+    TreeNode* root = stringToTreeNode(input);
+    TreeNode* expected = stringToTreeNode(expectedResult);
+
+    Solution ss;
+    ss.recoverTree(root);
+    if(binaryTree_equal(root, expected))
+    {
+        util::Log(logESSENTIAL) << "Case (" << input  << ", expected: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case (" << input  << ", expected: " << expectedResult << ") failed";
+    }
+
+    destroyBinaryTree(root);
+    destroyBinaryTree(expected);
+}
+
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
@@ -118,4 +213,24 @@ int main()
     insertIntoBST_scaffold("[6,2,7,1,3]", 5, "[6,2,7,1,3,null,null,null,null,null,5]");
     TIMER_STOP(insertIntoBST);
     util::Log(logESSENTIAL) << "insertIntoBST using " << TIMER_MSEC(insertIntoBST) << " milliseconds.";
+
+    util::Log(logESSENTIAL) << "Running kthSmallest tests:";
+    TIMER_START(kthSmallest);
+    kthSmallest_scaffold("[2,1]", 1, 1);
+    kthSmallest_scaffold("[4,2,7,1,3]", 1, 1);
+    kthSmallest_scaffold("[6,2,7,1,3]", 3, 3);
+    kthSmallest_scaffold("[6,2,7,1,3]", 5, 7);
+    kthSmallest_scaffold("[3,1,4,null,2]", 1, 1);
+    kthSmallest_scaffold("[5,3,6,2,4,null,null,1]", 1, 1);
+    kthSmallest_scaffold("[5,3,6,2,4,null,null,1]", 3, 3);
+    TIMER_STOP(kthSmallest);
+    util::Log(logESSENTIAL) << "kthSmallest using " << TIMER_MSEC(kthSmallest) << " milliseconds.";
+
+    util::Log(logESSENTIAL) << "Running recoverTree tests:";
+    TIMER_START(recoverTree);
+    recoverTree_scaffold("[5,3,6,2,1,null,null,4]", "[5,3,6,2,4,null,null,1]");
+    recoverTree_scaffold("[5,3,2,6,4,null,null,1]", "[5,3,6,2,4,null,null,1]");
+    recoverTree_scaffold("[5,2,6,3,4,null,null,1]", "[5,3,6,2,4,null,null,1]");
+    TIMER_STOP(recoverTree);
+    util::Log(logESSENTIAL) << "recoverTree using " << TIMER_MSEC(recoverTree) << " milliseconds.";
 }
