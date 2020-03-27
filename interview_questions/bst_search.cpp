@@ -3,7 +3,7 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode: 700, 701, 230, 99, 108 */
+/* leetcode: 700, 701, 230, 99, 108, 501, 450 */
 
 class Solution
 {
@@ -13,6 +13,9 @@ public:
     int kthSmallest(TreeNode* root, int k);
     void recoverTree(TreeNode *root);
     TreeNode* sortedArrayToBST(vector<int>& nums);
+    vector<int> findMode(TreeNode* root);
+    TreeNode* deleteNode(TreeNode* root, int key);
+    TreeNode* minimum(TreeNode* root);
 
 private:
     void recoverTree_recursive(TreeNode*);
@@ -190,6 +193,137 @@ TreeNode* Solution::sortedArrayToBST_workhorse(vector<int>& nums, int left, int 
     }
 }
 
+vector<int> Solution::findMode(TreeNode* root)
+{
+    /*
+        Given a binary search tree (BST) with duplicates, 
+        find all the mode(s) (the most frequently occurred element) in the given BST.
+    */
+
+   vector<int> ans;
+
+   int maxCount=0;
+   int curCount=0, curVal;
+
+    auto update = [&] (int val)
+    {
+        if(curCount > 0 && val == curVal)
+        {
+            ++curCount;
+        }
+        else
+        {
+            curCount = 1;
+            curVal = val;
+        }
+
+        if(curCount > maxCount)
+        {
+            maxCount = curCount;
+            ans.clear();
+        }
+
+        if(curCount == maxCount)
+        {
+            ans.push_back(val);
+        }
+    };
+
+    function<void(TreeNode*)> dfs = [&] (TreeNode* node)
+    {
+       if(node == NULL) return;
+
+        dfs(node->left);
+        update(node->val);
+       dfs(node->right);
+    };
+
+    dfs(root);
+
+    return ans;
+}
+
+TreeNode* Solution::deleteNode(TreeNode* root, int key)
+{
+    // find the node to delete
+    TreeNode* x = root;
+    TreeNode* px = NULL;
+    while(x != NULL && x->val != key)
+    {
+        px = x;
+        if(x->val > key)
+            x = x->left;
+        else
+            x = x->right;
+    }
+
+    if(x == NULL)  return root;
+
+    bool rootIsDeleted =  x == root;
+
+    auto transplant_u_with_v = [&] (TreeNode** pu, TreeNode* u, TreeNode* v)
+    {
+        if(*pu == NULL)
+            *pu = v;
+        else if(u == (*pu)->left)
+            (*pu)->left = v;
+        else
+            (*pu)->right = v;
+    };
+
+    if(x->left == NULL)
+        transplant_u_with_v(&px, x, x->right);
+    else if(x->right == NULL)
+        transplant_u_with_v(&px, x, x->left);
+    else
+    {
+        TreeNode* pmxr = x;
+        TreeNode* xr = x->right;
+        while(xr->left != NULL)
+        {
+            pmxr = xr;
+            xr = xr->left;
+        }
+
+        // xr->left == NULL
+
+        if(x->right == xr)
+        {
+            transplant_u_with_v(&px, x, x->right);
+            xr->left = x->left;
+        }        
+        else
+        {
+            transplant_u_with_v(&pmxr, xr, xr->right);
+            transplant_u_with_v(&px, x, xr);
+            xr->left = x->left;
+            xr->right = x->right;
+        }
+    }
+
+    if(0)
+    {
+        // for debug
+        x->left = NULL;
+        x->right = NULL;
+        delete x;
+    }
+
+    return rootIsDeleted ? px : root;
+}
+
+TreeNode* Solution::minimum(TreeNode* root)
+{
+    TreeNode* y = NULL;
+    while(root != NULL)
+    {
+        y = root;
+        root = root->left;
+    }
+    return y;
+}
+
+
 void searchBST_scaffold(string input, int val, bool expectedResult)
 {
     TreeNode* root = stringToTreeNode(input);
@@ -285,6 +419,42 @@ void sortedArrayToBST_scaffold(string input, string expectedResult)
     destroyBinaryTree(expected);
 }
 
+void findMode_scaffold(string input, vector<int>& expectedResult)
+{
+    Solution ss;
+    TreeNode* root = stringToTreeNode(input);
+    vector<int> actual = ss.findMode(root);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case (" << input  << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case (" << input << ") failed";
+    }
+    destroyBinaryTree(root);
+}
+
+void deleteNode_scaffold(string input, int k, string expectedResult)
+{
+    TreeNode* root = stringToTreeNode(input);
+    TreeNode* expected = stringToTreeNode(expectedResult);
+
+    Solution ss;
+    TreeNode* actual = ss.deleteNode(root, k);
+    if(binaryTree_equal(actual, expected))
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", " << k << ", " << expectedResult << ") passed"; 
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", " << k << ", " << expectedResult << ") failed"; 
+    }
+
+    destroyBinaryTree(actual);
+    destroyBinaryTree(expected);
+}
+
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
@@ -336,4 +506,25 @@ int main()
     sortedArrayToBST_scaffold("[-10,-3,0,5,9]", "[0,-3,9,-10,null,5]");
     TIMER_STOP(sortedArrayToBST);
     util::Log(logESSENTIAL) << "sortedArrayToBST using " << TIMER_MSEC(sortedArrayToBST) << " milliseconds.";
+
+    util::Log(logESSENTIAL) << "Running findMode tests:";
+    TIMER_START(findMode);
+
+    vector<int> expected;
+    expected.push_back(2);
+    findMode_scaffold("[1,null,2,2]", expected);
+
+    TIMER_STOP(findMode);
+    util::Log(logESSENTIAL) << "findMode using " << TIMER_MSEC(findMode) << " milliseconds.";
+
+    util::Log(logESSENTIAL) << "Running deleteNode tests:";
+    TIMER_START(deleteNode);
+    deleteNode_scaffold("[5,3,6,2,4,null,7]", 3, "[5,4,6,2,null,null,7]");
+    deleteNode_scaffold("[5,3,12,2,4,8,17,null,null,null,null,null,9]", 5, "[8,3,12,2,4,9,17]");
+    deleteNode_scaffold("[5,3,6,2,4,null,7]", 5, "[6,3,7,2,4]");
+    deleteNode_scaffold("[5,3]", 5, "[3]");
+    deleteNode_scaffold("[5,null,6]", 5, "[6]");
+    deleteNode_scaffold("[5]", 5, "[]");
+    TIMER_STOP(deleteNode);
+    util::Log(logESSENTIAL) << "deleteNode using " << TIMER_MSEC(deleteNode) << " milliseconds.";
 }
