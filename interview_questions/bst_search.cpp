@@ -323,7 +323,6 @@ TreeNode* Solution::minimum(TreeNode* root)
     return y;
 }
 
-
 void searchBST_scaffold(string input, int val, bool expectedResult)
 {
     TreeNode* root = stringToTreeNode(input);
