@@ -5,19 +5,19 @@ using namespace std;
 
 void generateTestArray(vector<int>& input, int arraySize, bool allEqual, bool sorted)
 {
-    input.resize(arraySize);
-    if (allEqual)
-    {
-        input.assign(arraySize, rand());
-    }
-    else
-    {
-        for(int i=0; i<arraySize; ++i)
-            input[i] = rand()%827396154;
+	input.resize(arraySize);
+	if (allEqual)
+	{
+		input.assign(arraySize, rand());
+	}
+	else
+	{
+		for(int i=0; i<arraySize; ++i)
+			input[i] = rand()%827396154;
 
 		if(sorted)
-        	sort(input.begin(), input.end());
-    }
+			sort(input.begin(), input.end());
+	}
 }
 
 void printLinkedList(ListNode* head)
@@ -207,4 +207,113 @@ bool binaryTree_equal(TreeNode* t1, TreeNode* t2)
 	};
 
 	return isSame(t1, t2);
+}
+
+// in format like [[2,4],[1,3],[2,4],[1,3]]
+Node* stringToUndirectedGraph(std::string& input)
+{
+	/*
+		Test case format:
+
+			For simplicity sake, each node's value is the same as the node's index (1-indexed). 
+			For example, the first node with val = 1, the second node with val = 2, and so on. 
+			The graph is represented in the test case using an adjacency list.
+
+			Adjacency list is a collection of unordered lists used to represent a finite graph. 
+			Each list describes the set of neighbors of a node in the graph.
+	*/
+
+	vector<vector<int>> adjLists = stringTo2DArray(input);
+
+	if(adjLists.empty()) return NULL;
+
+	int nodeCount = adjLists.size();
+	vector<Node*> nodes(nodeCount, NULL);
+	for(int i=0; i<nodeCount; ++i)
+	{
+		if(nodes[i] == NULL) 
+			nodes[i] = new Node(i+1);
+
+		for(auto n: adjLists[i])
+		{
+			if(nodes[n-1] == NULL)
+				nodes[n-1] = new Node(n);
+			
+			nodes[i]->neighbors.push_back(nodes[n-1]);
+		}
+	}
+
+	return nodes[0];
+}
+
+bool graph_equal(Node* g1, Node* g2)
+{
+	set<Node*> visited;
+	function<bool(Node*, Node*)> dfs = [&](Node* g1, Node* g2)
+	{
+		if(g1 == NULL && g2 == NULL)
+		{
+			return true;
+		}
+		else if(g1 == NULL || g2 == NULL)
+		{
+			return false;
+		}
+		else if(g1->val != g2->val)
+		{
+			return false;
+		}
+		else
+		{
+			if(g1->neighbors.size() != g2->neighbors.size())
+				return false;
+
+			for(int i=0; i<g1->neighbors.size(); ++i)
+			{
+				if(visited.count(g1->neighbors[i]) > 0)
+					continue;
+				
+				visited.insert(g1->neighbors[i]);
+				if(!dfs(g1->neighbors[i], g2->neighbors[i]))
+					return false;
+			}
+			return true;
+		}
+	};
+
+	return dfs(g1, g2);
+}
+
+std::vector<std::vector<int>> stringTo2DArray(std::string input)
+{
+	trimTrailingSpaces(input);
+	input = input.substr(1, input.length()-2);
+
+	vector<vector<int>> adjLists;
+
+	size_t pos = 0;
+	while(pos < input.size())
+	{
+		size_t last = pos;
+		pos = input.find(']', pos);
+		if(pos == string::npos) break;
+		string item = input.substr(last, pos-last+1);
+		adjLists.push_back(stringToIntegerVector(item));
+		pos = pos + 2;
+	}
+
+	return adjLists;
+}
+
+string intVectorToString(vector<int> input)
+{
+	string ans;
+	ans += '[';
+	for(auto n: input)
+	{
+		ans = ans + std::to_string(n) + ",";
+	}
+	if(ans.back() == ',') ans.pop_back();
+	ans += ']';
+	return ans;
 }
