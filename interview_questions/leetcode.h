@@ -35,6 +35,12 @@ struct TreeNode
 	TreeNode(int n=0) :
 		val(n), left(nullptr), right(nullptr)
 	{}
+
+    ~TreeNode()
+    {
+        delete left;
+        delete right;
+    }
 };
 
 template<class T>

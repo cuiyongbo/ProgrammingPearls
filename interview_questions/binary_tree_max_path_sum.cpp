@@ -3,7 +3,7 @@
 using namespace std;
 using namespace osrm;
 
-/*leetcode: 124, 543, 687*/
+/* leetcode: 124, 543, 687 */
 
 class Solution
 {
@@ -27,7 +27,7 @@ int Solution::maxPathSum(TreeNode* root)
 
     */
 
-    int ans = 0;
+    int ans = INT_MIN;
     function<int(TreeNode*)> helper = [&](TreeNode* node)
     {
         if(node == NULL) return 0;
@@ -50,6 +50,10 @@ int Solution::diameterOfBinaryTree(TreeNode* root)
         Given a binary tree, you need to compute the length of the diameter of the tree.
         The diameter of a binary tree is the length of the longest path between any two
         nodes in a tree. This path may or may not pass through the root.
+
+        helper(root) return the node count of a longest path:
+            path starting from root
+            only one child can be used
     */
 
     int ans = 0;
@@ -59,8 +63,8 @@ int Solution::diameterOfBinaryTree(TreeNode* root)
 
         int l = helper(node->left);
         int r = helper(node->right);
-        int sum = 1 + l + r;
-        ans = std::max(ans, sum);
+        int sum = l + r; // path length
+        ans = std::max(ans, l+r);
         return 1 + std::max(l, r);
     };
 
@@ -78,15 +82,15 @@ int Solution::longestUnivaluePath(TreeNode* root)
 
         The length of a path between two nodes is represented
         by the number of edges between two nodes.
+
+        helper(node) returns the lenght of longest univalue path:
+            starting from node
+            at most one child subtree can be used
     */
 
     int ans = 0;
     function<int(TreeNode*)> helper = [&](TreeNode* node)
     {
-        /*
-            node must be used
-            cannot use both children
-        */
         if(node == NULL) return 0;
 
         int l = helper(node->left);
@@ -110,6 +114,7 @@ int Solution::longestUnivaluePath(TreeNode* root)
 void maxPathSum_scaffold(string input, int expected)
 {
     TreeNode* root = stringToTreeNode(input);
+    std::unique_ptr<TreeNode> doorkeeper(root);
 
     Solution ss;
     int actual = ss.maxPathSum(root);
@@ -122,13 +127,12 @@ void maxPathSum_scaffold(string input, int expected)
         util::Log(logERROR) << "Case(" << input << ", " << expected << ") failed";
         util::Log(logERROR) << "expected: " << expected << ", actual: " << actual;
     }
-
-    destroyBinaryTree(root);
 }
 
 void diameterOfBinaryTree_scaffold(string input, int expected)
 {
     TreeNode* root = stringToTreeNode(input);
+    std::unique_ptr<TreeNode> doorkeeper(root);
 
     Solution ss;
     int actual = ss.diameterOfBinaryTree(root);
@@ -141,13 +145,12 @@ void diameterOfBinaryTree_scaffold(string input, int expected)
         util::Log(logERROR) << "Case(" << input << ", " << expected << ") failed";
         util::Log(logERROR) << "expected: " << expected << ", actual: " << actual;
     }
-
-    destroyBinaryTree(root);
 }
 
 void longestUnivaluePath_scaffold(string input, int expected)
 {
     TreeNode* root = stringToTreeNode(input);
+    std::unique_ptr<TreeNode> doorkeeper(root);
 
     Solution ss;
     int actual = ss.longestUnivaluePath(root);
@@ -160,26 +163,36 @@ void longestUnivaluePath_scaffold(string input, int expected)
         util::Log(logERROR) << "Case(" << input << ", " << expected << ") failed";
         util::Log(logERROR) << "expected: " << expected << ", actual: " << actual;
     }
-
-    destroyBinaryTree(root);
 }
 
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
 
-    util::Log() << "Running maxPathSum tests:";
+    util::Log(logESSENTIAL) << "Running maxPathSum tests:";
+    TIMER_START(maxPathSum);
+    maxPathSum_scaffold("[-3]", -3);
     maxPathSum_scaffold("[1,2,3]", 6);
     maxPathSum_scaffold("[1,2,3,4]", 10);
     maxPathSum_scaffold("[-10,9,20,null,null,15,7]", 42);
     maxPathSum_scaffold("[-10,9,20,null,null,15,7,8]", 50);
+    TIMER_STOP(maxPathSum);
+    util::Log(logESSENTIAL) << "maxPathSum using " << TIMER_MSEC(maxPathSum) << " milliseconds";
 
-    util::Log() << "Running diameterOfBinaryTree tests:";
-    diameterOfBinaryTree_scaffold("[1,2,3,4,5]", 4);
-    diameterOfBinaryTree_scaffold("[-10,9,20,null,null,15,7]", 4);
-    diameterOfBinaryTree_scaffold("[-10,9,20,null,null,15,7,8]", 5);
+    util::Log(logESSENTIAL) << "Running diameterOfBinaryTree tests:";
+    TIMER_START(diameterOfBinaryTree);
+    diameterOfBinaryTree_scaffold("[]", 0);
+    diameterOfBinaryTree_scaffold("[1]", 0);
+    diameterOfBinaryTree_scaffold("[1,2,3,4,5]", 3);
+    diameterOfBinaryTree_scaffold("[-10,9,20,null,null,15,7]", 3);
+    diameterOfBinaryTree_scaffold("[-10,9,20,null,null,15,7,8]", 4);
+    TIMER_STOP(diameterOfBinaryTree);
+    util::Log(logESSENTIAL) << "diameterOfBinaryTree using " << TIMER_MSEC(diameterOfBinaryTree) << " milliseconds";
 
-    util::Log() << "Running longestUnivaluePath tests:";
+    util::Log(logESSENTIAL) << "Running longestUnivaluePath tests:";
+    TIMER_START(longestUnivaluePath);
     longestUnivaluePath_scaffold("[1,2,3,4,5]", 0);
     longestUnivaluePath_scaffold("[5,5,5,5]", 3);
+    TIMER_STOP(longestUnivaluePath);
+    util::Log(logESSENTIAL) << "longestUnivaluePath using " << TIMER_MSEC(longestUnivaluePath) << " milliseconds";
 }
