@@ -1,9 +1,14 @@
 #include <iostream>
 #include <new>
 
+using namespace std;
 
 class ZeroedObject
 {
+public:
+	ZeroedObject() { cout << "ZeroedObject()\n"; }
+	~ZeroedObject() { cout << "~ZeroedObject()\n"; }
+
 public:
 	void* operator new(size_t size);
 	void operator delete(void* p);
@@ -13,7 +18,7 @@ public:
 
 void* ZeroedObject::operator new(size_t size)
 {
-	std::cout << "operator new\n";
+	cout << "operator new\n";
 	void* ptr = NULL;
 	if (size != 0)
 	{
@@ -27,13 +32,13 @@ void* ZeroedObject::operator new(size_t size)
 
 void ZeroedObject::operator delete(void* p)
 {
-	std::cout << "operator delete\n";
+	cout << "operator delete\n";
 	::operator delete(p);
 }
 
 void* ZeroedObject::operator new[](size_t size)
 {
-	std::cout << "operator new[]\n";
+	cout << "operator new[]\n";
 	void* ptr = NULL;
 	if (size != 0)
 	{
@@ -47,7 +52,7 @@ void* ZeroedObject::operator new[](size_t size)
 
 void ZeroedObject::operator delete[](void* p)
 {
-	std::cout << "operator delete[]\n";
+	cout << "operator delete[]\n";
 	::operator delete[](p);
 }
 
@@ -59,4 +64,3 @@ int main()
 	ZeroedObject* pp = new ZeroedObject;
 	delete pp;
 }
-
