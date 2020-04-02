@@ -215,11 +215,11 @@ Node* stringToUndirectedGraph(std::string& input)
 	/*
 		Test case format:
 
-			For simplicity sake, each node's value is the same as the node's index (1-indexed). 
-			For example, the first node with val = 1, the second node with val = 2, and so on. 
+			For simplicity sake, each node's value is the same as the node's index (1-indexed).
+			For example, the first node with val = 1, the second node with val = 2, and so on.
 			The graph is represented in the test case using an adjacency list.
 
-			Adjacency list is a collection of unordered lists used to represent a finite graph. 
+			Adjacency list is a collection of unordered lists used to represent a finite graph.
 			Each list describes the set of neighbors of a node in the graph.
 	*/
 
@@ -231,14 +231,14 @@ Node* stringToUndirectedGraph(std::string& input)
 	vector<Node*> nodes(nodeCount, NULL);
 	for(int i=0; i<nodeCount; ++i)
 	{
-		if(nodes[i] == NULL) 
+		if(nodes[i] == NULL)
 			nodes[i] = new Node(i+1);
 
 		for(auto n: adjLists[i])
 		{
 			if(nodes[n-1] == NULL)
 				nodes[n-1] = new Node(n);
-			
+
 			nodes[i]->neighbors.push_back(nodes[n-1]);
 		}
 	}
@@ -272,7 +272,7 @@ bool graph_equal(Node* g1, Node* g2)
 			{
 				if(visited.count(g1->neighbors[i]) > 0)
 					continue;
-				
+
 				visited.insert(g1->neighbors[i]);
 				if(!dfs(g1->neighbors[i], g2->neighbors[i]))
 					return false;
@@ -305,15 +305,18 @@ std::vector<std::vector<int>> stringTo2DArray(std::string input)
 	return adjLists;
 }
 
-string intVectorToString(vector<int> input)
+// output in format like "[1,1,2]"
+string intVectorToString(vector<int>& input)
 {
 	string ans;
-	ans += '[';
-	for(auto n: input)
+	ans.reserve(input.size() * 4);
+	ans += "[";
+	for(const auto& n: input)
 	{
-		ans = ans + std::to_string(n) + ",";
+		ans.append(std::to_string(n));
+		ans.append(",");
 	}
 	if(ans.back() == ',') ans.pop_back();
-	ans += ']';
+	ans += "]";
 	return ans;
 }

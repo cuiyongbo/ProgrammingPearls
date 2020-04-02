@@ -57,13 +57,13 @@ void trimTrailingSpaces(std::string& input);
 void trimLeftTrailingSpaces(std::string& input);
 void trimRightTrailingSpaces(std::string& input);
 
-std::string intVectorToString(std::vector<int> input);
-
 // in format like [1,2,3]
 std::vector<int> stringToIntegerVector(std::string input);
 std::vector<std::vector<int>> stringTo2DArray(std::string input);
 ListNode* stringToListNode(std::string input);
 TreeNode* stringToTreeNode(std::string input);
+
+std::string intVectorToString(std::vector<int>& input);
 
 bool list_equal(ListNode* l1, ListNode* l2);
 bool binaryTree_equal(TreeNode* t1, TreeNode* t2);
