@@ -141,47 +141,37 @@ vector<int> Solution::eventualSafeNodes(vector<vector<int>>& graph)
     */
 
     int nodeCount = graph.size();
-    set<int> cycleNodes;
-    set<int> path;
+    vector<int> colors(nodeCount, 0);
+
+    set<int> candidate;
     function<bool(int)> dfs = [&](int u)
     {
-        path.emplace(u);
+        colors[u] = 1;
         for(const auto& v: graph[u])
         {
-            if(path.count(v) == 0)
+            if(colors[v] == 0)
             {
                 if(!dfs(v))
                 {
                     return false;
                 }
             }
-            else
+            else if(colors[v] == 1)
             {
                 return false;
             }
         }
-        path.emplace(u);
+        colors[u] = 2;
+        candidate.emplace(u);
         return true;
     };
 
-    vector<int> ans;
-    ans.reserve(nodeCount);
     for (int i = 0; i < nodeCount; ++i)
     {
-        if(cycleNodes.count(i) == 0)
-        {
-            if(dfs(i))
-            {
-                ans.push_back(i);
-            }
-            else
-            {
-                cycleNodes.merge(path);
-                path.clear();
-            }
-        }
+        if(colors[i] == 0)
+            dfs(i);
     }
-    return ans;
+    return vector<int>(candidate.begin(), candidate.end());
 }
 
 void canFinish_scaffold(int numCourses, string input, bool expectedResult)
@@ -260,6 +250,7 @@ int main()
     util::Log(logESSENTIAL) << "Running eventualSafeNodes tests:";
     TIMER_START(eventualSafeNodes);
     eventualSafeNodes_scaffold("[[1,2],[2,3],[5],[0],[5],[],[]]", "[2,4,5,6]");
+    eventualSafeNodes_scaffold("[[1],[2,4],[3],[2],[]]", "[4]");
     TIMER_STOP(eventualSafeNodes);
     util::Log(logESSENTIAL) << "eventualSafeNodes using " << TIMER_MSEC(eventualSafeNodes) << " milliseconds";
 }
