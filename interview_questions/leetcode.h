@@ -16,6 +16,7 @@
 
 #include "log.h"
 #include "timing_util.h"
+#include "disjoint_set.h"
 
 struct ListNode
 {
@@ -57,56 +58,42 @@ void trimTrailingSpaces(std::string& input);
 void trimLeftTrailingSpaces(std::string& input);
 void trimRightTrailingSpaces(std::string& input);
 
+// output in format like "[1,1,2]"
+template<typename T>
+std::string numberVectorToString(std::vector<T>& input)
+{
+	std::string ans;
+	ans.reserve(input.size() * 4);
+	ans += "[";
+	for(const auto& n: input)
+	{
+		ans.append(std::to_string(n));
+		ans.append(",");
+	}
+	if(ans.back() == ',') ans.pop_back();
+	ans += "]";
+	return ans;
+}
+
+// in format like [1.0, 2.0]
+std::vector<double> stringToDoubleVector(std::string input);
+
 // in format like [1,2,3]
 std::vector<int> stringToIntegerVector(std::string input);
 std::vector<std::vector<int>> stringTo2DArray(std::string input);
+
 ListNode* stringToListNode(std::string input);
 TreeNode* stringToTreeNode(std::string input);
 
-std::string intVectorToString(std::vector<int>& input);
+// in format like [a, b]
+std::vector<std::string> toStringArray(std::string input);
+std::vector<std::vector<std::string>> to2DStringArray(std::string input);
 
 bool list_equal(ListNode* l1, ListNode* l2);
 bool binaryTree_equal(TreeNode* t1, TreeNode* t2);
 
 void destroyBinaryTree(TreeNode* root);
 void destroyLinkedList(ListNode* head);
-
-class DSU
-{
-public:
-    DSU(int count)
-    {
-        m_aux.resize(count);
-		std::iota(m_aux.begin(), m_aux.end(), 0);
-    }
-
-    int find(int x)
-    {
-        if(m_aux[x] != x)
-        {
-            m_aux[x] = find(m_aux[x]);
-        }
-        return m_aux[x];
-    }
-
-    void unionFunc(int x, int y)
-    {
-        m_aux[find(x)] = find(y);
-    }
-
-    int groupCount()
-    {
-    	std::unordered_set<int> groups;
-    	for(int i=0; i<m_aux.size(); ++i)
-    	{
-    		groups.emplace(find(i));
-    	}
-    	return groups.size();
-    }
-
-private:
-    std::vector<int> m_aux;
-};
 
 class Node
 {

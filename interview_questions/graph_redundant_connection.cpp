@@ -5,51 +5,6 @@ using namespace osrm;
 
 /* leetcode exercises: 684, 685, 1319 */
 
-class DisjointSet
-{
-public:
-    DisjointSet(int n)
-    {
-        m_rank.resize(n+1, 0);
-        m_parent.resize(n+1, 0);
-        std::iota(m_parent.begin(), m_parent.end(), 0);
-    }
-
-    int find(int x)
-    {
-        if(m_parent[x] != x)
-        {
-            m_parent[x] = find(m_parent[x]);
-        }
-        return m_parent[x];
-    }
-
-    bool unionFunc(int x, int y)
-    {
-        int px = find(x);
-        int py = find(y);
-
-        if(px == py)
-            return false; // cycle detected
-
-        if(m_rank[px] > m_rank[py])
-        {
-            m_parent[py] = px;
-        }
-        else
-        {
-            m_parent[px] = py;
-            if(m_rank[px] == m_rank[py])
-                ++m_rank[py];
-        }
-        return true;
-    }
-
-private:
-    vector<int> m_parent;
-    vector<int> m_rank;
-};
-
 class Solution
 {
 public:

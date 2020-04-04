@@ -74,7 +74,23 @@ vector<int> stringToIntegerVector(string input)
 	stringstream ss(input);
 	while (getline(ss, item, delim))
 	{
-		output.push_back(stoi(item));
+		output.push_back(std::stoi(item));
+	}
+	return output;
+}
+
+// in format like [1.0, 2.0, 3.0]
+std::vector<double> stringToDoubleVector(std::string input)
+{
+	vector<double> output;
+	trimTrailingSpaces(input);
+	input = input.substr(1, input.length() - 2);
+	string item;
+	char delim = ',';
+	stringstream ss(input);
+	while (getline(ss, item, delim))
+	{
+		output.push_back(std::stod(item));
 	}
 	return output;
 }
@@ -305,18 +321,39 @@ std::vector<std::vector<int>> stringTo2DArray(std::string input)
 	return adjLists;
 }
 
-// output in format like "[1,1,2]"
-string intVectorToString(vector<int>& input)
+std::vector<std::vector<std::string>> to2DStringArray(std::string input)
 {
-	string ans;
-	ans.reserve(input.size() * 4);
-	ans += "[";
-	for(const auto& n: input)
+	trimTrailingSpaces(input);
+	input = input.substr(1, input.length()-2);
+
+	vector<vector<string>> adjLists;
+
+	size_t pos = 0;
+	while(pos < input.size())
 	{
-		ans.append(std::to_string(n));
-		ans.append(",");
+		size_t last = pos;
+		pos = input.find(']', pos);
+		if(pos == string::npos) break;
+		string item = input.substr(last, pos-last+1);
+		adjLists.push_back(toStringArray(item));
+		pos = pos + 2;
 	}
-	if(ans.back() == ',') ans.pop_back();
-	ans += "]";
-	return ans;
+	return adjLists;
+}
+
+std::vector<std::string> toStringArray(std::string input)
+{
+	trimTrailingSpaces(input);
+	input = input.substr(1, input.length() - 2);
+
+	vector<string> output;
+	stringstream ss(input);
+	string item;
+	char delimiter = ',';
+	while(getline(ss, item, delimiter))
+	{
+		trimTrailingSpaces(item);
+		output.push_back(item);
+	}
+	return output;
 }
