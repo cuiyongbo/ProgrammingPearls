@@ -38,6 +38,10 @@ add_executable(graph_redundant_connection graph_redundant_connection.cpp ${PUB_U
 target_compile_features(graph_redundant_connection PUBLIC cxx_auto_type) # let cmake deduce the c++ standard to use
 target_link_libraries(graph_redundant_connection)
 
+add_executable(binary_search_search_insert_pos binary_search_search_insert_pos.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_search_search_insert_pos PUBLIC cxx_auto_type)
+target_link_libraries(binary_search_search_insert_pos)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
