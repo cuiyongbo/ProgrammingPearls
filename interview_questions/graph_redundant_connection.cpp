@@ -157,7 +157,7 @@ void findRedundantConnection_scaffold(string input, string expectedResult)
     else
     {
         util::Log(logERROR) << "Case(" << input << "," << expectedResult << ") failed";
-        util::Log(logERROR) << "Expected: " << expectedResult << ", acutal: " << intVectorToString(actual);
+        util::Log(logERROR) << "Expected: " << expectedResult << ", acutal: " << numberVectorToString(actual);
     }
 }
 
@@ -174,7 +174,7 @@ void findRedundantDirectedConnection_scaffold(string input, string expectedResul
     else
     {
         util::Log(logERROR) << "Case(" << input << "," << expectedResult << ") failed";
-        util::Log(logERROR) << "Expected: " << expectedResult << ", acutal: " << intVectorToString(actual);
+        util::Log(logERROR) << "Expected: " << expectedResult << ", acutal: " << numberVectorToString(actual);
     }
 }
 

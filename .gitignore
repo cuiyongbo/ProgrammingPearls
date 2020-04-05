@@ -28,3 +28,8 @@ path_finding_alg/_build/
 test.cpp
 test.c
 .vscode
+interview_questions/build
+interview_questions/_build
+build
+_build
+

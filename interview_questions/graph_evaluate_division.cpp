@@ -3,7 +3,7 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode exercises: 721, 399, 737 */
+/* leetcode exercises: 721, 399, 737, 839 */
 
 class Solution
 {
@@ -11,6 +11,7 @@ public:
     vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries);
     bool areSentencesSimilarTwo(vector<string>& words1, vector<string>& words2, vector<vector<string>>& pairs);
     vector<vector<string>> accountsMerge(vector<vector<string>>& accounts);
+    int numSimilarGroups(vector<string>& A);
 };
 
 vector<double> Solution::calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries)
@@ -149,7 +150,6 @@ bool Solution::areSentencesSimilarTwo(vector<string>& words1, vector<string>& wo
     if(wordToIdMap.empty())
         return false;
 
-    int wordCount = words1.size();
     int dictCount = wordToIdMap.size();
     DisjointSet dsu(dictCount);
     for(const auto& p: pairs)
@@ -236,6 +236,54 @@ vector<vector<string>> Solution::accountsMerge(vector<vector<string>>& accounts)
     return ans;
 }
 
+int Solution::numSimilarGroups(vector<string>& A)
+{
+    /*
+        Two strings X and Y are similar if we can swap two letters (in different positions) of X, so that it equals Y.
+
+        For example, "tars" and "rats" are similar (swapping at positions 0 and 2), and "rats" and "arts" are similar, 
+        but "star" is not similar to "tars", "rats", or "arts".
+
+        Together, these form two connected groups by similarity: {"tars", "rats", "arts"} and {"star"}.  
+        Notice that "tars" and "arts" are in the same group even though they are not similar.  
+        Formally, each group is such that a word is in the group if and only if it is similar 
+        to at least one other word in the group.
+
+        We are given a list A of strings.  Every string in A is an anagram of every other string in A.  
+        How many groups are there?
+    */
+
+    auto isSimilar = [&](int i, int j)
+    {
+        int diff = 0;
+        for(int k=0; k<A[i].size(); ++k)
+        {
+            if(A[i][k] != A[j][k])
+                ++diff;
+        }
+        return diff == 2;
+    };
+
+    int dictCount = A.size();
+
+    DisjointSet dsu(dictCount);
+    for(int i=0; i<dictCount; ++i)
+    {
+        for(int j=1; j<dictCount; ++j)
+        {
+            if(isSimilar(i, j))
+                dsu.unionFunc(i, j);
+        }
+    }
+
+    set<int> groups;
+    for(int i=0; i<dictCount; ++i)
+    {
+        groups.emplace(dsu.find(i));
+    }
+    return groups.size();
+}
+
 void calcEquation_scaffold(string equations, string values, string queries, string expectedResult)
 {
     Solution ss;
@@ -296,6 +344,22 @@ void accountsMerge_scaffold(string input, string expectedResult)
     }
 }
 
+void numSimilarGroups_scaffold(string input, int expectedResult)
+{
+    Solution ss;
+    vector<string> accounts = toStringArray(input);
+    int actual = ss.numSimilarGroups(accounts);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "actual: " << actual;
+    }
+}
+
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
@@ -325,5 +389,11 @@ int main()
                             "[Mary, mary@mail.com]]");
     TIMER_STOP(accountsMerge);
     util::Log(logESSENTIAL) << "accountsMerge using " << TIMER_MSEC(accountsMerge) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running numSimilarGroups tests:";
+    TIMER_START(numSimilarGroups);
+    numSimilarGroups_scaffold("[star, rats, arts, tars]", 2);
+    TIMER_STOP(numSimilarGroups);
+    util::Log(logESSENTIAL) << "numSimilarGroups using " << TIMER_MSEC(numSimilarGroups) << " milliseconds";
 
 }
