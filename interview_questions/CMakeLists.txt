@@ -16,7 +16,7 @@ endif()
 
 MESSAGE(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
-SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall")
+SET(CMAKE_CXX_FLAGS " -Wall")
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
@@ -28,11 +28,14 @@ else()
 endif()
 
 # message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+# message("List of compile features: ${CMAKE_CXX_COMPILE_FEATURES}")
 
 add_executable(graph_evaluate_division graph_evaluate_division.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_evaluate_division PUBLIC cxx_std_17)
 target_link_libraries(graph_evaluate_division)
 
 add_executable(graph_redundant_connection graph_redundant_connection.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_redundant_connection PUBLIC cxx_auto_type) # let cmake deduce the c++ standard to use
 target_link_libraries(graph_redundant_connection)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

@@ -3,7 +3,7 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode exercises: 721, 399, 737, 839 */
+/* leetcode exercises: 721, 399, 737, 839, 952, 990 */
 
 class Solution
 {
@@ -12,6 +12,8 @@ public:
     bool areSentencesSimilarTwo(vector<string>& words1, vector<string>& words2, vector<vector<string>>& pairs);
     vector<vector<string>> accountsMerge(vector<vector<string>>& accounts);
     int numSimilarGroups(vector<string>& A);
+    int largestComponentSize(vector<int>& A);
+    bool equationsPossible(vector<string>& equations);
 };
 
 vector<double> Solution::calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries)
@@ -284,6 +286,72 @@ int Solution::numSimilarGroups(vector<string>& A)
     return groups.size();
 }
 
+int Solution::largestComponentSize(vector<int>& A)
+{
+    /*
+        Given a non-empty array of unique positive integers A, consider the following graph:
+
+        There are A.length nodes, labelled A[0] to A[A.length - 1];
+        There is an edge between A[i] and A[j] if and only if A[i] and A[j] share a common factor greater than 1.
+
+        Return the size of the largest connected component in the graph.
+    */
+
+    auto isSimilar = [&](int i, int j)
+    {
+        int cf = std::gcd(A[i], A[j]);
+        return  cf > 1;
+    };
+
+    int dictCount = A.size();
+
+    DisjointSet dsu(dictCount);
+    for(int i=0; i<dictCount; ++i)
+    {
+        for(int j=1; j<dictCount; ++j)
+        {
+            if(isSimilar(i, j))
+                dsu.unionFunc(i, j);
+        }
+    }
+
+    int ans = 0;
+    map<int, int> groups;
+    for(int i=0; i<dictCount; ++i)
+    {
+        groups[dsu.find(i)]++;
+        ans = std::max(ans, groups[dsu.find(i)]);
+    }
+    return ans;
+}
+
+bool Solution::equationsPossible(vector<string>& equations)
+{
+    /*
+        Given an array equations of strings that represent relationships between variables, 
+        each string equations[i] has length 4 and takes one of two different forms: "a==b" or "a!=b".  
+        Here, a and b are lowercase letters (not necessarily different) that represent one-letter variable names.
+
+        Return true if and only if it is possible to assign integers to variable names so as to satisfy all the given equations.    
+    */
+
+    DisjointSet eq_set(128);
+    for(const auto& e: equations)
+    {
+        if(e[1] == '=') eq_set.unionFunc(e[0], e[3]);
+    }
+
+    for(const auto& e: equations)
+    {
+        // "==" is transitive but "!=" not 
+        if(e[1] != '=' && eq_set.find(e[0]) == eq_set.find(e[3]))
+            return false;
+    }
+
+    return true;
+}
+
+
 void calcEquation_scaffold(string equations, string values, string queries, string expectedResult)
 {
     Solution ss;
@@ -360,6 +428,37 @@ void numSimilarGroups_scaffold(string input, int expectedResult)
     }
 }
 
+void largestComponentSize_scaffold(string input, int expectedResult)
+{
+    Solution ss;
+    vector<int> graph = stringToIntegerVector(input);
+    int actual = ss.largestComponentSize(graph);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "actual: " << actual;
+    }
+}
+
+void equationsPossible_scaffold(string input, bool expectedResult)
+{
+    Solution ss;
+    vector<string> equations = toStringArray(input);
+    bool actual = ss.equationsPossible(equations);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
+    }
+}
+
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
@@ -396,4 +495,23 @@ int main()
     TIMER_STOP(numSimilarGroups);
     util::Log(logESSENTIAL) << "numSimilarGroups using " << TIMER_MSEC(numSimilarGroups) << " milliseconds";
 
+    util::Log(logESSENTIAL) << "Running largestComponentSize tests:";
+    TIMER_START(largestComponentSize);
+    largestComponentSize_scaffold("[4,6,15,35]", 4);
+    largestComponentSize_scaffold("[20,50,9,63]", 2);
+    largestComponentSize_scaffold("[2,3,6,7,4,12,21,39]", 8);
+    TIMER_STOP(largestComponentSize);
+    util::Log(logESSENTIAL) << "largestComponentSize using " << TIMER_MSEC(largestComponentSize) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running equationsPossible tests:";
+    TIMER_START(equationsPossible);
+    equationsPossible_scaffold("[a==b, b!=a]", false);
+    equationsPossible_scaffold("[a==b, b==a]", true);
+    equationsPossible_scaffold("[a==b, b==c, a==c]", true);
+    equationsPossible_scaffold("[a==b, b!=c, a==c]", false);
+    equationsPossible_scaffold("[a==b, c!=b, a==c]", false);
+    equationsPossible_scaffold("[a==a, b==d, x!=z]", true);
+    equationsPossible_scaffold("[a!=b, b!=c, c!=a]", true);
+    TIMER_STOP(equationsPossible);
+    util::Log(logESSENTIAL) << "equationsPossible using " << TIMER_MSEC(equationsPossible) << " milliseconds";
 }
