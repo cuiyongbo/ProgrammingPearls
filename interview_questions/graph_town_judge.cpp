@@ -1,0 +1,77 @@
+#include "leetcode.h"
+
+using namespace std;
+using namespace osrm;
+
+/* leetcode exercise: 997 */
+
+class Solution
+{
+public:
+    int findJudge(int N, vector<vector<int>> &trusts);
+};
+
+int Solution::findJudge(int N, vector<vector<int>> &trusts)
+{
+    /*
+        In a town, there are N people labelled from 1 to N.
+        There is a rumor that one of these people is secretly the town judge.
+        If the town judge exists, then:
+            The town judge trusts nobody.
+            Everybody (except for the town judge) trusts the town judge.
+            There is exactly one person that satisfies properties 1 and 2.
+        You are given trust, an array of pairs trust[i] = [a, b] representing 
+        that the person labelled a trusts the person labelled b.
+        If the town judge exists and can be identified, return the label of the town judge.
+        Otherwise, return -1.
+    */
+
+    vector<pair<int, int>> graph(N+1); // in, out
+    for(const auto& t: trusts)
+    {
+        graph[t[0]].second++;
+        graph[t[1]].first++;
+    }
+
+    int judge = -1;
+    for(int i=1; i<=N; ++i)
+    {
+        if(graph[i].first == N-1 && graph[i].second == 0)
+        {
+            judge = i;
+            break;
+        }
+    }
+    return judge;
+}
+
+void findJudge_scaffold(int N, string input, int expectedResult)
+{
+    Solution ss;
+    auto trusts = stringTo2DArray(input);
+    int actual = ss.findJudge(N, trusts);
+    if (actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << N << ", " << input << ", expected: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logESSENTIAL) << "Case(" << N << ", " << input << ", expected: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual: " << actual;
+    }
+}
+
+int main()
+{
+    util::LogPolicy::GetInstance().Unmute();
+
+    util::Log(logESSENTIAL) << "Running findJudge tests:";
+    TIMER_START(findJudge);
+    findJudge_scaffold(2, "[[1,2]]", 2);
+    findJudge_scaffold(3, "[[1,3],[2,3]]", 3);
+    findJudge_scaffold(3, "[[1,3],[2,3],[3,1]]", -1);
+    findJudge_scaffold(3, "[[1,2],[2,3]]", -1);
+    findJudge_scaffold(4, "[[1,3],[1,4],[2,3],[2,4],[4,3]]", 3);
+    TIMER_STOP(findJudge);
+    util::Log(logESSENTIAL) << "findJudge using " << TIMER_MSEC(findJudge) << " milliseconds";
+}

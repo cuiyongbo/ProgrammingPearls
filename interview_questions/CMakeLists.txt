@@ -46,6 +46,10 @@ add_executable(binary_search_search_in_rotated_sorted_array binary_search_search
 target_compile_features(binary_search_search_in_rotated_sorted_array PUBLIC cxx_auto_type)
 target_link_libraries(binary_search_search_in_rotated_sorted_array)
 
+add_executable(graph_town_judge graph_town_judge.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_town_judge PUBLIC cxx_auto_type)
+target_link_libraries(graph_town_judge)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
