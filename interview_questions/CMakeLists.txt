@@ -42,6 +42,10 @@ add_executable(binary_search_search_insert_pos binary_search_search_insert_pos.c
 target_compile_features(binary_search_search_insert_pos PUBLIC cxx_auto_type)
 target_link_libraries(binary_search_search_insert_pos)
 
+add_executable(binary_search_search_in_rotated_sorted_array binary_search_search_in_rotated_sorted_array.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_search_search_in_rotated_sorted_array PUBLIC cxx_auto_type)
+target_link_libraries(binary_search_search_in_rotated_sorted_array)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
