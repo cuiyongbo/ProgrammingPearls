@@ -157,7 +157,7 @@ int Solution::findPeakElement(vector<int>& nums)
 
     function<int(int, int)> dac = [&](int l, int r)
     {
-        if(l > r) return INT_MAX;
+        if(l > r) return INT32_MAX;
 
         int m = l + (r-l)/2;
         if(cp[m-1] < cp[m] && cp[m] > cp[m+1])

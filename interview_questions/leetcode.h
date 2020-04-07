@@ -13,6 +13,7 @@
 #include <functional>
 #include <cstring>
 #include <cassert>
+#include <cstdint>
 
 #include "log.h"
 #include "timing_util.h"

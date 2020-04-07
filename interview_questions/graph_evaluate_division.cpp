@@ -258,7 +258,7 @@ int Solution::numSimilarGroups(vector<string>& A)
     auto isSimilar = [&](int i, int j)
     {
         int diff = 0;
-        for(int k=0; k<A[i].size(); ++k)
+        for(int k=0; k<(int)A[i].size(); ++k)
         {
             if(A[i][k] != A[j][k])
                 ++diff;

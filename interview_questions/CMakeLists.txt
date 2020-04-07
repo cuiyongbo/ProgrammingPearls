@@ -50,6 +50,10 @@ add_executable(graph_town_judge graph_town_judge.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_town_judge PUBLIC cxx_auto_type)
 target_link_libraries(graph_town_judge)
 
+add_executable(graph_network_delay_time graph_network_delay_time.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_network_delay_time PUBLIC cxx_auto_type)
+target_link_libraries(graph_network_delay_time)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

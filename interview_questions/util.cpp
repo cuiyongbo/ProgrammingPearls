@@ -284,7 +284,7 @@ bool graph_equal(Node* g1, Node* g2)
 			if(g1->neighbors.size() != g2->neighbors.size())
 				return false;
 
-			for(int i=0; i<g1->neighbors.size(); ++i)
+			for(int i=0; i<(int)g1->neighbors.size(); ++i)
 			{
 				if(visited.count(g1->neighbors[i]) > 0)
 					continue;

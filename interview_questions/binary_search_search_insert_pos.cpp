@@ -103,7 +103,7 @@ vector<int> Solution::searchRange(vector<int>& nums, int target)
 
     int l = lower_bound(nums, target);
     int r = upper_bound(nums, target);
-    if(0 <= l && l < nums.size() && nums[l] == target)
+    if(0 <= l && l < (int)nums.size() && nums[l] == target)
     {
         return {l, r-1};
     }
