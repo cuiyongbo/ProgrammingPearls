@@ -35,21 +35,27 @@ int main()
 {
     cout << "{ B bb; }" << endl;
     { B bb; }
+
     cout << "{ B b1; B b2=b1;}" << endl;
     { 
         B b1; 
         cout << "b1: " << (size_t)&b1 << endl;
         B b2=b1;
         cout << "b2: " << (size_t)&b2 << endl;
-    }    
+    }
+
     cout << "{ A a1(1); }" << endl;
     { A a1(1); }
+    
     cout << "{ A a2 = 2;}" << endl;
     { A a2 = 2;}
+
     cout << "{A a1; A a2(a1);}" << endl;
     {A a1; A a2(a1);}
+
     cout << "{A a1; A a2 = a1;}\n";
     {A a1; A a2 = a1;}
+    
     cout << "{A a1; A a2; a2 = a1;}" << endl;
     {A a1; A a2; a2 = a1;}
 }

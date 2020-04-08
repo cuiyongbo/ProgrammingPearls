@@ -120,4 +120,3 @@ int main()
 	p[2] = 5;
 	std::cout << p << '\n';
 }
-
