@@ -18,6 +18,7 @@
 #include "log.h"
 #include "timing_util.h"
 #include "disjoint_set.h"
+#include "dist_table_wrapper.h"
 
 struct ListNode
 {
