@@ -58,6 +58,10 @@ add_executable(graph_network_delay_time graph_network_delay_time.cpp ${PUB_UTIL_
 target_compile_features(graph_network_delay_time PUBLIC cxx_auto_type)
 target_link_libraries(graph_network_delay_time)
 
+add_executable(graph_shortest_path_visiting_all_nodes graph_shortest_path_visiting_all_nodes.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_shortest_path_visiting_all_nodes PUBLIC cxx_auto_type)
+target_link_libraries(graph_shortest_path_visiting_all_nodes)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
