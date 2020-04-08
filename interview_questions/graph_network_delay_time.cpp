@@ -3,7 +3,7 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode exercises: 743, 787, 882 */
+/* leetcode exercises: 743, 787, 882, 1334 */
 
 class Solution
 {
@@ -12,6 +12,7 @@ public:
     int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int K);
     int reachableNodes(vector<vector<int>>& edges, int M, int N);
     int minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial);
+    int findTheCity(int n, vector<vector<int>>& edges, int t);
 };
 
 int Solution::networkDelayTime(vector<vector<int>>& times, int N, int K)
@@ -188,6 +189,65 @@ int Solution::minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial)
     return ans;
 }
 
+int Solution::findTheCity(int N, vector<vector<int>>& edges, int distanceThreshold)
+{
+    /*
+        There are n cities numbered from 0 to N-1. Given the array edges where edges[i] = [fromi, toi, weighti]
+        represents a *bidirectional* and weighted edge between cities fromi and toi, and given the integer distanceThreshold.
+
+        Return the city with the smallest number of cities that are reachable through some path and whose distance is 
+        at most distanceThreshold, If there are multiple such cities, return the city with the greatest number.
+
+        Notice that the distance of a path connecting cities i and j is equal to the sum of the edges’ weights along that path.        
+
+        Hint: Floyd-Warshall algorithm
+    */
+
+    vector<vector<int>> distanceTable(N, vector<int>(N, INT32_MAX));
+    for(int i=0; i<N; ++i) distanceTable[i][i] = 0;
+
+    for(const auto& e: edges)
+    {
+        distanceTable[e[0]][e[1]] = e[2];
+        distanceTable[e[1]][e[0]] = e[2];
+    }
+
+    for(int k=0; k<N; ++k)
+    {
+        for(int i=0; i<N; ++i)
+        {
+            for(int j=0; j<N; ++j)
+            {
+                if(distanceTable[i][k] != INT32_MAX && distanceTable[k][j] != INT32_MAX)
+                {
+                    distanceTable[i][j] = std::min(distanceTable[i][j], distanceTable[i][k]+distanceTable[k][j]);
+                }
+            }
+        }
+    }
+
+    // for debug
+    // for(const auto& r: distanceTable)
+    // {
+    //     cout << numberVectorToString(r) << endl;
+    // }
+
+    int ans = N;
+    int reachableCities = N;
+    for(int r=0; r<N; ++r)
+    {
+        int cur = std::accumulate(distanceTable[r].begin(), distanceTable[r].end(), 0, 
+                                    [&](int s, int d) { return d<=distanceThreshold ? s+1 : s;});
+        
+        if(cur <= reachableCities)
+        {
+            ans = r;
+            reachableCities = cur;
+        }
+    }
+    return ans;
+}
+
 void networkDelayTime_scaffold(string input, int N, int K, int expectedResult)
 {
     Solution ss;
@@ -253,6 +313,22 @@ void minMalwareSpread_scaffold(string input1, string input2, int expectedResult)
     }
 }
 
+void findTheCity_scaffold(string input, int N, int distanceThreshold, int expectedResult)
+{
+    Solution ss;
+    vector<vector<int>> edges = stringTo2DArray(input);
+    int actual = ss.findTheCity(N, edges, distanceThreshold);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", " << N << ", " << distanceThreshold << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", " << N << ", " << distanceThreshold << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual: " << actual;
+    }
+}
+
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
@@ -287,4 +363,12 @@ int main()
     minMalwareSpread_scaffold("[[1,0,0,0,0,0],[0,1,0,0,0,0],[0,0,1,0,1,0],[0,0,0,1,0,0],[0,0,1,0,1,0],[0,0,0,0,0,1]]", "[4,3]", 4);
     TIMER_STOP(minMalwareSpread);
     util::Log(logESSENTIAL) << "minMalwareSpread using " << TIMER_MSEC(minMalwareSpread) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running findTheCity tests:";
+    TIMER_START(findTheCity);
+    findTheCity_scaffold("[[0,1,3],[1,2,1],[1,3,4],[2,3,1]]", 4, 4, 3);
+    findTheCity_scaffold("[[0,1,2],[0,4,8],[1,2,3],[1,4,2],[2,3,1],[3,4,1]]", 5, 2, 0);
+    TIMER_STOP(findTheCity);
+    util::Log(logESSENTIAL) << "findTheCity using " << TIMER_MSEC(findTheCity) << " milliseconds";
+
 }

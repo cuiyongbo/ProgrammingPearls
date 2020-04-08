@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(scaffold VERSION 0.1.0)
 
+# message(STATUS "PROJECT_NAME: ${PROJECT_NAME}")
+# message(STATUS "CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
+# message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
+
 include(CTest)
 enable_testing()
 

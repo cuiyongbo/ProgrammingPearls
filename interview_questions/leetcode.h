@@ -61,7 +61,7 @@ void trimRightTrailingSpaces(std::string& input);
 
 // output in format like "[1,1,2]"
 template<typename T>
-std::string numberVectorToString(std::vector<T>& input)
+std::string numberVectorToString(const std::vector<T>& input)
 {
 	std::string ans;
 	ans.reserve(input.size() * 4);

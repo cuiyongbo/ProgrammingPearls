@@ -32,4 +32,5 @@ interview_questions/build
 interview_questions/_build
 build
 _build
+interview_questions/scaffold.cpp
 
