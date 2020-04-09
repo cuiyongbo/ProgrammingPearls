@@ -1,9 +1,12 @@
 #include "leetcode.h"
+#include "util/trip_farthest_insertion.hpp"
 
 using namespace std;
 using namespace osrm;
 
 /* leetcode exercises: 847, 864 */
+
+#define DEBUG_VERBOSITY
 
 class Solution
 {
@@ -51,6 +54,15 @@ int Solution::shortestPathLength(vector<vector<int>>& graph)
         }
     }
 
+    int maxWeight = INT32_MIN;
+    for(const auto& r: distTable)
+    {
+        auto it = std::max_element(r.begin(), r.end());
+        maxWeight = std::max(maxWeight, *it);
+    }
+
+    BOOST_ASSERT_MSG(maxWeight != INT32_MAX, "graph is not a strongly connected component");
+
 #if defined(DEBUG_VERBOSITY)
     for(int i=0; i<nodeCount; ++i)
     {
@@ -66,7 +78,17 @@ int Solution::shortestPathLength(vector<vector<int>>& graph)
     }
     else
     {
-        return 0;
+        vector<int> nodeOrder = scaffold::farthestInsertionTrip(nodeCount, distTable);
+
+#if defined(DEBUG_VERBOSITY)
+        cout << "Optimal plan: " << numberVectorToString(nodeOrder) << endl;
+#endif
+        int length = 0;
+        for(int i=1; i<nodeCount; ++i)
+        {
+            length += distTable[nodeOrder[i-1]][nodeOrder[i]];
+        }
+        return length;
     }
 }
 
@@ -105,7 +127,6 @@ int Solution::bruteForceTrip(vector<vector<int>>& distTable, int nodeCount)
 #endif
     return ans;    
 }
-
 
 void shortestPathLength_scaffold(string input, int expectedResult)
 {

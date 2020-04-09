@@ -172,4 +172,108 @@ FarthestInsertionTrip(const std::size_t number_of_locations,
 } // namespace engine
 } // namespace osrm
 
+namespace scaffold
+{
+    using IntVectorIter = std::vector<int>::iterator;
+
+    inline std::pair<int, IntVectorIter>
+    getShortestRoundTrip(int new_loc, const std::vector<std::vector<int>> &dist_table, std::vector<int> &route)
+    {
+        int min_trip_distance = INT32_MAX;
+        IntVectorIter next_insert_point_candidate;
+
+        const auto start = route.begin();
+        const auto end = route.end();
+    
+        // for all nodes in the current trip find the best insertion resulting in the shortest path
+        for(auto from_node=start; from_node != end; ++from_node)
+        {
+            auto to_node = std::next(from_node);
+            if(to_node == end)
+            {
+                to_node = start;
+            }
+
+            int dist_from = dist_table[*from_node][new_loc];
+            int dist_to = dist_table[new_loc][*to_node];
+            if(dist_from == INT32_MAX || dist_to == INT32_MAX)
+                continue;
+            
+            int trip_dist = dist_from + dist_to - dist_table[*from_node][*to_node];
+            if(trip_dist < min_trip_distance)
+            {
+                min_trip_distance = trip_dist;
+                next_insert_point_candidate = to_node;
+            }
+        }
+
+        BOOST_ASSERT(min_trip_distance != INT32_MAX);
+        return std::make_pair(min_trip_distance, next_insert_point_candidate);
+    }
+
+    inline std::vector<int> findRoute(int number_of_locations, int start1, int start2,
+                                    const std::vector<std::vector<int>> &dist_table)
+    {
+        std::vector<int> route;
+        route.reserve(number_of_locations);
+        std::vector<bool> visited(number_of_locations, false);
+
+        visited[start1] = true;
+        visited[start2] = true;
+        route.push_back(start1);
+        route.push_back(start2);
+
+        for(int added_nodes = 2; added_nodes < number_of_locations; ++added_nodes)
+        {
+            int next_node = -1;
+            IntVectorIter next_insert_point;
+            int farthest_distance = INT32_MIN;
+
+            // find the unvisited node that is the fartherest away from all other visited nodes
+            for(int id=0; id < number_of_locations; ++id)
+            {
+                if(visited[id]) continue;
+
+                const auto insert_candidate = getShortestRoundTrip(id, dist_table, route);
+                if(insert_candidate.first != INVALID_EDGE_WEIGHT && insert_candidate.first > farthest_distance)
+                {
+                    next_node = id;
+                    farthest_distance = insert_candidate.first;
+                    next_insert_point = insert_candidate.second;
+                }
+            }
+
+            BOOST_ASSERT_MSG(next_node >= 0, "next node to visited is invalid");
+
+            visited[next_node] = true;
+            route.insert(next_insert_point, next_node);
+        }
+
+        return route;
+    }
+
+    inline std::vector<int>
+    farthestInsertionTrip(int number_of_locations, const std::vector<std::vector<int>> &dist_table)
+    {
+        BOOST_ASSERT(number_of_locations > 0);
+        BOOST_ASSERT_MSG(number_of_locations == dist_table.size(), "number_of_locations and dist_table size do not match");
+
+        int max_from=-1, max_to=-1;
+        int largestWeight = INT32_MIN;
+        for(int i=0; i<number_of_locations; ++i)
+        {
+            for(int j=0; j<number_of_locations; ++j)
+            {
+                if(dist_table[i][j] > largestWeight)
+                {
+                    largestWeight = dist_table[i][j];
+                    max_from = i;
+                    max_to = j;
+                }
+            }
+        }
+        return findRoute(number_of_locations, max_from, max_to, dist_table);
+    }
+}
+
 #endif // TRIP_FARTHEST_INSERTION_HPP
