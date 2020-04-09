@@ -15,10 +15,11 @@
 #include <cassert>
 #include <cstdint>
 
-#include "log.h"
-#include "timing_util.h"
-#include "disjoint_set.h"
-#include "dist_table_wrapper.h"
+#include "util/log.h"
+#include "util/timing_util.h"
+#include "util/boost_assert.hpp"
+#include "util/disjoint_set.h"
+#include "util/dist_table_wrapper.hpp"
 
 struct ListNode
 {

@@ -9,6 +9,9 @@ class Solution
 {
 public:
     int shortestPathLength(vector<vector<int>>& graph);
+
+private:
+    int bruteForceTrip(vector<vector<int>>& distTable, int nodeCount);
 };
 
 int Solution::shortestPathLength(vector<vector<int>>& graph)
@@ -48,13 +51,28 @@ int Solution::shortestPathLength(vector<vector<int>>& graph)
         }
     }
 
-    // for debug
+#if defined(DEBUG_VERBOSITY)
     for(int i=0; i<nodeCount; ++i)
     {
         cout << numberVectorToString(distTable[i]) << endl;
     }
+#endif
 
-    auto tripLengthForPlan = [&](vector<int>& nodeOrder)
+    // Taken from OSRM project
+    if(nodeCount < 10)
+    {
+        // Time Limit Exceeded
+        return bruteForceTrip(distTable, nodeCount);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int Solution::bruteForceTrip(vector<vector<int>>& distTable, int nodeCount)
+{
+    auto tripLengthForPlan = [&](vector<int>& nodeOrder, int minLenth)
     {
         int length = 0;
         for(int i=1; i<nodeCount; ++i)
@@ -63,18 +81,18 @@ int Solution::shortestPathLength(vector<vector<int>>& graph)
                 return INT32_MAX;
 
             length += distTable[nodeOrder[i-1]][nodeOrder[i]];
+            if(length >= minLenth) break;
         }
         return length;
     };
 
-    // Time Limit Exceeded for brute force method
     int ans = INT32_MAX;
     vector<int> nodeOrder(nodeCount, 0);
     vector<int> plan = nodeOrder;
     std::iota(nodeOrder.begin(), nodeOrder.end(), 0);
     do
     {
-        int len = tripLengthForPlan(nodeOrder);
+        int len = tripLengthForPlan(nodeOrder, ans);
         if(len < ans)
         {
             plan = nodeOrder;
@@ -82,11 +100,12 @@ int Solution::shortestPathLength(vector<vector<int>>& graph)
         }
     } while (std::next_permutation(nodeOrder.begin(), nodeOrder.end()));
     
-    // for debug
+#if defined(DEBUG_VERBOSITY)
     cout << "optimal plan: " << numberVectorToString(plan) << endl;
-
-    return ans;
+#endif
+    return ans;    
 }
+
 
 void shortestPathLength_scaffold(string input, int expectedResult)
 {
@@ -115,6 +134,8 @@ int main()
     shortestPathLength_scaffold("[[2,6],[2,3],[0,1],[1,4,5,6,8],[3,9,7],[3],[3,0],[4],[3],[4]]", 12);
     TIMER_STOP(shortestPathLength);
     util::Log(logESSENTIAL) << "shortestPathLength using " << TIMER_MSEC(shortestPathLength) << " milliseconds";
+
+
 
 
 }

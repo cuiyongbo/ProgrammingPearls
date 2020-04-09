@@ -23,8 +23,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "log.h"
-#include "isatty.h"
+#include "util/log.h"
+#include "util/isatty.h"
 
 #include <cstdio>
 #include <iostream>

@@ -8,9 +8,13 @@ project(scaffold VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-set(PUB_UTIL_FILES util.cpp log.cpp disjoint_set.cpp)
+file(GLOB_RECURSE PUB_UTIL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/util/*.cpp")
+# message(STATUS ${PUB_UTIL_FILES})
 
-include_directories()
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 link_directories()
 
 if(NOT CMAKE_BUILD_TYPE)
