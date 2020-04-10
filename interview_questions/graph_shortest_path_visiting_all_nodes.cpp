@@ -156,8 +156,8 @@ int Solution::shortestPathAllKeys(vector<string>& grid)
         for(int j=0; j<columns; ++j)
         {
             if(grid[i][j] == '@' 
-                || 'a' <= grid[i][j] && grid[i][j] <= 'f' 
-                || 'A' <= grid[i][j] && grid[i][j] <= 'F')
+                || ('a' <= grid[i][j] && grid[i][j] <= 'f') 
+                || ('A' <= grid[i][j] && grid[i][j] <= 'F'))
             {
                 keys++;
                 coors[grid[i][j]].x = j;

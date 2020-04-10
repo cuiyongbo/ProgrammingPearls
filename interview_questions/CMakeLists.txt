@@ -46,14 +46,6 @@ add_executable(graph_redundant_connection graph_redundant_connection.cpp ${PUB_U
 target_compile_features(graph_redundant_connection PUBLIC cxx_auto_type) # let cmake deduce the c++ standard to use
 target_link_libraries(graph_redundant_connection)
 
-add_executable(binary_search_search_insert_pos binary_search_search_insert_pos.cpp ${PUB_UTIL_FILES})
-target_compile_features(binary_search_search_insert_pos PUBLIC cxx_auto_type)
-target_link_libraries(binary_search_search_insert_pos)
-
-add_executable(binary_search_search_in_rotated_sorted_array binary_search_search_in_rotated_sorted_array.cpp ${PUB_UTIL_FILES})
-target_compile_features(binary_search_search_in_rotated_sorted_array PUBLIC cxx_auto_type)
-target_link_libraries(binary_search_search_in_rotated_sorted_array)
-
 add_executable(graph_town_judge graph_town_judge.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_town_judge PUBLIC cxx_auto_type)
 target_link_libraries(graph_town_judge)
@@ -65,6 +57,24 @@ target_link_libraries(graph_network_delay_time)
 add_executable(graph_shortest_path_visiting_all_nodes graph_shortest_path_visiting_all_nodes.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_shortest_path_visiting_all_nodes PUBLIC cxx_auto_type)
 target_link_libraries(graph_shortest_path_visiting_all_nodes)
+
+# BINARY SEARCH
+
+add_executable(binary_search_search_insert_pos binary_search_search_insert_pos.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_search_search_insert_pos PUBLIC cxx_auto_type)
+target_link_libraries(binary_search_search_insert_pos)
+
+add_executable(binary_search_search_in_rotated_sorted_array binary_search_search_in_rotated_sorted_array.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_search_search_in_rotated_sorted_array PUBLIC cxx_auto_type)
+target_link_libraries(binary_search_search_in_rotated_sorted_array)
+
+add_executable(binary_search_matrix_search binary_search_matrix_search.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_search_matrix_search PUBLIC cxx_auto_type)
+target_link_libraries(binary_search_matrix_search)
+
+add_executable(binary_search_sqrt binary_search_sqrt.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_search_sqrt PUBLIC cxx_auto_type)
+target_link_libraries(binary_search_sqrt)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
