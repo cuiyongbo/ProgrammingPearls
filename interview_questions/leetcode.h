@@ -136,14 +136,14 @@ bool graph_equal(Node* g1, Node* g2);
 // up, down, left, right
 static std::vector<std::vector<int>> DIRECTIONS {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
-struct Coor
+struct Coordinate
 {
     int x, y;
 
-    Coor(): x(0), y(0) {}
-    Coor(int a, int b): x(a), y(b) {}
+    Coordinate(): x(0), y(0) {}
+    Coordinate(int a, int b): x(a), y(b) {}
 
-    bool operator<(const Coor& rhs) const
+    bool operator<(const Coordinate& rhs) const
     {
         return std::tie(x, y) < std::tie(rhs.x, rhs.y);
     }

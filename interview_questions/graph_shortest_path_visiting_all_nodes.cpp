@@ -4,7 +4,7 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode exercises: 847, 864 */
+/* leetcode exercises: 847, 864, 1298 */
 
 #define DEBUG_VERBOSITY
 
@@ -12,6 +12,7 @@ class Solution
 {
 public:
     int shortestPathLength(vector<vector<int>>& graph);
+    int shortestPathAllKeys(vector<string>& grid);
 
 private:
     int bruteForceTrip(vector<vector<int>>& distTable, int nodeCount);
@@ -128,11 +129,103 @@ int Solution::bruteForceTrip(vector<vector<int>>& distTable, int nodeCount)
     return ans;    
 }
 
+int Solution::shortestPathAllKeys(vector<string>& grid)
+{
+    /*
+        We are given a 2-dimensional grid. "." is an empty cell, "#" is a wall, "@" is the starting point, 
+        ("a", "b", …) are keys, and ("A", "B", …) are locks.
+
+        We start at the starting point, and one move consists of walking one space in one of the 4 cardinal directions.
+        We cannot walk outside the grid, or walk into a wall.  If we walk over a key, we pick it up.
+        We can’t walk over a lock unless we have the corresponding key.
+
+        For some 1 <= K <= 6, there is exactly one lowercase and one uppercase letter of the first K letters 
+        of the English alphabet in the grid. This means that there is exactly one key for each lock, 
+        and one lock for each key; and also that the letters used to represent the keys and locks 
+        were chosen in the same order as the English alphabet.
+
+        Return the lowest number of moves to acquire all keys.  If it’s impossible, return -1.
+    */
+
+    Coordinate coors[128];
+    int rows = grid.size();
+    int columns = grid[0].size();
+    int keys = 0;
+    for(int i=0; i<rows; i++)
+    {
+        for(int j=0; j<columns; ++j)
+        {
+            if(grid[i][j] == '@' 
+                || 'a' <= grid[i][j] && grid[i][j] <= 'f' 
+                || 'A' <= grid[i][j] && grid[i][j] <= 'F')
+            {
+                keys++;
+                coors[grid[i][j]].x = j;
+                coors[grid[i][j]].y = i;
+            }
+        }
+    }
+
+    keys = (keys-1)/2;
+    auto route_length = [&] (vector<int>& route, int min_len)
+    {
+        int length = 0;
+        Coordinate start = coors['@'];
+        vector<bool> visited(keys, false);
+        for(const auto& u: route)
+        {
+            queue<Coordinate> q;
+            q.push(start);
+            
+
+            visited[u] = true;
+        }
+
+        return INT32_MAX;
+    };
+
+    vector<int> plan;
+    int min_len = INT32_MAX;
+
+    vector<int> route(keys);
+    std::iota(route.begin(), route.end(), 0);
+    do
+    {
+        int len = route_length(route, min_len);
+        if(len < min_len)
+        {
+            len = min_len;
+            plan = route;
+        }
+    } while (std::next_permutation(route.begin(), route.end()));
+
+#if defined(DEBUG_VERBOSITY)
+    cout << numberVectorToString(plan) << endl;
+#endif
+    return min_len == INT32_MAX ? -1 : min_len;
+}
+
 void shortestPathLength_scaffold(string input, int expectedResult)
 {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray(input);
     int actual = ss.shortestPathLength(graph);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual: " << actual;
+    }
+}
+
+void shortestPathAllKeys_scaffold(string input, int expectedResult)
+{
+    Solution ss;
+    vector<string> graph = toStringArray(input);
+    int actual = ss.shortestPathAllKeys(graph);
     if(actual == expectedResult)
     {
         util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
@@ -156,7 +249,12 @@ int main()
     TIMER_STOP(shortestPathLength);
     util::Log(logESSENTIAL) << "shortestPathLength using " << TIMER_MSEC(shortestPathLength) << " milliseconds";
 
-
+    util::Log(logESSENTIAL) << "Running shortestPathAllKeys tests:";
+    TIMER_START(shortestPathAllKeys);
+    shortestPathAllKeys_scaffold("[@.a.#, ###.#, b.A.B]", 8);
+    shortestPathAllKeys_scaffold("[@..aA, ..B#., ....b]", 6);
+    TIMER_STOP(shortestPathAllKeys);
+    util::Log(logESSENTIAL) << "shortestPathAllKeys using " << TIMER_MSEC(shortestPathAllKeys) << " milliseconds";
 
 
 }

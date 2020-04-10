@@ -188,7 +188,7 @@ int Solution::largestIsland(vector<vector<int>>& grid)
 
     int curIslandId = 0;
     map<int, int> islandAreaMap;
-    map<Coor, int> coorToIslandIdMap;
+    map<Coordinate, int> coorToIslandIdMap;
     vector<vector<int>> copyMap = grid;
 
     function<int(int, int)> dfs = [&](int r, int c)
@@ -199,7 +199,7 @@ int Solution::largestIsland(vector<vector<int>>& grid)
         }
         else
         {
-            coorToIslandIdMap.emplace(Coor(r,c), curIslandId);
+            coorToIslandIdMap.emplace(Coordinate(r,c), curIslandId);
 
             copyMap[r][c] = 0;
             int area = 1;
@@ -235,7 +235,7 @@ int Solution::largestIsland(vector<vector<int>>& grid)
                 visited.clear();
                 for(const auto& d: DIRECTIONS)
                 {
-                    Coor c(i+d[0], j+d[1]);
+                    Coordinate c(i+d[0], j+d[1]);
                     const auto& it = coorToIslandIdMap.find(c);
                     if(it != coorToIslandIdMap.end())
                         visited.emplace(it->second);
@@ -264,7 +264,7 @@ int Solution::maxDistance(vector<vector<int>>& grid)
     int rows = grid.size();
     int columns = grid[0].size();
 
-    queue<Coor> q;
+    queue<Coordinate> q;
     for (int i = 0; i < rows; ++i)
     {
         for (int j = 0; j < columns; ++j)
