@@ -76,6 +76,10 @@ add_executable(binary_search_sqrt binary_search_sqrt.cpp ${PUB_UTIL_FILES})
 target_compile_features(binary_search_sqrt PUBLIC cxx_auto_type)
 target_link_libraries(binary_search_sqrt)
 
+add_executable(median_finder median_finder.cpp ${PUB_UTIL_FILES})
+target_compile_features(median_finder PUBLIC cxx_auto_type)
+target_link_libraries(median_finder)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
