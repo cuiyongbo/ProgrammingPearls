@@ -3,13 +3,15 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode exercises: 4, 74 */
+/* leetcode exercises: 4, 74, 668, 378 */
 
 class Solution
 {
 public:
     bool searchMatrix(vector<vector<int>>& matrix, int target);
     double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2);
+    int kthSmallest(vector<vector<int>>& matrix, int k);
+    int findKthNumber(int m, int n, int k);
 };
 
 bool Solution::searchMatrix(vector<vector<int>>& matrix, int target)
@@ -96,6 +98,78 @@ double Solution::findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2)
     return (c1 + c2) * 0.5;
 }
 
+int Solution::kthSmallest(vector<vector<int>>& matrix, int k)
+{
+    /*
+        Given a n x n matrix where each of the rows and columns are sorted in ascending order, 
+        find the kth smallest element in the matrix.
+
+        Hint: lower bound search, find the smallest integer in [min, max] with k elements smaller
+        than it.
+    */
+
+    int n = (int)matrix.size();
+    BOOST_ASSERT_MSG(0 < k && k<=n*n, "k is invalid");
+    int l = matrix[0][0];
+    int r = matrix[n-1][n-1] + 1;
+    while(l < r)
+    {
+        int total = 0;
+        int m = l + (r-l)/2;
+        for(const auto& row: matrix)
+        {
+            total += (int)std::distance(row.begin(), std::upper_bound(row.begin(), row.end(), m));
+            if(total >= k) break;
+        }
+
+        if(total < k)
+        {
+            l = m+1;
+        }
+        else
+        {
+            r = m;
+        }
+    }
+    return l;
+}
+
+int Solution::findKthNumber(int m, int n, int k)
+{
+    /*
+        Nearly every one have used the Multiplication Table. 
+        But could you find out the k-th smallest number quickly from the multiplication table?
+
+        Given the height m and the length n of a m * n Multiplication Table, and a positive integer k, 
+        you need to return the k-th smallest number in this table.
+    */
+
+    BOOST_ASSERT_MSG(0 < k && k <= m*n, "k is invalid");
+
+    int l = 1;
+    int r = m*n + 1;
+    while(l < r)
+    {
+        int total = 0;
+        int mid = l + (r-l)/2;
+        for(int i=1; i<=m; ++i)
+        {
+            total += ((mid/i > n) ? n : mid/i);
+            if(total >= k) break;
+        }
+
+        if(total < k)
+        {
+            l = mid+1;
+        }
+        else
+        {
+            r = mid;
+        }
+    }
+    return l;
+}
+
 void searchMatrix_scaffold(string input, int target, bool expectedResult)
 {
     Solution ss;
@@ -129,6 +203,37 @@ void findMedianSortedArrays_scaffold(string input1, string input2, double expect
     }
 }
 
+void kthSmallest_scaffold(string input, int target, int expectedResult)
+{
+    Solution ss;
+    vector<vector<int>> matrix = stringTo2DArray(input);
+    int actual = ss.kthSmallest(matrix, target);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual: " << actual;
+    }
+}
+
+void findKthNumber_scaffold(int input1, int input2, int k, int expectedResult)
+{
+    Solution ss;
+    int actual = ss.findKthNumber(input1, input2, k);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", " << k << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << k << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual: " << actual;
+    }
+}
+
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
@@ -148,4 +253,22 @@ int main()
     findMedianSortedArrays_scaffold("[1,2]", "[3]", 2.0);
     TIMER_STOP(findMedianSortedArrays);
     util::Log(logESSENTIAL) << "findMedianSortedArrays using " << TIMER_MSEC(findMedianSortedArrays) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running kthSmallest tests:";
+    TIMER_START(kthSmallest);
+    kthSmallest_scaffold("[[1,3,5,7], [10, 11, 16, 20], [23, 30, 34, 50]]", 4, 7);
+    kthSmallest_scaffold("[[1,3,5,7], [10, 11, 16, 20], [23, 30, 34, 50]]", 7, 16);
+    kthSmallest_scaffold("[[1,5,9], [10,11,13], [12,13,15]]", 8, 13);
+    kthSmallest_scaffold("[[1,5,9], [10,11,13], [12,13,15]]", 6, 12);
+    kthSmallest_scaffold("[[1,5,9], [10,11,13], [12,13,15]]", 9, 15);
+    TIMER_STOP(kthSmallest);
+    util::Log(logESSENTIAL) << "kthSmallest using " << TIMER_MSEC(kthSmallest) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running findKthNumber tests:";
+    TIMER_START(findKthNumber);
+    findKthNumber_scaffold(3, 3, 5, 3);
+    findKthNumber_scaffold(3, 4, 11, 9);
+    findKthNumber_scaffold(4, 3, 11, 9);
+    TIMER_STOP(findKthNumber);
+    util::Log(logESSENTIAL) << "findKthNumber using " << TIMER_MSEC(findKthNumber) << " milliseconds";
 }

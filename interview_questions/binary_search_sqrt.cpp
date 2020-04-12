@@ -4,13 +4,14 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode exercises: 69, 875 */
+/* leetcode exercises: 69, 875, 1011 */
 
 class Solution
 {
 public:
     int mySqrt(int a);
     int minEatingSpeed(vector<int>& piles, int H);
+    int shipWithinDays(vector<int>& weights, int D);
 };
 
 int Solution::mySqrt(int a)
@@ -69,25 +70,7 @@ int Solution::minEatingSpeed(vector<int>& piles, int H)
         return *(it.second);
     }
 
-/*
     auto etaBanana = [&](int speed)
-    {
-        int hoursLeft = H;
-        for(auto n: piles)
-        {
-            while(n > 0 && hoursLeft > 0)
-            {
-                n -= speed;
-                --hoursLeft;
-            }
-
-            if(n > 0 && hoursLeft == 0)
-                return -1;
-        }
-        return hoursLeft == 0 ? 0 : 1;
-    };
-*/
-    auto etaBanana2 = [&](int speed)
     {
         int h = 0;
         for(auto p: piles)
@@ -102,7 +85,7 @@ int Solution::minEatingSpeed(vector<int>& piles, int H)
     while(l < r)
     {
         int m = l + (r-l)/2;
-        if(etaBanana2(m) < 0)
+        if(etaBanana(m) < 0)
         {
             // can't eat up all piles
             l = m+1;
@@ -113,6 +96,55 @@ int Solution::minEatingSpeed(vector<int>& piles, int H)
         }
     }
 
+    return l;
+}
+
+int Solution::shipWithinDays(vector<int>& weights, int D)
+{
+    /*
+        A conveyor belt has packages that must be shipped from one port to another within D days.
+
+        The i-th package on the conveyor belt has a weight of weights[i]. Each day, we load the ship 
+        with packages on the conveyor belt (*in the order given by weights*). We may not load more weight 
+        than the maximum weight capacity of the ship and we can't split one package.
+
+        Return the least weight capacity of the ship that will result in all the packages on 
+        the conveyor belt being shipped within D days.
+    */
+
+    BOOST_ASSERT_MSG(D>0, "D must be non-negative");
+    int packageCount = (int)weights.size();
+    auto loadCargo = [&] (int s)
+    {
+        int k=0;
+        int days = 0;
+        while(k < packageCount)
+        {
+            int left = s;
+            for(; k<packageCount; ++k)
+            {
+                if(left < weights[k]) break;
+                left -= weights[k];
+            }
+            ++days;
+        }
+        return days <= D;
+    };
+
+    int l = *(std::max_element(weights.begin(), weights.end()));
+    int r = std::accumulate(weights.begin(), weights.end(), 0) + 1;
+    while(l < r)
+    {
+        int m = l + (r-l)/2;
+        if(!loadCargo(m))
+        {
+            l = m+1;
+        }
+        else
+        {
+            r = m;
+        }
+    }
     return l;
 }
 
@@ -147,6 +179,22 @@ void minEatingSpeed_scaffold(string input1, int input2, int expectedResult)
     }
 }
 
+void shipWithinDays_scaffold(string input1, int input2, int expectedResult)
+{
+    Solution ss;
+    vector<int> piles = stringToIntegerVector(input1);
+    int actual = ss.shipWithinDays(piles, input2);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual: " << actual;
+    }
+}
+
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
@@ -167,5 +215,13 @@ int main()
     minEatingSpeed_scaffold("[30,11,23,4,20]", 6, 23);
     TIMER_STOP(minEatingSpeed);
     util::Log(logESSENTIAL) << "minEatingSpeed using " << TIMER_MSEC(minEatingSpeed) << " milliseconds";
-}
 
+    util::Log(logESSENTIAL) << "Running shipWithinDays tests:";
+    TIMER_START(shipWithinDays);
+    shipWithinDays_scaffold("[1,2,3,4,5,6,7,8,9,10]", 5, 15);
+    shipWithinDays_scaffold("[3,2,2,4,1,4]", 3, 6);
+    shipWithinDays_scaffold("[1,2,3,1,1]", 4, 3);
+    shipWithinDays_scaffold("[1,2,3,4,5,6,7,8,9,10]", 10, 10);
+    TIMER_STOP(shipWithinDays);
+    util::Log(logESSENTIAL) << "shipWithinDays using " << TIMER_MSEC(shipWithinDays) << " milliseconds";
+}

@@ -80,6 +80,14 @@ add_executable(median_finder median_finder.cpp ${PUB_UTIL_FILES})
 target_compile_features(median_finder PUBLIC cxx_auto_type)
 target_link_libraries(median_finder)
 
+add_executable(binary_search_kth_smallest_pair_dis binary_search_kth_smallest_pair_dis.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_search_kth_smallest_pair_dis PUBLIC cxx_auto_type)
+target_link_libraries(binary_search_kth_smallest_pair_dis)
+
+add_executable(backtrace_combination backtrace_combination.cpp ${PUB_UTIL_FILES})
+target_compile_features(backtrace_combination PUBLIC cxx_auto_type)
+target_link_libraries(backtrace_combination)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
