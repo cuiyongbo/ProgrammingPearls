@@ -58,6 +58,10 @@ add_executable(graph_shortest_path_visiting_all_nodes graph_shortest_path_visiti
 target_compile_features(graph_shortest_path_visiting_all_nodes PUBLIC cxx_auto_type)
 target_link_libraries(graph_shortest_path_visiting_all_nodes)
 
+add_executable(graph_minimum_genetic_mutation graph_minimum_genetic_mutation.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_minimum_genetic_mutation PUBLIC cxx_auto_type)
+target_link_libraries(graph_minimum_genetic_mutation)
+
 # BINARY SEARCH
 
 add_executable(binary_search_search_insert_pos binary_search_search_insert_pos.cpp ${PUB_UTIL_FILES})
@@ -84,9 +88,15 @@ add_executable(binary_search_kth_smallest_pair_dis binary_search_kth_smallest_pa
 target_compile_features(binary_search_kth_smallest_pair_dis PUBLIC cxx_auto_type)
 target_link_libraries(binary_search_kth_smallest_pair_dis)
 
+# BACKTRACE
+
 add_executable(backtrace_combination backtrace_combination.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_combination PUBLIC cxx_auto_type)
 target_link_libraries(backtrace_combination)
+
+add_executable(backtrace_permutation backtrace_permutation.cpp ${PUB_UTIL_FILES})
+target_compile_features(backtrace_permutation PUBLIC cxx_auto_type)
+target_link_libraries(backtrace_permutation)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

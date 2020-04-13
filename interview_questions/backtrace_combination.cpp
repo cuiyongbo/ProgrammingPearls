@@ -196,26 +196,25 @@ vector<vector<int>> Solution::subsets(vector<int>& nums)
 
     // not necessay, but would make tests easier
     std::sort(nums.begin(), nums.end());
-    int size = (int)nums.size();
 
+    vector<int> cur;
     vector<vector<int>> ans;
-    function<void(int, vector<int>&)> dfs = [&](int pos, vector<int>& cur)
+    int size = (int)nums.size();
+    function<void(int)> dfs = [&](int pos)
     {
         ans.push_back(cur);
 
-        if(pos == size)
-            return;
+        if(pos == size) return;
 
         for(int i=pos; i<size; ++i)
         {
             cur.push_back(nums[i]);
-            dfs(i+1, cur);
+            dfs(i+1);
             cur.pop_back();
         }
     };
 
-    vector<int> cur;
-    dfs(0, cur);    
+    dfs(0);    
     return ans;
 }
 
@@ -228,27 +227,26 @@ vector<vector<int>> Solution::subsets2(vector<int>& nums)
 
     // not necessay, but would make tests easier
     std::sort(nums.begin(), nums.end());
-    int size = (int)nums.size();
 
+    vector<int> cur;
     vector<vector<int>> ans;
-    function<void(int, vector<int>&)> dfs = [&](int pos, vector<int>& cur)
+    int size = (int)nums.size();
+    function<void(int)> dfs = [&](int pos)
     {
         ans.push_back(cur);
-
-        if(pos == size)
-            return;
-
+        if(pos == size) return;
         for(int i=pos; i<size; ++i)
         {
+            // Same number can only be used once at each depth
             if(i>pos && nums[i] == nums[i-1]) continue;
+            
             cur.push_back(nums[i]);
-            dfs(i+1, cur);
+            dfs(i+1);
             cur.pop_back();
         }
     };
 
-    vector<int> cur;
-    dfs(0, cur);    
+    dfs(0);    
     return ans;
 }
 
@@ -342,8 +340,8 @@ void combine_scaffold(int input1, int input2, string expectedResult)
 void subsets_scaffold(string input, string expectedResult, bool duplicate)
 {
     Solution ss;
+    vector<vector<int>> actual;
     vector<int> nums = stringToIntegerVector(input);
-    vector<vector<int>> actual = ss.subsets(nums);
     if(duplicate)
     {
         actual = ss.subsets2(nums);
