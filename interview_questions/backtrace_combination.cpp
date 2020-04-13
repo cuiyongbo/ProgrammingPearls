@@ -3,7 +3,7 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode exercises: 17, 39, 40 */
+/* leetcode exercises: 17, 39, 40, 77 */
 
 class Solution
 {
@@ -11,6 +11,7 @@ public:
     vector<string> letterCombinations(string digits);
     vector<vector<int>> combinationSum(vector<int>& candidates, int target);
     vector<vector<int>> combinationSum2(vector<int>& candidates, int target);
+    vector<vector<int>> combine(int n, int k);
 
 };
 
@@ -126,6 +127,35 @@ vector<vector<int>> Solution::combinationSum2(vector<int>& candidates, int targe
     return vector<vector<int>>(ans.begin(), ans.end());
 }
 
+vector<vector<int>> Solution::combine(int n, int k)
+{
+    /*
+        Given two integers n and k, return all possible combinations of k numbers out of 1 … n.
+    */
+
+    vector<vector<int>> ans;
+    function<void(int, vector<int>&)> dfs = [&](int pos, vector<int>& cur)
+    {
+        if((int)cur.size() == k)
+        {
+            ans.push_back(cur);
+            return;
+        }
+
+        for(int i=pos; i<=n; ++i)
+        {
+            cur.push_back(i);
+            dfs(i+1, cur);
+            cur.pop_back();
+        }
+    };
+
+    vector<int> cur;
+    dfs(1, cur);
+    return ans;
+}
+
+
 void letterCombinations_scaffold(string input, string expectedResult)
 {
     Solution ss;
@@ -169,11 +199,28 @@ void combinationSum2_scaffold(string input1, int input2, string expectedResult)
     vector<vector<int>> expected = stringTo2DArray(expectedResult);
     if(actual == expected)
     {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", expectedResult: " << expectedResult << ") passed";
+        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
     }
     else
     {
-        util::Log(logERROR) << "Case(" << input1 << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual:";
+        for(const auto& s: actual) util::Log(logERROR) << numberVectorToString(s);
+    }
+}
+
+void combine_scaffold(int input1, int input2, string expectedResult)
+{
+    Solution ss;
+    vector<vector<int>> actual = ss.combine(input1, input2);
+    vector<vector<int>> expected = stringTo2DArray(expectedResult);
+    if(actual == expected)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual:";
         for(const auto& s: actual) util::Log(logERROR) << numberVectorToString(s);
     }
@@ -202,4 +249,10 @@ int main()
     combinationSum2_scaffold("[10, 1, 2, 7, 6, 1, 5]", 8, "[[1, 1, 6], [1, 2, 5], [1, 7], [2, 6]]");
     TIMER_STOP(combinationSum2);
     util::Log(logESSENTIAL) << "combinationSum2 using " << TIMER_MSEC(combinationSum2) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running combine tests:";
+    TIMER_START(combine);
+    combine_scaffold(4, 2, "[[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]]");
+    TIMER_STOP(combine);
+    util::Log(logESSENTIAL) << "combine using " << TIMER_MSEC(combine) << " milliseconds";
 }
