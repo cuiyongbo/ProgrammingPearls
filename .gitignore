@@ -37,3 +37,5 @@ interview_questions/scaffold.cpp
 GdbTutorial
 memcached-scaffold/build
 memcached-scaffold/_build
+libtbb-scaffold/build
+libtbb-scaffold/_build
