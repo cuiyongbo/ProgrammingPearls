@@ -39,3 +39,5 @@ memcached-scaffold/build
 memcached-scaffold/_build
 libtbb-scaffold/build
 libtbb-scaffold/_build
+std-cpp/static-extern-scaffold/build
+std-cpp/static-extern-scaffold/_build
