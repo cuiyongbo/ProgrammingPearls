@@ -3,13 +3,15 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode exercises: 443, 815 */
+/* leetcode exercises: 443, 815, 863, 1129,  */
 
 class Solution
 {
 public:
     int minMutation(string start, string end, vector<string>& bank);
     int numBusesToDestination(vector<vector<int>>& routes, int S, int T);
+    vector<int> distanceK(TreeNode* root, int target, int K);
+    vector<int> shortestAlternatingPaths(int n, vector<vector<int>>& red_edges, vector<vector<int>>& blue_edges);
 
 private:
     int numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int T);
@@ -252,6 +254,146 @@ int Solution::numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int 
     return -1;
 }
 
+vector<int> Solution::distanceK(TreeNode* root, int target, int K)
+{
+    /*
+        We are given a binary tree (with root node root), a target node, and an integer value K.
+        Return a list of the values of all nodes that have a distance K from the target node. 
+        The answer can be returned in any order.
+
+        Hint: convert the tree into a undirected graph, and perform bfs search from target, 
+        return the nodes at the Kth traversal.
+    */
+
+    vector<pair<int, int>> edges;
+    auto treeToGraphEdges = [&](TreeNode* root)
+    {
+        queue<TreeNode*> q;
+        q.push(root);
+        while(!q.empty())
+        {
+            size_t size = q.size();
+            for(size_t i=0; i != size; ++i)
+            {
+                auto t = q.front(); q.pop();
+
+                if(t->left != NULL)
+                {
+                    edges.emplace_back(t->val, t->left->val);
+                    q.push(t->left);
+                }
+
+                if(t->right != NULL)
+                {
+                    edges.emplace_back(t->val, t->right->val);
+                    q.push(t->right);
+                }
+            }
+        }
+    };
+
+    treeToGraphEdges(root);
+
+    map<int, vector<int>> graph;
+    for(const auto& e: edges)
+    {
+        graph[e.first].push_back(e.second);
+        graph[e.second].push_back(e.first);
+    }
+
+    queue<int> q;
+    q.push(target);
+
+    set<int> visited;
+    visited.insert(target);
+
+    vector<int> ans;
+    int steps = 0;
+    while(!q.empty())
+    {
+        ans.clear();
+        size_t size = q.size();
+        for(size_t i=0; i != size; ++i)
+        {
+            auto u = q.front(); q.pop();
+            for(const auto& v: graph[u])
+            {
+                if(visited.count(v) != 0) continue;
+                ans.push_back(v);
+                q.push(v);
+            }
+        }
+        ++steps;
+        if(steps == K) break;
+    }
+
+    // sort is not necessary, but performing a sort make it much easier for test
+    std::sort(ans.begin(), ans.end());
+    return ans;
+}
+
+vector<int> Solution::shortestAlternatingPaths(int n, vector<vector<int>>& red_edges, vector<vector<int>>& blue_edges)
+{
+    /*
+        Consider a directed graph, with nodes labelled 0, 1, ..., n-1.
+        In this graph, each edge is either red or blue, and there could be self-edges or parallel edges.
+        Each [i, j] in red_edges denotes a red directed edge from node i to node j.  
+        Similarly, each [i, j] in blue_edges denotes a blue directed edge from node i to node j.
+        Return an array answer of length n, where each answer[X] is the length of the shortest path 
+        from node 0 to node X such that the edge colors alternate along the path (or -1 if such a path doesn’t exist).
+    */
+
+    vector<vector<int>> graphs[2];
+
+    // red graph
+    graphs[0].resize(n);
+    for(const auto& e: red_edges) graphs[0][e[0]].push_back(e[1]);
+
+    // blue graph
+    graphs[1].resize(n); 
+    for(const auto& e: blue_edges) graphs[1][e[0]].push_back(e[1]);
+
+    vector<int> ans(n, INT32_MAX);
+    ans[0] = 0;
+
+    auto search = [&](int color)
+    {
+        if(graphs[color][0].empty())
+            return;
+        
+        set<int> visited_set[2];
+        visited_set[color].insert(0);
+
+        int steps = 0;
+        queue<int> q;
+        q.push(0);
+        while(!q.empty())
+        {
+            size_t size = q.size();
+            while(size-- > 0)
+            {
+                auto u = q.front(); q.pop();
+                ans[u] = std::min(ans[u], steps);
+                for(const auto& v: graphs[color][u])
+                {
+                    if(visited_set[color].count(v) != 0) continue;
+                    visited_set[color].insert(v);
+                    q.push(v);
+                }
+            }
+            color = !color; // reverse color
+            ++steps;
+        }
+    };
+
+    search(0);
+    search(1);
+
+    std::transform(ans.begin(), ans.end(), ans.begin(), [](int n) {return n==INT32_MAX ? -1 : n;});
+
+    return ans;
+}
+
 void minMutation_scaffold(string input1, string input2, string input3, int expectedResult)
 {
     Solution ss;
@@ -284,6 +426,41 @@ void numBusesToDestination_scaffold(string input1, int input2, int input3, int e
     }
 }
 
+void distanceK_scaffold(string input1, int input2, int input3, string expectedResult)
+{
+    Solution ss;
+    TreeNode* root = stringToTreeNode(input1);
+    vector<int> actual = ss.distanceK(root, input2, input3);
+    vector<int> expected = stringToIntegerVector(expectedResult);
+    if (actual == expected)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actutal: " << numberVectorToString(actual);
+    }
+}
+
+void shortestAlternatingPaths_scaffold(int input1, string input2, string input3, string expectedResult)
+{
+    Solution ss;
+    vector<vector<int>> red_edges = stringTo2DArray(input2);
+    vector<vector<int>> blue_edges = stringTo2DArray(input3);
+    vector<int> actual = ss.shortestAlternatingPaths(input1, red_edges, blue_edges);
+    vector<int> expected = stringToIntegerVector(expectedResult);
+    if (actual == expected)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actutal: " << numberVectorToString(actual);
+    }
+}
+
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
@@ -308,4 +485,19 @@ int main()
     TIMER_STOP(numBusesToDestination);
     util::Log(logESSENTIAL) << "numBusesToDestination using " << TIMER_MSEC(numBusesToDestination) << " milliseconds";
 
+    util::Log(logESSENTIAL) << "Running distanceK tests:";
+    TIMER_START(distanceK);
+    distanceK_scaffold("[3,5,1,6,2,0,8,null,null,7,4]", 5, 2, "[1,4,7]");
+    TIMER_STOP(distanceK);
+    util::Log(logESSENTIAL) << "distanceK using " << TIMER_MSEC(distanceK) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running shortestAlternatingPaths tests:";
+    TIMER_START(shortestAlternatingPaths);
+    shortestAlternatingPaths_scaffold(3, "[[0,1],[1,2]]", "[]", "[0,1,-1]");
+    shortestAlternatingPaths_scaffold(3, "[[0,1]]", "[[2,1]]", "[0,1,-1]");
+    shortestAlternatingPaths_scaffold(3, "[[1,0]]", "[[2,1]]", "[0,-1,-1]");
+    shortestAlternatingPaths_scaffold(3, "[[0,1]]", "[[1,2]]", "[0,1,2]");
+    shortestAlternatingPaths_scaffold(3, "[[0,1],[0,2]]", "[[1,0]]", "[0,1,1]");
+    TIMER_STOP(shortestAlternatingPaths);
+    util::Log(logESSENTIAL) << "shortestAlternatingPaths using " << TIMER_MSEC(shortestAlternatingPaths) << " milliseconds";
 }
