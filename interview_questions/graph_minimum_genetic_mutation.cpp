@@ -14,6 +14,7 @@ public:
 private:
     int numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int T);
     int numBusesToDestination_dsu(vector<vector<int>>& routes, int S, int T);
+    int numBusesToDestination_napolen(vector<vector<int>>& routes, int S, int T);
 
 };
 
@@ -91,20 +92,125 @@ int Solution::numBusesToDestination(vector<vector<int>>& routes, int S, int T)
         our destination? Return -1 if it is not possible.
     */
 
-    return numBusesToDestination_bfs(routes, S, T);
+    //return numBusesToDestination_bfs(routes, S, T);
+    //return numBusesToDestination_dsu(routes, S, T);
+    return numBusesToDestination_napolen(routes, S, T);
+}
 
+int Solution::numBusesToDestination_napolen(vector<vector<int>>& routes, int S, int T)
+{
+    // build an undirected graph
+    // node: u, bus labelled u
+    // edge: (u,v), bus[u] and bus[v] have at least one stop in common
+    // S in buses(u1, u2, ...), T in buses(v1, v2, ...)
+    // find the pair(u, v) which has the shortest length
+    // run floyd-warshall algorithm
 
+    int busCount = (int)routes.size();
+    map<int, vector<int>> stationToBusMap;
+    for(int i=0; i<busCount; ++i)
+    {
+        for(const auto& r: routes[i])
+        {
+            stationToBusMap[r].push_back(i);
+        }
+    }
 
+    vector<vector<int>> distance_table(busCount, vector<int>(busCount, INT32_MAX));
+
+    // initialize distance table as weight function
+    for(const auto& it: stationToBusMap)
+    {
+        size_t count = it.second.size();
+        for(size_t i=0; i<count; ++i)
+        {
+            for(size_t j=i+1; j<count; ++j)
+            {
+                distance_table[it.second[i]][it.second[j]] = 1;
+                distance_table[it.second[j]][it.second[i]] = 1;
+            }
+        }
+    }
+
+    for(int k=0; k<busCount; ++k)
+    {
+        distance_table[k][k] = 0;
+        for (int i = 0; i < busCount; ++i)
+        {
+            for (int j = 0; j < busCount; ++j)
+            {
+                if(distance_table[i][k] != INT32_MAX && distance_table[k][j] != INT32_MAX)
+                    distance_table[i][j] = std::min(distance_table[i][j], distance_table[i][k] + distance_table[k][j]);
+            }
+        }
+    }
+    
+    int ans = INT32_MAX;
+    for(const auto& s: stationToBusMap[S])
+    {
+        for(const auto& t: stationToBusMap[T])
+        {
+            ans = std::min(ans, distance_table[s][t]);
+        }
+    }
+
+    return ans == INT32_MAX ? -1 : ans+1;
 }
 
 int Solution::numBusesToDestination_dsu(vector<vector<int>>& routes, int S, int T)
 {
+    int busCount = (int)routes.size();
+    map<int, int> stationToBusGroup;
     map<int, vector<int>> stationToBusMap;
-    for(int i=0; i<(int)routes.size(); ++i)
+    DisjointSet dsu(busCount);
+    for(int i=0; i<busCount; ++i)
     {
         for(const auto& n: routes[i])
+        {
+            if(stationToBusGroup[n] != 0)
+            {
+                dsu.unionFunc(stationToBusGroup[n], i+1);
+            }
+            stationToBusGroup[n] = i+1;
             stationToBusMap[n].push_back(i);
+        }
     }
+
+    // is S and T in the same connected component?
+    int group = dsu.find(stationToBusGroup[S]);
+    if(group != dsu.find(stationToBusGroup[T]))
+        return -1;
+
+    // exclude disjoint components
+    vector<bool> visited(busCount, false);
+    for(int i=0; i<busCount; ++i)
+    {
+        if(group != dsu.find(i+1))
+            visited[i] = true;
+    }
+
+    int steps = 0;
+    queue<int> q;
+    q.push(S);
+    while(!q.empty())
+    {
+        size_t size = q.size();
+        for(size_t i=0; i != size; ++i)
+        {
+            auto u = q.front(); q.pop();
+            if(u == T) return steps;
+            for(auto v: stationToBusMap[u])
+            {
+                if(visited[v]) continue;
+                visited[v] = true;
+                for(auto r: routes[v])
+                    q.push(r);
+            }
+        }
+        ++steps;
+    }
+
+    return -1;
 }
 
 int Solution::numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int T)
@@ -145,7 +251,6 @@ int Solution::numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int 
 
     return -1;
 }
-
 
 void minMutation_scaffold(string input1, string input2, string input3, int expectedResult)
 {
