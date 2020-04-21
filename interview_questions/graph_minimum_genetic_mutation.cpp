@@ -17,7 +17,6 @@ private:
     int numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int T);
     int numBusesToDestination_dsu(vector<vector<int>>& routes, int S, int T);
     int numBusesToDestination_napolen(vector<vector<int>>& routes, int S, int T);
-
 };
 
 int Solution::minMutation(string start, string end, vector<string>& bank)

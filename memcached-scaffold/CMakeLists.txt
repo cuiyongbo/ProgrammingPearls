@@ -6,9 +6,17 @@ link_directories(
     /usr/local/lib
 )
 
-add_executable(scaffold main.cpp)
-target_compile_features(scaffold PUBLIC cxx_auto_type)
-target_link_libraries(scaffold memcached)
+add_executable(basic_operations_demo_01 basic_operations_demo_01.cpp)
+target_compile_features(basic_operations_demo_01 PUBLIC cxx_auto_type)
+target_link_libraries(basic_operations_demo_01 memcached)
+
+add_executable(basic_operations_demo_02 basic_operations_demo_02.cpp print_callbacks.cpp)
+target_compile_features(basic_operations_demo_02 PUBLIC cxx_auto_type)
+target_link_libraries(basic_operations_demo_02 memcached)
+
+add_executable(basic_operations_with_key_demo_01 basic_operations_with_key_demo_01.cpp)
+target_compile_features(basic_operations_with_key_demo_01 PUBLIC cxx_auto_type)
+target_link_libraries(basic_operations_with_key_demo_01 memcached)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
