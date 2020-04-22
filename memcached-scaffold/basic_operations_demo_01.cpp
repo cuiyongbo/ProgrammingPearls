@@ -1,11 +1,4 @@
-#include <stdio.h>  
-#include <stdlib.h> 
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <iostream>
-
-#include <libmemcached/memcached.h> 
+#include "libmemcached_util.h"
 
 using namespace std;
 
@@ -76,6 +69,7 @@ int main(int argc, char *argv[])
                 }
                 free(value);
 
+                // server information where the item resides in
                 const memcached_instance_st* si = memcached_server_by_key(memc, keys[i], strlen(keys[i]), &rc);
                 if (si == NULL)
                 {
