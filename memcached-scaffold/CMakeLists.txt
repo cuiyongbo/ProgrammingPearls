@@ -24,6 +24,10 @@ add_executable(basic_operations_demo_04 basic_operations_demo_04.cpp ${UTIL})
 target_compile_features(basic_operations_demo_04 PUBLIC cxx_auto_type)
 target_link_libraries(basic_operations_demo_04 memcached)
 
+add_executable(basic_operations_demo_05 basic_operations_demo_05.cpp ${UTIL})
+target_compile_features(basic_operations_demo_05 PUBLIC cxx_auto_type)
+target_link_libraries(basic_operations_demo_05 memcached)
+
 add_executable(basic_operations_with_key_demo_01 basic_operations_with_key_demo_01.cpp)
 target_compile_features(basic_operations_with_key_demo_01 PUBLIC cxx_auto_type)
 target_link_libraries(basic_operations_with_key_demo_01 memcached)
