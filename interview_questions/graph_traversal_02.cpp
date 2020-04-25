@@ -104,7 +104,7 @@ string Solution::smallestStringWithSwaps(string s, vector<vector<int>>& pairs)
 void canVisitAllRooms_scaffold(string input, bool expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray(input);
+    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
     bool actual = ss.canVisitAllRooms(graph);
     if(actual == expectedResult)
     {
@@ -119,7 +119,7 @@ void canVisitAllRooms_scaffold(string input, bool expectedResult)
 void smallestStringWithSwaps_scaffold(string input, string pairs, string expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray(pairs);
+    vector<vector<int>> graph = stringTo2DArray_t<int>(pairs);
     string actual = ss.smallestStringWithSwaps(input, graph);
     if(actual == expectedResult)
     {

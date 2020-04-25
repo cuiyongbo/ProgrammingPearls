@@ -3,7 +3,7 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode exercises: 443, 815, 863, 1129,  */
+/* leetcode exercises: 443, 815, 863, 1129,  1263*/
 
 class Solution
 {
@@ -12,6 +12,7 @@ public:
     int numBusesToDestination(vector<vector<int>>& routes, int S, int T);
     vector<int> distanceK(TreeNode* root, int target, int K);
     vector<int> shortestAlternatingPaths(int n, vector<vector<int>>& red_edges, vector<vector<int>>& blue_edges);
+    int minPushBox(vector<vector<char>>& grid);
 
 private:
     int numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int T);
@@ -393,10 +394,132 @@ vector<int> Solution::shortestAlternatingPaths(int n, vector<vector<int>>& red_e
     return ans;
 }
 
+int Solution::minPushBox(vector<vector<char>>& grid)
+{
+    /*
+        Storekeeper is a game in which the player pushes boxes around in a warehouse trying to get them to target locations.
+
+        The game is represented by a grid of size n*m, where each element is a wall, floor, or a box.
+
+        Your task is move the box 'B' to the target position 'T' under the following rules:
+
+            Player is represented by character 'S' and can move up, down, left, right in the grid if it is a floor (empy cell).
+            Floor is represented by character '.' that means free cell to walk.
+            Wall is represented by character '#' that means obstacle  (impossible to walk there). 
+            There is only one box 'B' and one target cell 'T' in the grid.
+            The box can be moved to an adjacent free cell by standing next to the box and then moving in the direction of the box. This is a push.
+            The player cannot walk through the box.
+
+        Return the minimum number of pushes to move the box to the target. If there is no way to reach the target, return -1.
+    */
+
+    int rows = grid.size();
+    int columns = grid[0].size();
+
+    int id = 0;
+    int box, player, dest;
+    for(int r=0; r<rows; ++r)
+    {
+        for(int c=0; c<columns; ++c)
+        {
+            if(grid[r][c] == 'S')
+                player = id;
+
+            if(grid[r][c] == 'T')
+                dest = id;
+
+            if(grid[r][c] == 'B')
+                box = id;
+
+            ++id;
+        }
+    }
+
+    queue<int> q;
+    q.push(box);
+
+    unordered_set<int> visited;
+    visited.emplace(box);
+    
+    const vector<vector<int>> MOVES {{-columns, columns}, {columns, -columns}, {-1, 1}, {1, -1}};
+    auto hasPath = [&](int box, int player, const vector<int>& move)
+    {
+        unordered_set<int> visited;
+        visited.emplace(player);
+
+        queue<int> q;
+        q.push(player);
+
+        while(!q.empty())
+        {   
+            int size = (int)q.size();
+            for(int i=0; i<size; ++i)
+            {
+                auto t = q.front(); q.pop();
+                if(t == box + move[1]) return true;
+                for (const auto& m: MOVES)
+                {
+                    int s = t + m[0];
+                    if(s<0 || s>=rows*columns)
+                        continue;
+
+                    int r = s / columns;
+                    int c = s % columns;
+                    if(grid[r][c] == '#' || s == box)
+                        continue;
+
+                    if(visited.count(s) != 0)
+                        continue;
+                    
+                    visited.emplace(s);
+                    q.push(s);
+                }
+            }
+        }
+        return false;
+    };
+
+    int steps = 0;
+    while(!q.empty())
+    {
+        int size = (int)q.size();
+        for(int i=0; i<size; ++i)
+        {
+            auto t = q.front(); q.pop();
+            if(t == dest) return steps;
+
+            for(const auto& m: MOVES)
+            {
+                int s = t + m[0];
+                if(s<0 || s>=rows*columns)
+                    continue;
+
+                int r = s / columns;
+                int c = s % columns;
+                if(grid[r][c] == '#')
+                    continue;
+                
+                if(visited.count(s) != 0)
+                    continue;
+
+                if(hasPath(t, player, m))
+                {
+                    visited.emplace(s);
+                    q.push(s);
+                }
+            }
+        }
+        ++steps;
+    }
+
+    return -1;
+}
+
 void minMutation_scaffold(string input1, string input2, string input3, int expectedResult)
 {
     Solution ss;
-    vector<string> bank = toStringArray(input3);
+    //vector<string> bank = stringTo1DArray_t<string>(input3);
+    vector<string> bank = stringTo1DArray_t<string>(input3);
     int actual = ss.minMutation(input1, input2, bank);
     if (actual == expectedResult)
     {
@@ -412,7 +535,7 @@ void minMutation_scaffold(string input1, string input2, string input3, int expec
 void numBusesToDestination_scaffold(string input1, int input2, int input3, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> routes = stringTo2DArray(input1);
+    vector<vector<int>> routes = stringTo2DArray_t<int>(input1);
     int actual = ss.numBusesToDestination(routes, input2, input3);
     if (actual == expectedResult)
     {
@@ -430,7 +553,7 @@ void distanceK_scaffold(string input1, int input2, int input3, string expectedRe
     Solution ss;
     TreeNode* root = stringToTreeNode(input1);
     vector<int> actual = ss.distanceK(root, input2, input3);
-    vector<int> expected = stringToIntegerVector(expectedResult);
+    vector<int> expected = stringTo1DArray_t<int>(expectedResult);
     if (actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
@@ -445,10 +568,10 @@ void distanceK_scaffold(string input1, int input2, int input3, string expectedRe
 void shortestAlternatingPaths_scaffold(int input1, string input2, string input3, string expectedResult)
 {
     Solution ss;
-    vector<vector<int>> red_edges = stringTo2DArray(input2);
-    vector<vector<int>> blue_edges = stringTo2DArray(input3);
+    vector<vector<int>> red_edges = stringTo2DArray_t<int>(input2);
+    vector<vector<int>> blue_edges = stringTo2DArray_t<int>(input3);
     vector<int> actual = ss.shortestAlternatingPaths(input1, red_edges, blue_edges);
-    vector<int> expected = stringToIntegerVector(expectedResult);
+    vector<int> expected = stringTo1DArray_t<int>(expectedResult);
     if (actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
@@ -457,6 +580,22 @@ void shortestAlternatingPaths_scaffold(int input1, string input2, string input3,
     {
         util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actutal: " << numberVectorToString(actual);
+    }
+}
+
+void minPushBox_scaffold(string input, int expectedResult)
+{
+    Solution ss;
+    vector<vector<char>> grid = stringTo2DArray_t<char>(input);
+    int actual = ss.minPushBox(grid);
+    if (actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actutal: " << actual;
     }
 }
 
@@ -499,4 +638,40 @@ int main()
     shortestAlternatingPaths_scaffold(3, "[[0,1],[0,2]]", "[[1,0]]", "[0,1,1]");
     TIMER_STOP(shortestAlternatingPaths);
     util::Log(logESSENTIAL) << "shortestAlternatingPaths using " << TIMER_MSEC(shortestAlternatingPaths) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running minPushBox tests:";
+    TIMER_START(minPushBox);
+
+    string grid = R"([[#,#,#,#,#,#],
+                   [#,T,#,#,#,#],
+                   [#,.,.,B,.,#],
+                   [#,.,#,#,.,#],
+                   [#,.,.,.,S,#],
+                   [#,#,#,#,#,#]])";
+    minPushBox_scaffold(grid, 3);
+
+    grid = R"([[#,#,#,#,#,#,#],
+               [#,S,#,.,B,T,#],
+               [#,#,#,#,#,#,#]])";
+    minPushBox_scaffold(grid, -1);
+
+    grid = R"([[#,#,#,#,#,#],
+               [#,T,.,.,#,#],
+               [#,.,#,B,.,#],
+               [#,.,.,.,.,#],
+               [#,.,.,.,S,#],
+               [#,#,#,#,#,#]])";
+    minPushBox_scaffold(grid, 5);
+
+    grid = R"([[#,#,#,#,#,#],
+               [#,T,#,#,#,#],
+               [#,.,.,B,.,#],
+               [#,#,#,#,.,#],
+               [#,.,.,.,S,#],
+               [#,#,#,#,#,#]])";
+    minPushBox_scaffold(grid, -1);
+
+    TIMER_STOP(minPushBox);
+    util::Log(logESSENTIAL) << "minPushBox using " << TIMER_MSEC(minPushBox) << " milliseconds";
+
 }

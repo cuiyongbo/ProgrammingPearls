@@ -254,7 +254,7 @@ void letterCombinations_scaffold(string input, string expectedResult)
 {
     Solution ss;
     vector<string> actual = ss.letterCombinations(input);
-    vector<string> expected = toStringArray(expectedResult);
+    vector<string> expected = stringTo1DArray_t<string>(expectedResult);
     if(actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
@@ -270,9 +270,9 @@ void letterCombinations_scaffold(string input, string expectedResult)
 void combinationSum_scaffold(string input1, int input2, string expectedResult)
 {
     Solution ss;
-    vector<int> candidates = stringToIntegerVector(input1);
+    vector<int> candidates = stringTo1DArray_t<int>(input1);
     vector<vector<int>> actual = ss.combinationSum(candidates, input2);
-    vector<vector<int>> expected = stringTo2DArray(expectedResult);
+    vector<vector<int>> expected = stringTo2DArray_t<int>(expectedResult);
     if(actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input1 << ", expectedResult: " << expectedResult << ") passed";
@@ -288,9 +288,9 @@ void combinationSum_scaffold(string input1, int input2, string expectedResult)
 void combinationSum2_scaffold(string input1, int input2, string expectedResult)
 {
     Solution ss;
-    vector<int> candidates = stringToIntegerVector(input1);
+    vector<int> candidates = stringTo1DArray_t<int>(input1);
     vector<vector<int>> actual = ss.combinationSum2(candidates, input2);
-    vector<vector<int>> expected = stringTo2DArray(expectedResult);
+    vector<vector<int>> expected = stringTo2DArray_t<int>(expectedResult);
     if(actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
@@ -307,7 +307,7 @@ void combinationSum3_scaffold(int input1, int input2, string expectedResult)
 {
     Solution ss;
     vector<vector<int>> actual = ss.combinationSum3(input1, input2);
-    vector<vector<int>> expected = stringTo2DArray(expectedResult);
+    vector<vector<int>> expected = stringTo2DArray_t<int>(expectedResult);
     if(actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
@@ -324,7 +324,7 @@ void combine_scaffold(int input1, int input2, string expectedResult)
 {
     Solution ss;
     vector<vector<int>> actual = ss.combine(input1, input2);
-    vector<vector<int>> expected = stringTo2DArray(expectedResult);
+    vector<vector<int>> expected = stringTo2DArray_t<int>(expectedResult);
     if(actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
@@ -341,7 +341,7 @@ void subsets_scaffold(string input, string expectedResult, bool duplicate)
 {
     Solution ss;
     vector<vector<int>> actual;
-    vector<int> nums = stringToIntegerVector(input);
+    vector<int> nums = stringTo1DArray_t<int>(input);
     if(duplicate)
     {
         actual = ss.subsets2(nums);
@@ -351,7 +351,7 @@ void subsets_scaffold(string input, string expectedResult, bool duplicate)
         actual = ss.subsets(nums);
     }
     
-    vector<vector<int>> expected = stringTo2DArray(expectedResult);
+    vector<vector<int>> expected = stringTo2DArray_t<int>(expectedResult);
     BOOST_ASSERT(actual.size() == pow(2, input.size()));
     if(actual == expected)
     {

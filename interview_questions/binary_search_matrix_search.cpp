@@ -173,7 +173,7 @@ int Solution::findKthNumber(int m, int n, int k)
 void searchMatrix_scaffold(string input, int target, bool expectedResult)
 {
     Solution ss;
-    vector<vector<int>> matrix = stringTo2DArray(input);
+    vector<vector<int>> matrix = stringTo2DArray_t<int>(input);
     bool actual = ss.searchMatrix(matrix, target);
     if(actual == expectedResult)
     {
@@ -189,8 +189,8 @@ void searchMatrix_scaffold(string input, int target, bool expectedResult)
 void findMedianSortedArrays_scaffold(string input1, string input2, double expectedResult)
 {
     Solution ss;
-    vector<int> nums1 = stringToIntegerVector(input1);
-    vector<int> nums2 = stringToIntegerVector(input2);
+    vector<int> nums1 = stringTo1DArray_t<int>(input1);
+    vector<int> nums2 = stringTo1DArray_t<int>(input2);
     double actual = ss.findMedianSortedArrays(nums1, nums2);
     if(actual == expectedResult)
     {
@@ -206,7 +206,7 @@ void findMedianSortedArrays_scaffold(string input1, string input2, double expect
 void kthSmallest_scaffold(string input, int target, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> matrix = stringTo2DArray(input);
+    vector<vector<int>> matrix = stringTo2DArray_t<int>(input);
     int actual = ss.kthSmallest(matrix, target);
     if(actual == expectedResult)
     {

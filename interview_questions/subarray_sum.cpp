@@ -51,7 +51,7 @@ int Solution::subarraySum_naive(vector<int>& nums, int k)
 
 void subarraySum_scaffold(string input, int k)
 {
-    vector<int> vi = stringToIntegerVector(input);
+    vector<int> vi = stringTo1DArray_t<int>(input);
 
     Solution ss;
     int ans1 = ss.subarraySum(vi, k);

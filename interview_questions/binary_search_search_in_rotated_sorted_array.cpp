@@ -213,7 +213,7 @@ int Solution::peakIndexInMountainArray(vector<int>& nums)
 void search_33_scaffold(string input, int target, int expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringToIntegerVector(input);
+    vector<int> nums = stringTo1DArray_t<int>(input);
     int actual = ss.search_33(nums, target);
     if(actual == expectedResult)
     {
@@ -229,7 +229,7 @@ void search_33_scaffold(string input, int target, int expectedResult)
 void search_81_scaffold(string input, int target, bool expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringToIntegerVector(input);
+    vector<int> nums = stringTo1DArray_t<int>(input);
     bool actual = ss.search_81(nums, target);
     if(actual == expectedResult)
     {
@@ -245,7 +245,7 @@ void search_81_scaffold(string input, int target, bool expectedResult)
 void findMin_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringToIntegerVector(input);
+    vector<int> nums = stringTo1DArray_t<int>(input);
     int actual = ss.findMin(nums);
     if(actual == expectedResult)
     {
@@ -261,7 +261,7 @@ void findMin_scaffold(string input, int expectedResult)
 void findPeakElement_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringToIntegerVector(input);
+    vector<int> nums = stringTo1DArray_t<int>(input);
     int actual = ss.findPeakElement(nums);
     if(actual == expectedResult)
     {
@@ -277,7 +277,7 @@ void findPeakElement_scaffold(string input, int expectedResult)
 void peakIndexInMountainArray_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringToIntegerVector(input);
+    vector<int> nums = stringTo1DArray_t<int>(input);
     int actual = ss.peakIndexInMountainArray(nums);
     if(actual == expectedResult)
     {

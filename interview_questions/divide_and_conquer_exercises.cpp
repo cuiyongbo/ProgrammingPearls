@@ -275,7 +275,7 @@ vector<int> Solution::countSmaller_partition(vector<int>& nums)
 void majorityElement_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringToIntegerVector(input);
+    vector<int> nums = stringTo1DArray_t<int>(input);
     int actual = ss.majorityElement(nums);
     if(actual == expectedResult)
     {
@@ -290,7 +290,7 @@ void majorityElement_scaffold(string input, int expectedResult)
 void findMin_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringToIntegerVector(input);
+    vector<int> nums = stringTo1DArray_t<int>(input);
     int actual = ss.findMin(nums);
     if(actual == expectedResult)
     {
@@ -305,7 +305,7 @@ void findMin_scaffold(string input, int expectedResult)
 void constructMaximumBinaryTree_scaffold(string input, string expectedResult)
 {
     Solution ss;
-    vector<int> vi = stringToIntegerVector(input);
+    vector<int> vi = stringTo1DArray_t<int>(input);
     TreeNode* root = ss.constructMaximumBinaryTree(vi);
     TreeNode* expected = stringToTreeNode(expectedResult);
     if(binaryTree_equal(root, expected))
@@ -323,8 +323,8 @@ void constructMaximumBinaryTree_scaffold(string input, string expectedResult)
 
 void countSmaller_scaffold(string input, string expectedResult)
 {
-    vector<int> vi = stringToIntegerVector(input);
-    vector<int> expected = stringToIntegerVector(expectedResult);
+    vector<int> vi = stringTo1DArray_t<int>(input);
+    vector<int> expected = stringTo1DArray_t<int>(expectedResult);
 
     Solution ss;
     vector<int> actual = ss.countSmaller(vi);

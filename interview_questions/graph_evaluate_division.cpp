@@ -355,10 +355,10 @@ bool Solution::equationsPossible(vector<string>& equations)
 void calcEquation_scaffold(string equations, string values, string queries, string expectedResult)
 {
     Solution ss;
-    vector<vector<string>> ve = to2DStringArray(equations);
-    vector<double> dv = stringToDoubleVector(values);
-    vector<vector<string>> vq = to2DStringArray(queries);
-    auto expected = stringToDoubleVector(expectedResult);
+    vector<vector<string>> ve = stringTo2DArray_t<string>(equations);
+    vector<double> dv = stringTo1DArray_t<double>(values);
+    vector<vector<string>> vq = stringTo2DArray_t<string>(queries);
+    auto expected = stringTo1DArray_t<double>(expectedResult);
     auto actual = ss.calcEquation(ve, dv, vq);
     if(actual == expected)
     {
@@ -374,9 +374,9 @@ void calcEquation_scaffold(string equations, string values, string queries, stri
 void areSentencesSimilarTwo_scaffold(string s1, string s2, string dict, bool expectedResult)
 {
     Solution ss;
-    vector<string> words1 = toStringArray(s1);
-    vector<string> words2 = toStringArray(s2);
-    vector<vector<string>> pairs = to2DStringArray(dict);
+    vector<string> words1 = stringTo1DArray_t<string>(s1);
+    vector<string> words2 = stringTo1DArray_t<string>(s2);
+    vector<vector<string>> pairs = stringTo2DArray_t<string>(dict);
     bool actual = ss.areSentencesSimilarTwo(words1, words2, pairs);
     if(actual == expectedResult)
     {
@@ -391,8 +391,8 @@ void areSentencesSimilarTwo_scaffold(string s1, string s2, string dict, bool exp
 void accountsMerge_scaffold(string input, string expectedResult)
 {
     Solution ss;
-    vector<vector<string>> accounts = to2DStringArray(input);
-    vector<vector<string>> expected = to2DStringArray(expectedResult);
+    vector<vector<string>> accounts = stringTo2DArray_t<string>(input);
+    vector<vector<string>> expected = stringTo2DArray_t<string>(expectedResult);
     vector<vector<string>> actual = ss.accountsMerge(accounts);
     if(actual == expected)
     {
@@ -415,7 +415,7 @@ void accountsMerge_scaffold(string input, string expectedResult)
 void numSimilarGroups_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<string> accounts = toStringArray(input);
+    vector<string> accounts = stringTo1DArray_t<string>(input);
     int actual = ss.numSimilarGroups(accounts);
     if(actual == expectedResult)
     {
@@ -431,7 +431,7 @@ void numSimilarGroups_scaffold(string input, int expectedResult)
 void largestComponentSize_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<int> graph = stringToIntegerVector(input);
+    vector<int> graph = stringTo1DArray_t<int>(input);
     int actual = ss.largestComponentSize(graph);
     if(actual == expectedResult)
     {
@@ -447,7 +447,7 @@ void largestComponentSize_scaffold(string input, int expectedResult)
 void equationsPossible_scaffold(string input, bool expectedResult)
 {
     Solution ss;
-    vector<string> equations = toStringArray(input);
+    vector<string> equations = stringTo1DArray_t<string>(input);
     bool actual = ss.equationsPossible(equations);
     if(actual == expectedResult)
     {

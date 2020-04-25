@@ -1,11 +1,4 @@
-#include <stdio.h>  
-#include <stdlib.h> 
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <iostream>
-
-#include <libmemcached/memcached.h> 
+#include "libmemcached_util.h"
 
 using namespace std;
 

@@ -174,7 +174,7 @@ void Solution::bstSort(vector<int>& nums)
 void sortArray_scaffold(string input, AlgorithmType type)
 {
     Solution ss;
-    vector<int> vi = stringToIntegerVector(input);
+    vector<int> vi = stringTo1DArray_t<int>(input);
     switch(type)
     {
         case AlgorithmType::AlgorithmType_quickSort:

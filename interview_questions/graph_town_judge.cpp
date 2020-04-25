@@ -48,7 +48,7 @@ int Solution::findJudge(int N, vector<vector<int>> &trusts)
 void findJudge_scaffold(int N, string input, int expectedResult)
 {
     Solution ss;
-    auto trusts = stringTo2DArray(input);
+    auto trusts = stringTo2DArray_t<int>(input);
     int actual = ss.findJudge(N, trusts);
     if (actual == expectedResult)
     {

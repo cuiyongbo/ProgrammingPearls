@@ -177,7 +177,7 @@ vector<int> Solution::eventualSafeNodes(vector<vector<int>>& graph)
 void canFinish_scaffold(int numCourses, string input, bool expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray(input);
+    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
     bool actual = ss.canFinish(numCourses, graph);
     if(actual == expectedResult)
     {
@@ -192,9 +192,9 @@ void canFinish_scaffold(int numCourses, string input, bool expectedResult)
 void findOrder_scaffold(int numCourses, string input, string expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray(input);
+    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
     vector<int> actual = ss.findOrder(numCourses, graph);
-    vector<int> expected = stringToIntegerVector(expectedResult);
+    vector<int> expected = stringTo1DArray_t<int>(expectedResult);
     if(actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << numCourses << ", " << input << "," << expectedResult << ") passed";
@@ -209,9 +209,9 @@ void findOrder_scaffold(int numCourses, string input, string expectedResult)
 void eventualSafeNodes_scaffold(string input, string expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray(input);
+    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
     vector<int> actual = ss.eventualSafeNodes(graph);
-    vector<int> expected = stringToIntegerVector(expectedResult);
+    vector<int> expected = stringTo1DArray_t<int>(expectedResult);
     if(actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input << "," << expectedResult << ") passed";

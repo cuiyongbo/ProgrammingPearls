@@ -15,6 +15,10 @@
 #include <cassert>
 #include <cstdint>
 
+#include <type_traits>
+#include <typeinfo>
+#include <memory>
+
 #include "util/log.h"
 #include "util/timing_util.h"
 #include "util/boost_assert.hpp"
@@ -23,22 +27,22 @@
 
 struct ListNode
 {
-	int val;
-	ListNode* next;
-	ListNode(int n=0):
-		val(n), next(nullptr)
-	{}
+    int val;
+    ListNode* next;
+    ListNode(int n=0):
+        val(n), next(nullptr)
+    {}
 };
 
 struct TreeNode
 {
-	int val;
-	TreeNode* left;
-	TreeNode* right;
+    int val;
+    TreeNode* left;
+    TreeNode* right;
 
-	TreeNode(int n=0) :
-		val(n), left(nullptr), right(nullptr)
-	{}
+    TreeNode(int n=0) :
+        val(n), left(nullptr), right(nullptr)
+    {}
 
     ~TreeNode()
     {
@@ -47,13 +51,6 @@ struct TreeNode
     }
 };
 
-template<class T>
-void printVector(std::vector<T>& v)
-{
-    std::copy(v.begin(), v.end(), std::ostream_iterator<T>(std::cout, " "));
-    std::cout << '\n';
-}
-
 void generateTestArray(std::vector<int>& input, int arraySize, bool allEqual, bool sorted=true);
 void printLinkedList(ListNode* head);
 
@@ -61,36 +58,8 @@ void trimTrailingSpaces(std::string& input);
 void trimLeftTrailingSpaces(std::string& input);
 void trimRightTrailingSpaces(std::string& input);
 
-// output in format like "[1,1,2]"
-template<typename T>
-std::string numberVectorToString(const std::vector<T>& input)
-{
-	std::string ans;
-	ans.reserve(input.size() * 4);
-	ans += "[";
-	for(const auto& n: input)
-	{
-		ans.append(std::to_string(n));
-		ans.append(",");
-	}
-	if(ans.back() == ',') ans.pop_back();
-	ans += "]";
-	return ans;
-}
-
-// in format like [1.0, 2.0]
-std::vector<double> stringToDoubleVector(std::string input);
-
-// in format like [1,2,3]
-std::vector<int> stringToIntegerVector(std::string input);
-std::vector<std::vector<int>> stringTo2DArray(std::string input);
-
 ListNode* stringToListNode(std::string input);
 TreeNode* stringToTreeNode(std::string input);
-
-// in format like [a, b]
-std::vector<std::string> toStringArray(std::string input);
-std::vector<std::vector<std::string>> to2DStringArray(std::string input);
 
 bool list_equal(ListNode* l1, ListNode* l2);
 bool binaryTree_equal(TreeNode* t1, TreeNode* t2);
@@ -133,7 +102,6 @@ Node* stringToUndirectedGraph(std::string& input);
 
 bool graph_equal(Node* g1, Node* g2);
 
-// up, down, left, right
 static std::vector<std::vector<int>> DIRECTIONS {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
 struct Coordinate
@@ -147,4 +115,123 @@ struct Coordinate
     {
         return std::tie(x, y) < std::tie(rhs.x, rhs.y);
     }
+
+    bool operator==(const Coordinate& rhs) const
+    {
+        return std::tie(x, y) == std::tie(rhs.x, rhs.y);
+    }
+
+    Coordinate& operator+(const Coordinate& rhs) 
+    {
+        this->x += rhs.x;
+        this->y += rhs.y;
+        return *this;
+    }
 };
+
+template<class T>
+std::vector<T> stringTo1DArray_t(std::string input)
+{
+    std::vector<T> output;
+    trimTrailingSpaces(input);
+    input = input.substr(1, input.length() - 2);
+    std::string item;
+    char delim = ',';
+    std::stringstream ss(input);
+
+    while (std::getline(ss, item, delim))
+    {
+        if(std::is_integral<T>::value)
+        {
+            output.push_back((T)std::stoi(item));
+        }
+        else if(std::is_floating_point<T>::value)
+        {
+            output.push_back((T)std::stod(item));
+        }
+    }
+    return output;
+}
+
+template<class T>
+std::vector<std::vector<T>> stringTo2DArray_t(std::string input)
+{
+    typedef T value_type;
+    std::vector<std::vector<value_type>> output;
+    trimTrailingSpaces(input);
+    input = input.substr(1, input.length() - 2);
+
+    size_t pos = 0;
+	while(pos < input.size())
+	{
+		size_t last = pos;
+		pos = input.find(']', pos);
+		if(pos == std::string::npos) break;
+
+		std::string item = input.substr(last, pos-last+1);
+		output.push_back(stringTo1DArray_t<value_type>(item));
+
+		pos = input.find('[', pos);
+	}
+    return output;
+}
+
+template<>
+inline std::vector<std::string> stringTo1DArray_t(std::string input)
+{
+    std::vector<std::string> output;
+    trimTrailingSpaces(input);
+    input = input.substr(1, input.length() - 2);
+    std::string item;
+    char delim = ',';
+    std::stringstream ss(input);
+
+    while (std::getline(ss, item, delim))
+    {
+        trimTrailingSpaces(item);
+        output.push_back(item);
+    }
+    return output;
+}
+
+template<>
+inline std::vector<char> stringTo1DArray_t(std::string input)
+{
+    std::vector<char> output;
+    trimTrailingSpaces(input);
+    input = input.substr(1, input.length() - 2);
+    std::string item;
+    char delim = ',';
+    std::stringstream ss(input);
+
+    while (std::getline(ss, item, delim))
+    {
+        trimTrailingSpaces(item);
+        output.push_back(item[0]);
+    }
+    return output;
+}
+
+// output in format like "[1,1,2]"
+template<typename T>
+std::string numberVectorToString(const std::vector<T>& input)
+{
+    std::string ans;
+    ans.reserve(input.size() * 4);
+    ans += "[";
+    for(const auto& n: input)
+    {
+        ans.append(std::to_string(n));
+        ans.append(",");
+    }
+    if(ans.back() == ',') ans.pop_back();
+    ans += "]";
+    return ans;
+}
+
+template<class T>
+void printVector(std::vector<T>& v)
+{
+    std::copy(v.begin(), v.end(), std::ostream_iterator<T>(std::cout, " "));
+    std::cout << '\n';
+}

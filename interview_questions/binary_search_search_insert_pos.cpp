@@ -116,7 +116,7 @@ vector<int> Solution::searchRange(vector<int>& nums, int target)
 void searchInsert_scaffold(string input, int target, int expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringToIntegerVector(input);
+    vector<int> nums = stringTo1DArray_t<int>(input);
     int actual = ss.searchInsert(nums, target);
     if(actual == expectedResult)
     {
@@ -132,8 +132,8 @@ void searchInsert_scaffold(string input, int target, int expectedResult)
 void searchRange_scaffold(string input, int target, string expectedResult)
 {
     Solution ss;
-    auto nums = stringToIntegerVector(input);
-    auto expected = stringToIntegerVector(expectedResult);
+    auto nums = stringTo1DArray_t<int>(input);
+    auto expected = stringTo1DArray_t<int>(expectedResult);
     auto actual = ss.searchRange(nums, target);
     if(actual == expected)
     {
@@ -148,7 +148,7 @@ void searchRange_scaffold(string input, int target, string expectedResult)
 void binary_search_scaffold(string input, int target, int expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringToIntegerVector(input);
+    vector<int> nums = stringTo1DArray_t<int>(input);
     int actual = ss.binary_search(nums, target);
     if(actual == expectedResult)
     {
@@ -220,9 +220,9 @@ string TimeMap::get(string key, int timestamp)
 
 void TimeMap_scaffold(string operations, string args, string expectedOutputs)
 {
-    vector<string> funcOperations = toStringArray(operations);
-    vector<vector<string>> funcArgs = to2DStringArray(args);
-    vector<string> ans = toStringArray(expectedOutputs);
+    vector<string> funcOperations = stringTo1DArray_t<string>(operations);
+    vector<vector<string>> funcArgs = stringTo2DArray_t<string>(args);
+    vector<string> ans = stringTo1DArray_t<string>(expectedOutputs);
     TimeMap tm;
     int n = (int)operations.size();
     for(int i=0; i<n; ++i)

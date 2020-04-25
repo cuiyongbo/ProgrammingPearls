@@ -402,7 +402,7 @@ void recoverTree_scaffold(string input, string expectedResult)
 void sortedArrayToBST_scaffold(string input, string expectedResult)
 {
     Solution ss;
-    vector<int> vi = stringToIntegerVector(input);
+    vector<int> vi = stringTo1DArray_t<int>(input);
     TreeNode* root = ss.sortedArrayToBST(vi);
     TreeNode* expected = stringToTreeNode(expectedResult);
     if(binaryTree_equal(root, expected))

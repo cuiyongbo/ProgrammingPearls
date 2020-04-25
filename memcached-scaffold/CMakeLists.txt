@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.0.0)
 project(memcached-scaffold VERSION 0.1.0)
 
 include_directories()
-link_directories(
+
+link_directories (
     /usr/local/lib
 )
 

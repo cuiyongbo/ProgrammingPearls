@@ -302,7 +302,7 @@ int Solution::maxDistance(vector<vector<int>>& grid)
 void numIslands_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray(input);
+    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
     int actual = ss.numIslands(graph);
     if(actual == expectedResult)
     {
@@ -318,7 +318,7 @@ void numIslands_scaffold(string input, int expectedResult)
 void findCircleNum_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray(input);
+    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
     int actual = ss.findCircleNum(graph);
     if(actual == expectedResult)
     {
@@ -334,7 +334,7 @@ void findCircleNum_scaffold(string input, int expectedResult)
 void maxAreaOfIsland_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray(input);
+    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
     int actual = ss.maxAreaOfIsland(graph);
     if(actual == expectedResult)
     {
@@ -350,8 +350,8 @@ void maxAreaOfIsland_scaffold(string input, int expectedResult)
 void floodFill_scaffold(string input, int sr, int sc, int newColor, string expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray(input);
-    vector<vector<int>> expected = stringTo2DArray(expectedResult);
+    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
+    vector<vector<int>> expected = stringTo2DArray_t<int>(expectedResult);
     vector<vector<int>> actual = ss.floodFill(graph, sr, sc, newColor);
     if(actual == expected)
     {
@@ -366,7 +366,7 @@ void floodFill_scaffold(string input, int sr, int sc, int newColor, string expec
 void largestIsland_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray(input);
+    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
     int actual = ss.largestIsland(graph);
     if(actual == expectedResult)
     {
@@ -382,7 +382,7 @@ void largestIsland_scaffold(string input, int expectedResult)
 void maxDistance_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray(input);
+    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
     int actual = ss.maxDistance(graph);
     if(actual == expectedResult)
     {

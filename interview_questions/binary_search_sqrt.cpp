@@ -166,7 +166,7 @@ void mySqrt_scaffold(int input, int expectedResult)
 void minEatingSpeed_scaffold(string input1, int input2, int expectedResult)
 {
     Solution ss;
-    vector<int> piles = stringToIntegerVector(input1);
+    vector<int> piles = stringTo1DArray_t<int>(input1);
     int actual = ss.minEatingSpeed(piles, input2);
     if(actual == expectedResult)
     {
@@ -182,7 +182,7 @@ void minEatingSpeed_scaffold(string input1, int input2, int expectedResult)
 void shipWithinDays_scaffold(string input1, int input2, int expectedResult)
 {
     Solution ss;
-    vector<int> piles = stringToIntegerVector(input1);
+    vector<int> piles = stringTo1DArray_t<int>(input1);
     int actual = ss.shipWithinDays(piles, input2);
     if(actual == expectedResult)
     {
