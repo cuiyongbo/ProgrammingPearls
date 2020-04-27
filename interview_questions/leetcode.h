@@ -14,6 +14,7 @@
 #include <cstring>
 #include <cassert>
 #include <cstdint>
+#include <cmath>
 
 #include <type_traits>
 #include <typeinfo>
@@ -130,7 +131,7 @@ struct Coordinate
 };
 
 template<class T>
-std::vector<T> stringTo1DArray_t(std::string input)
+std::vector<T> stringTo1DArray(std::string input)
 {
     std::vector<T> output;
     trimTrailingSpaces(input);
@@ -154,7 +155,7 @@ std::vector<T> stringTo1DArray_t(std::string input)
 }
 
 template<class T>
-std::vector<std::vector<T>> stringTo2DArray_t(std::string input)
+std::vector<std::vector<T>> stringTo2DArray(std::string input)
 {
     typedef T value_type;
     std::vector<std::vector<value_type>> output;
@@ -169,7 +170,7 @@ std::vector<std::vector<T>> stringTo2DArray_t(std::string input)
 		if(pos == std::string::npos) break;
 
 		std::string item = input.substr(last, pos-last+1);
-		output.push_back(stringTo1DArray_t<value_type>(item));
+		output.push_back(stringTo1DArray<value_type>(item));
 
 		pos = input.find('[', pos);
 	}
@@ -177,7 +178,7 @@ std::vector<std::vector<T>> stringTo2DArray_t(std::string input)
 }
 
 template<>
-inline std::vector<std::string> stringTo1DArray_t(std::string input)
+inline std::vector<std::string> stringTo1DArray(std::string input)
 {
     std::vector<std::string> output;
     trimTrailingSpaces(input);
@@ -195,7 +196,7 @@ inline std::vector<std::string> stringTo1DArray_t(std::string input)
 }
 
 template<>
-inline std::vector<char> stringTo1DArray_t(std::string input)
+inline std::vector<char> stringTo1DArray(std::string input)
 {
     std::vector<char> output;
     trimTrailingSpaces(input);

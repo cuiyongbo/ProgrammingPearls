@@ -208,7 +208,7 @@ int Solution::shortestPathAllKeys(vector<string>& grid)
 void shortestPathLength_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
+    vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.shortestPathLength(graph);
     if(actual == expectedResult)
     {
@@ -224,7 +224,7 @@ void shortestPathLength_scaffold(string input, int expectedResult)
 void shortestPathAllKeys_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<string> graph = stringTo1DArray_t<string>(input);
+    vector<string> graph = stringTo1DArray<string>(input);
     int actual = ss.shortestPathAllKeys(graph);
     if(actual == expectedResult)
     {

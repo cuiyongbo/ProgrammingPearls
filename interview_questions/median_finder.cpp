@@ -53,9 +53,9 @@ double MedianFinder::findMedian()
 
 void MedianFinder_scaffold(string operations, string args, string expectedOutputs)
 {
-    vector<string> funcOperations = stringTo1DArray_t<string>(operations);
-    vector<vector<string>> funcArgs = stringTo2DArray_t<string>(args);
-    vector<string> ans = stringTo1DArray_t<string>(expectedOutputs);
+    vector<string> funcOperations = stringTo1DArray<string>(operations);
+    vector<vector<string>> funcArgs = stringTo2DArray<string>(args);
+    vector<string> ans = stringTo1DArray<string>(expectedOutputs);
     MedianFinder tm;
     int n = (int)operations.size();
     for(int i=0; i<n; ++i)
@@ -144,8 +144,8 @@ vector<int> Solution::maxSlidingWindow(vector<int>& nums, int k)
 void medianSlidingWindow_scaffold(string input1, int input2, string expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringTo1DArray_t<int>(input1);
-    vector<double> expected = stringTo1DArray_t<double>(expectedResult);
+    vector<int> nums = stringTo1DArray<int>(input1);
+    vector<double> expected = stringTo1DArray<double>(expectedResult);
     vector<double> actual = ss.medianSlidingWindow(nums, input2);
     if(actual == expected)
     {
@@ -161,8 +161,8 @@ void medianSlidingWindow_scaffold(string input1, int input2, string expectedResu
 void maxSlidingWindow_scaffold(string input1, int input2, string expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringTo1DArray_t<int>(input1);
-    vector<int> expected = stringTo1DArray_t<int>(expectedResult);
+    vector<int> nums = stringTo1DArray<int>(input1);
+    vector<int> expected = stringTo1DArray<int>(expectedResult);
     vector<int> actual = ss.maxSlidingWindow(nums, input2);
     if(actual == expected)
     {

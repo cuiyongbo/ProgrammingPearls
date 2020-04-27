@@ -417,7 +417,7 @@ int Solution::minPushBox(vector<vector<char>>& grid)
     int columns = grid[0].size();
 
     int id = 0;
-    int box, player, dest;
+    int box=0, player=0, dest=0;
     for(int r=0; r<rows; ++r)
     {
         for(int c=0; c<columns; ++c)
@@ -518,8 +518,8 @@ int Solution::minPushBox(vector<vector<char>>& grid)
 void minMutation_scaffold(string input1, string input2, string input3, int expectedResult)
 {
     Solution ss;
-    //vector<string> bank = stringTo1DArray_t<string>(input3);
-    vector<string> bank = stringTo1DArray_t<string>(input3);
+    //vector<string> bank = stringTo1DArray<string>(input3);
+    vector<string> bank = stringTo1DArray<string>(input3);
     int actual = ss.minMutation(input1, input2, bank);
     if (actual == expectedResult)
     {
@@ -535,7 +535,7 @@ void minMutation_scaffold(string input1, string input2, string input3, int expec
 void numBusesToDestination_scaffold(string input1, int input2, int input3, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> routes = stringTo2DArray_t<int>(input1);
+    vector<vector<int>> routes = stringTo2DArray<int>(input1);
     int actual = ss.numBusesToDestination(routes, input2, input3);
     if (actual == expectedResult)
     {
@@ -553,7 +553,7 @@ void distanceK_scaffold(string input1, int input2, int input3, string expectedRe
     Solution ss;
     TreeNode* root = stringToTreeNode(input1);
     vector<int> actual = ss.distanceK(root, input2, input3);
-    vector<int> expected = stringTo1DArray_t<int>(expectedResult);
+    vector<int> expected = stringTo1DArray<int>(expectedResult);
     if (actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
@@ -568,10 +568,10 @@ void distanceK_scaffold(string input1, int input2, int input3, string expectedRe
 void shortestAlternatingPaths_scaffold(int input1, string input2, string input3, string expectedResult)
 {
     Solution ss;
-    vector<vector<int>> red_edges = stringTo2DArray_t<int>(input2);
-    vector<vector<int>> blue_edges = stringTo2DArray_t<int>(input3);
+    vector<vector<int>> red_edges = stringTo2DArray<int>(input2);
+    vector<vector<int>> blue_edges = stringTo2DArray<int>(input3);
     vector<int> actual = ss.shortestAlternatingPaths(input1, red_edges, blue_edges);
-    vector<int> expected = stringTo1DArray_t<int>(expectedResult);
+    vector<int> expected = stringTo1DArray<int>(expectedResult);
     if (actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
@@ -586,7 +586,7 @@ void shortestAlternatingPaths_scaffold(int input1, string input2, string input3,
 void minPushBox_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<vector<char>> grid = stringTo2DArray_t<char>(input);
+    vector<vector<char>> grid = stringTo2DArray<char>(input);
     int actual = ss.minPushBox(grid);
     if (actual == expectedResult)
     {

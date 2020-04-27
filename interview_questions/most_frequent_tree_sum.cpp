@@ -62,7 +62,7 @@ void findFrequentTreeSum_scaffold(string input, string expected)
 {
     TreeNode* root = stringToTreeNode(input);
 
-    vector<int> expectedResult = stringTo1DArray_t<int>(expected);
+    vector<int> expectedResult = stringTo1DArray<int>(expected);
 
     Solution ss;
     vector<int> actual = ss.findFrequentTreeSum(root);

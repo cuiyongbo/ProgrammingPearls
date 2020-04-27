@@ -147,9 +147,9 @@ int Solution::makeConnected(int nodeCount, vector<vector<int>>& connections)
 void findRedundantConnection_scaffold(string input, string expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
+    vector<vector<int>> graph = stringTo2DArray<int>(input);
     vector<int> actual = ss.findRedundantConnection(graph);
-    vector<int> expected = stringTo1DArray_t<int>(expectedResult);
+    vector<int> expected = stringTo1DArray<int>(expectedResult);
     if(actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input << "," << expectedResult << ") passed";
@@ -164,9 +164,9 @@ void findRedundantConnection_scaffold(string input, string expectedResult)
 void findRedundantDirectedConnection_scaffold(string input, string expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
+    vector<vector<int>> graph = stringTo2DArray<int>(input);
     vector<int> actual = ss.findRedundantDirectedConnection(graph);
-    vector<int> expected = stringTo1DArray_t<int>(expectedResult);
+    vector<int> expected = stringTo1DArray<int>(expectedResult);
     if(actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input << "," << expectedResult << ") passed";
@@ -181,7 +181,7 @@ void findRedundantDirectedConnection_scaffold(string input, string expectedResul
 void makeConnected_scaffold(int n, string input, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
+    vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.makeConnected(n, graph);
     if(actual == expectedResult)
     {

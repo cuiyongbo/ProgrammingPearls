@@ -110,7 +110,7 @@ vector<int> Solution::kthSmallestPrimeFraction(vector<int>& nums, int k)
     {
         double m = (l+r)/2;
         int total = 0;
-        int p, q = 0;
+        int p=0, q = 0;
         double max_f = 0.0;
         for(int i=0, j=1; i<n-1; ++i)
         {
@@ -145,7 +145,7 @@ vector<int> Solution::kthSmallestPrimeFraction(vector<int>& nums, int k)
 void smallestDistancePair_scaffold(string input, int target, int expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringTo1DArray_t<int>(input);
+    vector<int> nums = stringTo1DArray<int>(input);
     int actual = ss.smallestDistancePair(nums, target);
     if(actual == expectedResult)
     {
@@ -161,8 +161,8 @@ void smallestDistancePair_scaffold(string input, int target, int expectedResult)
 void kthSmallestPrimeFraction_scaffold(string input, int target, string expectedResult)
 {
     Solution ss;
-    vector<int> nums = stringTo1DArray_t<int>(input);
-    vector<int> expected = stringTo1DArray_t<int>(expectedResult);
+    vector<int> nums = stringTo1DArray<int>(input);
+    vector<int> expected = stringTo1DArray<int>(expectedResult);
     vector<int> actual = ss.kthSmallestPrimeFraction(nums, target);
     if(actual == expected)
     {

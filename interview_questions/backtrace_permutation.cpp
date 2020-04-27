@@ -22,7 +22,7 @@ vector<vector<int>> Solution::permute(vector<int>& nums)
     // not necessary
     std::sort(nums.begin(), nums.end());
 
-    int count = (int)nums.size();
+    size_t count = nums.size();
     vector<int> cur;
     vector<vector<int>> ans;
     vector<bool> used(count, false);
@@ -34,7 +34,7 @@ vector<vector<int>> Solution::permute(vector<int>& nums)
             return;
         }
 
-        for(int i=0; i<count; ++i)
+        for(size_t i=0; i<count; ++i)
         {
             if(used[i]) continue;
 
@@ -62,7 +62,7 @@ vector<vector<int>> Solution::permute2(vector<int>& nums)
 
     vector<int> cur;
     vector<vector<int>> ans;
-    int count = (int)nums.size();
+    size_t count = nums.size();
     vector<bool> used(count, false);
     function<void()> dfs = [&]()
     {
@@ -72,7 +72,7 @@ vector<vector<int>> Solution::permute2(vector<int>& nums)
             return;
         }
 
-        for(int i=0; i<count; ++i)
+        for(size_t i=0; i<count; ++i)
         {
             if(used[i]) continue;
 
@@ -167,7 +167,7 @@ int Solution::numSquarefulPerms(vector<int>& A)
         Try all permutaions
     */
 
-    int n = A.size();
+    size_t n = A.size();
     vector<bool> used(n, false);
     vector<int> scaffold;
     scaffold.reserve(n);
@@ -187,7 +187,7 @@ int Solution::numSquarefulPerms(vector<int>& A)
             return;
         }
 
-        for(int i=0; i<n; ++i)
+        for(size_t i=0; i<n; ++i)
         {
             if(used[i]) continue;
 
@@ -215,7 +215,7 @@ void permute_scaffold(string input, string expectedResult, bool duplicate)
 {
     Solution ss;
     vector<vector<int>> actual;
-    vector<int> nums = stringTo1DArray_t<int>(input);
+    vector<int> nums = stringTo1DArray<int>(input);
     if(duplicate)
     {
         actual = ss.permute2(nums);
@@ -225,7 +225,7 @@ void permute_scaffold(string input, string expectedResult, bool duplicate)
         actual = ss.permute(nums);
     }
     
-    vector<vector<int>> expected = stringTo2DArray_t<int>(expectedResult);
+    vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
     BOOST_ASSERT(actual.size() == pow(2, input.size()));
     if(actual == expected)
     {
@@ -243,7 +243,7 @@ void letterCasePermutation_scaffold(string input, string expectedResult)
 {
     Solution ss;
     vector<string> actual = ss.letterCasePermutation(input);
-    vector<string> expected = stringTo1DArray_t<string>(expectedResult);
+    vector<string> expected = stringTo1DArray<string>(expectedResult);
     if(actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
@@ -259,7 +259,7 @@ void letterCasePermutation_scaffold(string input, string expectedResult)
 void shortestSuperstring_scaffold(string input, string expectedResult)
 {
     Solution ss;
-    vector<string> food = stringTo1DArray_t<string>(input);
+    vector<string> food = stringTo1DArray<string>(input);
     string actual = ss.shortestSuperstring(food);
     if(actual == expectedResult)
     {
@@ -275,7 +275,7 @@ void shortestSuperstring_scaffold(string input, string expectedResult)
 void snumSquarefulPerms_scaffold(string input, int expectedResult)
 {
     Solution ss;
-    vector<int> A = stringTo1DArray_t<int>(input);
+    vector<int> A = stringTo1DArray<int>(input);
     int actual = ss.numSquarefulPerms(A);
     if(actual == expectedResult)
     {

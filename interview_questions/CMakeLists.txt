@@ -99,6 +99,10 @@ add_executable(backtrace_permutation backtrace_permutation.cpp ${PUB_UTIL_FILES}
 target_compile_features(backtrace_permutation PUBLIC cxx_auto_type)
 target_link_libraries(backtrace_permutation)
 
+add_executable(backtrace_generate_parenthesis backtrace_generate_parenthesis.cpp ${PUB_UTIL_FILES})
+target_compile_features(backtrace_generate_parenthesis PUBLIC cxx_auto_type)
+target_link_libraries(backtrace_generate_parenthesis)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

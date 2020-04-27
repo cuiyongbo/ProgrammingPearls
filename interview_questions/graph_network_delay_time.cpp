@@ -251,7 +251,7 @@ int Solution::findTheCity(int N, vector<vector<int>>& edges, int distanceThresho
 void networkDelayTime_scaffold(string input, int N, int K, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> times = stringTo2DArray_t<int>(input);
+    vector<vector<int>> times = stringTo2DArray<int>(input);
     int actual = ss.networkDelayTime(times, N, K);
     if(actual == expectedResult)
     {
@@ -267,7 +267,7 @@ void networkDelayTime_scaffold(string input, int N, int K, int expectedResult)
 void findCheapestPrice_scaffold(int N, string input, int src, int dst, int K,  int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> flights = stringTo2DArray_t<int>(input);
+    vector<vector<int>> flights = stringTo2DArray<int>(input);
     int actual = ss.findCheapestPrice(N, flights, src, dst, K);
     if(actual == expectedResult)
     {
@@ -283,7 +283,7 @@ void findCheapestPrice_scaffold(int N, string input, int src, int dst, int K,  i
 void reachableNodes_scaffold(string input, int M, int N, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
+    vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.reachableNodes(graph, M, N);
     if(actual == expectedResult)
     {
@@ -299,8 +299,8 @@ void reachableNodes_scaffold(string input, int M, int N, int expectedResult)
 void minMalwareSpread_scaffold(string input1, string input2, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray_t<int>(input1);
-    vector<int> initial = stringTo1DArray_t<int>(input2);
+    vector<vector<int>> graph = stringTo2DArray<int>(input1);
+    vector<int> initial = stringTo1DArray<int>(input2);
     int actual = ss.minMalwareSpread(graph, initial);
     if (actual == expectedResult)
     {
@@ -316,7 +316,7 @@ void minMalwareSpread_scaffold(string input1, string input2, int expectedResult)
 void findTheCity_scaffold(string input, int N, int distanceThreshold, int expectedResult)
 {
     Solution ss;
-    vector<vector<int>> edges = stringTo2DArray_t<int>(input);
+    vector<vector<int>> edges = stringTo2DArray<int>(input);
     int actual = ss.findTheCity(N, edges, distanceThreshold);
     if(actual == expectedResult)
     {

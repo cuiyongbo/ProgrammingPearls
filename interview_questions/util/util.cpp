@@ -64,7 +64,7 @@ void trimRightTrailingSpaces(string& input)
 
 ListNode* stringToListNode(string input)
 {
-    vector<int> vi = stringTo1DArray_t<int>(input);
+    vector<int> vi = stringTo1DArray<int>(input);
     ListNode dummy(0);
     ListNode* p = &dummy;
     for (auto n : vi)
@@ -206,7 +206,7 @@ Node* stringToUndirectedGraph(std::string& input)
             Each list describes the set of neighbors of a node in the graph.
     */
 
-    vector<vector<int>> adjLists = stringTo2DArray_t<int>(input);
+    vector<vector<int>> adjLists = stringTo2DArray<int>(input);
 
     if(adjLists.empty()) return NULL;
 

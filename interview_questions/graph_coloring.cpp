@@ -132,7 +132,7 @@ vector<int> Solution::gardenNoAdj(int N, vector<vector<int>>& paths)
 void isBipartite_scaffold(string input, bool expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
+    vector<vector<int>> graph = stringTo2DArray<int>(input);
     bool actual = ss.isBipartite(graph);
     if(actual == expectedResult)
     {
@@ -147,7 +147,7 @@ void isBipartite_scaffold(string input, bool expectedResult)
 void possibleBipartition_scaffold(int N, string input, bool expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
+    vector<vector<int>> graph = stringTo2DArray<int>(input);
     bool actual = ss.possibleBipartition(N, graph);
     if(actual == expectedResult)
     {
@@ -162,9 +162,9 @@ void possibleBipartition_scaffold(int N, string input, bool expectedResult)
 void gardenNoAdj_scaffold(int N, string input, string expectedResult)
 {
     Solution ss;
-    vector<vector<int>> graph = stringTo2DArray_t<int>(input);
+    vector<vector<int>> graph = stringTo2DArray<int>(input);
     vector<int> actual = ss.gardenNoAdj(N, graph);
-    vector<int> expected = stringTo1DArray_t<int>(expectedResult);
+    vector<int> expected = stringTo1DArray<int>(expectedResult);
     if(actual == expected)
     {
         util::Log(logESSENTIAL) << "Case(" << N << ", " << input << ", " << expectedResult << ") passed";
