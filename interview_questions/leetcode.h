@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <numeric>
 #include <functional>
-#include <cstring>
+#include <string>
 #include <cassert>
 #include <cstdint>
 #include <cmath>
@@ -224,6 +224,22 @@ std::string numberVectorToString(const std::vector<T>& input)
     {
         ans.append(std::to_string(n));
         ans.append(",");
+    }
+    if(ans.back() == ',') ans.pop_back();
+    ans += "]";
+    return ans;
+}
+
+template<>
+inline std::string numberVectorToString(const std::vector<char>& input)
+{
+    std::string ans;
+    ans.reserve(input.size() * 4);
+    ans += "[";
+    for(const auto& n: input)
+    {
+        ans.push_back(n);
+        ans.push_back(',');
     }
     if(ans.back() == ',') ans.pop_back();
     ans += "]";

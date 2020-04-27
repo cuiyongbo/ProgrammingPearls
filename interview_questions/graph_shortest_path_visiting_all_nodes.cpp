@@ -6,8 +6,6 @@ using namespace osrm;
 
 /* leetcode exercises: 847, 864, 1298 */
 
-// #define DEBUG_VERBOSITY
-
 class Solution
 {
 public:
@@ -64,7 +62,7 @@ int Solution::shortestPathLength(vector<vector<int>>& graph)
 
     BOOST_ASSERT_MSG(maxWeight != INT32_MAX, "graph is not a strongly connected component");
 
-#if defined(DEBUG_VERBOSITY)
+#ifdef DEBUG
     for(int i=0; i<nodeCount; ++i)
     {
         cout << numberVectorToString(distTable[i]) << endl;
@@ -81,7 +79,7 @@ int Solution::shortestPathLength(vector<vector<int>>& graph)
     {
         vector<int> nodeOrder = scaffold::farthestInsertionTrip(nodeCount, distTable);
 
-#if defined(DEBUG_VERBOSITY)
+#ifdef DEBUG
         cout << "Optimal plan: " << numberVectorToString(nodeOrder) << endl;
 #endif
         int length = 0;

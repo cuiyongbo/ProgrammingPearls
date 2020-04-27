@@ -103,6 +103,10 @@ add_executable(backtrace_generate_parenthesis backtrace_generate_parenthesis.cpp
 target_compile_features(backtrace_generate_parenthesis PUBLIC cxx_auto_type)
 target_link_libraries(backtrace_generate_parenthesis)
 
+add_executable(backtrace_sudoku_solver backtrace_sudoku_solver.cpp ${PUB_UTIL_FILES})
+target_compile_features(backtrace_sudoku_solver PUBLIC cxx_auto_type)
+target_link_libraries(backtrace_sudoku_solver)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
