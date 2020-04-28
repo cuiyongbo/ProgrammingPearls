@@ -63,6 +63,14 @@ add_executable(graph_minimum_genetic_mutation graph_minimum_genetic_mutation.cpp
 target_compile_features(graph_minimum_genetic_mutation PUBLIC cxx_auto_type)
 target_link_libraries(graph_minimum_genetic_mutation)
 
+add_executable(graph_reconstruct_itinerary graph_reconstruct_itinerary.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_reconstruct_itinerary PUBLIC cxx_auto_type)
+target_link_libraries(graph_reconstruct_itinerary)
+
+add_executable(graph_critical_connections_in_a_network graph_critical_connections_in_a_network.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_critical_connections_in_a_network PUBLIC cxx_auto_type)
+target_link_libraries(graph_critical_connections_in_a_network)
+
 # BINARY SEARCH
 
 add_executable(binary_search_search_insert_pos binary_search_search_insert_pos.cpp ${PUB_UTIL_FILES})

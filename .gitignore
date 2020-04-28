@@ -41,3 +41,4 @@ libtbb-scaffold/build
 libtbb-scaffold/_build
 std-cpp/static-extern-scaffold/build
 std-cpp/static-extern-scaffold/_build
+path_finding_alg/
