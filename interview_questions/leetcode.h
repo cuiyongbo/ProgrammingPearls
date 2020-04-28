@@ -247,7 +247,7 @@ inline std::string numberVectorToString(const std::vector<char>& input)
 }
 
 template<class T>
-void printVector(std::vector<T>& v)
+void printVector(const std::vector<T>& v)
 {
     std::copy(v.begin(), v.end(), std::ostream_iterator<T>(std::cout, " "));
     std::cout << '\n';

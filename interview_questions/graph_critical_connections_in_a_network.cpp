@@ -39,21 +39,22 @@ vector<vector<int>> Solution::criticalConnections(int n, vector<vector<int>>& co
     int t = 0;
     vector<vector<int>> ans;
     vector<int> ts(n, -1);
-    function<int(int, int)> tarjan = [&](int u, int p)
+    function<int(int, int)> tarjan = [&](int u, int parent)
     {
         int min_u = ts[u] = t++;
-        for(auto v: graph[u])
+        for(const auto& v: graph[u])
         {
             if(ts[v] == -1)
             {
+                // unvisited yet
                 int min_v = tarjan(v, u);
-                min_u = min(min_u, min_v);
+                min_u = std::min(min_u, min_v);
                 if(ts[u] < min_v)
                     ans.push_back({u, v});
             }
-            else if(v != p)
+            else if(v != parent)
             {
-                min_u = min(min_u, ts[v]);
+                min_u = std::min(min_u, ts[v]);
             }
         }
         return min_u;

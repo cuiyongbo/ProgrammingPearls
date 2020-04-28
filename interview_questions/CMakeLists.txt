@@ -71,6 +71,10 @@ add_executable(graph_critical_connections_in_a_network graph_critical_connection
 target_compile_features(graph_critical_connections_in_a_network PUBLIC cxx_auto_type)
 target_link_libraries(graph_critical_connections_in_a_network)
 
+add_executable(graph_scc_alg graph_scc_alg.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_scc_alg PUBLIC cxx_auto_type)
+target_link_libraries(graph_scc_alg)
+
 # BINARY SEARCH
 
 add_executable(binary_search_search_insert_pos binary_search_search_insert_pos.cpp ${PUB_UTIL_FILES})
