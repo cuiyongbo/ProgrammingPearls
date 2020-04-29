@@ -75,6 +75,10 @@ add_executable(graph_scc_alg graph_scc_alg.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_scc_alg PUBLIC cxx_auto_type)
 target_link_libraries(graph_scc_alg)
 
+add_executable(graph_unique_path graph_unique_path.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_unique_path PUBLIC cxx_auto_type)
+target_link_libraries(graph_unique_path)
+
 # BINARY SEARCH
 
 add_executable(binary_search_search_insert_pos binary_search_search_insert_pos.cpp ${PUB_UTIL_FILES})
@@ -118,6 +122,12 @@ target_link_libraries(backtrace_generate_parenthesis)
 add_executable(backtrace_sudoku_solver backtrace_sudoku_solver.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_sudoku_solver PUBLIC cxx_auto_type)
 target_link_libraries(backtrace_sudoku_solver)
+
+# ADVANCE TOPICS
+
+add_executable(trie_tree_scaffold trie_tree_scaffold.cpp ${PUB_UTIL_FILES})
+target_compile_features(trie_tree_scaffold PUBLIC cxx_auto_type)
+target_link_libraries(trie_tree_scaffold)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

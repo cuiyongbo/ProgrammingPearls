@@ -3,7 +3,7 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode exercises: 46, 47, 784, 943 */
+/* leetcode exercises: 46, 47, 784, 943, 996 */
 
 class Solution
 {
@@ -163,8 +163,6 @@ int Solution::numSquarefulPerms(vector<int>& A)
         Return the number of permutations of A that are squareful.  
         Two permutations A1 and A2 differ if and only if there is some index 
         i such that A1[i] != A2[i].
-
-        Try all permutaions
     */
 
     size_t n = A.size();
@@ -209,7 +207,6 @@ int Solution::numSquarefulPerms(vector<int>& A)
 
     return ans;    
 }
-
 
 void permute_scaffold(string input, string expectedResult, bool duplicate)
 {
@@ -272,7 +269,7 @@ void shortestSuperstring_scaffold(string input, string expectedResult)
     }
 }
 
-void snumSquarefulPerms_scaffold(string input, int expectedResult)
+void numSquarefulPerms_scaffold(string input, int expectedResult)
 {
     Solution ss;
     vector<int> A = stringTo1DArray<int>(input);
@@ -317,8 +314,8 @@ int main()
 
     util::Log(logESSENTIAL) << "Running numSquarefulPerms tests:";
     TIMER_START(numSquarefulPerms);
-    snumSquarefulPerms_scaffold("[2,2,2]", 1);
-    snumSquarefulPerms_scaffold("[1,8,17]", 2);
+    numSquarefulPerms_scaffold("[2,2,2]", 1);
+    numSquarefulPerms_scaffold("[1,8,17]", 2);
     TIMER_STOP(numSquarefulPerms);
     util::Log(logESSENTIAL) << "numSquarefulPerms using " << TIMER_MSEC(numSquarefulPerms) << " milliseconds";
 
