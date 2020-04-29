@@ -3,12 +3,13 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode: 37 */
+/* leetcode: 37, 51, 52 */
 
 class Solution
 {
 public:
     void solveSudoku(vector<vector<char>>& board);
+    vector<vector<string>> solveNQueens(int n);
 
 };
 
@@ -83,19 +84,62 @@ void Solution::solveSudoku(vector<vector<char>>& board)
     backtrace(0, 0);
 
 #ifdef DEBUG
-util::Log(logESSENTIAL) << "Debug...";
-for(int i=0; i<len; i++)
-{
-    for(int j=0; j<len; j++)
+    util::Log(logESSENTIAL) << "Debug...";
+    for(int i=0; i<len; i++)
     {
-        if(!isValid(i, j))
+        for(int j=0; j<len; j++)
         {
-            util::Log(logERROR) << "solveSudoku failed: (" << i << ", " << j << ")";
-            return;
+            if(!isValid(i, j))
+            {
+                util::Log(logERROR) << "solveSudoku failed: (" << i << ", " << j << ")";
+                return;
+            }
         }
     }
-}
 #endif
+}
+
+vector<vector<string>> Solution::solveNQueens(int n)
+{
+    /*
+        The n-queens puzzle is the problem of placing n queens on 
+        an n×n chessboard such that no two queens attack each other.
+
+        Given an integer n, return all distinct solutions to the n-queens puzzle.
+        Each solution contains a distinct board configuration of the n-queens’ placement, 
+        where 'Q' and '.' both indicate a queen and an empty space respectively.
+    */
+
+    vector<vector<string>> ans;
+    vector<string> board(n, string(n, '.'));
+
+    auto isValid = [&](int r, int c)
+    {
+        
+
+    };
+
+    function<void(int, int)> backtrace = [&](int r, int c)
+    {
+        if(r == n) 
+        {
+            ans.push_back(board);
+            return;
+        }
+
+        if(c == n)  return backtrace(r+1, 0);
+
+        if(isValid(r, c))
+        {
+            board[r][c] = 'Q';
+            backtrace(r+1, 0);
+            board[r][c] = '.';
+        }
+        else
+        {
+            return backtrace(r, c+1);
+        }
+    }
 
 }
 
@@ -117,6 +161,31 @@ void solveSudoku_scaffold(string input, string expectedResult)
     }
 }
 
+void solveNQueens_scaffold(int input, string expectedResult)
+{
+    Solution ss;
+    vector<vector<string>> expected = stringTo2DArray<string>(expectedResult);
+    vector<vector<string>> board = ss.solveNQueens(input);
+    if(board == expected)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual: ";
+
+        int id = 0;
+        for(const auto& s: board) 
+        {
+            util::Log(logESSENTIAL) << "Solution " << ++id;
+            for(const auto& r: s)
+            {
+                util::Log(logERROR) << r;
+            }
+        }
+    }
+}
 
 int main()
 {
@@ -150,5 +219,25 @@ int main()
     solveSudoku_scaffold(board, expectedResult);
     TIMER_STOP(solveSudoku);
     util::Log(logESSENTIAL) << "solveSudoku using " << TIMER_MSEC(solveSudoku) << " milliseconds"; 
+
+    util::Log(logESSENTIAL) << "Running solveNQueens tests: ";
+    TIMER_START(solveNQueens);
+
+    expectedResult = R"([
+        [.Q..,  
+        ...Q,
+        Q...,
+        ..Q.],
+        [..Q.,  
+         Q...,
+         ...Q,
+         .Q..]
+    ])";
+
+    solveSudoku_scaffold(4, expectedResult);
+    solveSudoku_scaffold(1, "[[Q]]");
+    solveSudoku_scaffold(2, "[[]]");
+    TIMER_STOP(solveNQueens);
+    util::Log(logESSENTIAL) << "solveNQueens using " << TIMER_MSEC(solveNQueens) << " milliseconds"; 
 
 }

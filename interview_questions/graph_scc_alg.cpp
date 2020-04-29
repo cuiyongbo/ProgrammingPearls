@@ -3,13 +3,33 @@
 using namespace std;
 using namespace osrm;
 
+enum Algorithm
+{
+    Algorithm_tarjan,
+    Algorithm_kosaraju
+};
+
+const char* Algorithm_toString(Algorithm type)
+{
+    switch(type)
+    {
+        case Algorithm_tarjan:
+            return "tarjan";
+        case Algorithm_kosaraju:
+            return "kosaraju";
+        default:
+            return "unknown";
+    }
+}
+
 class Solution
 {
 public:
-    vector<vector<int>> tarjan_alg(int n, vector<vector<int>>& edges);
+    vector<vector<int>> tarjan_alg(int n, const vector<vector<int>>& edges);
+    vector<vector<int>> kosaraju_alg(int n, const vector<vector<int>>& edges);
 };
 
-vector<vector<int>> Solution::tarjan_alg(int node_count, vector<vector<int>>& edges)
+vector<vector<int>> Solution::tarjan_alg(int node_count, const vector<vector<int>>& edges)
 {
     /*
         Given a directed graph with nodes labelled 0 to `node_count-1`, edge `[u, v]`
@@ -81,19 +101,93 @@ vector<vector<int>> Solution::tarjan_alg(int node_count, vector<vector<int>>& ed
     return scc_list;
 }
 
-void tarjan_alg_scaffold(int input1, string input2, string expectedResult)
+vector<vector<int>> Solution::kosaraju_alg(int node_count, const vector<vector<int>>& edges)
+{
+    vector<bool> visited(node_count+1, false);
+    vector<vector<int>> graph(node_count+1);
+    vector<vector<int>> reverse_graph(node_count+1);
+    for(const auto& e: edges)
+    {
+        graph[e[0]].push_back(e[1]);
+        reverse_graph[e[1]].push_back(e[0]);
+    }
+
+    stack<int> st;
+    function<void(int)> dfs_forward_graph = [&](int u)
+    {
+        visited[u] = true;
+        for(const auto& v: graph[u])
+        {
+            if(!visited[v]) dfs_forward_graph(v);
+        }
+        st.push(u);
+    };
+
+    for(int u=1; u<node_count+1; u++)
+    {
+        if(!visited[u]) dfs_forward_graph(u);
+    }
+
+    visited.assign(node_count+1, false);
+    function<void(int, vector<int>&)> dfs_reverse_graph = [&](int u, vector<int>& scc)
+    {
+        scc.push_back(u);
+        visited[u] = true;
+        for(const auto& v: reverse_graph[u])
+        {
+            if(!visited[v]) dfs_reverse_graph(v, scc);
+        }
+    };
+
+    vector<vector<int>> scc_list;
+    while(!st.empty())
+    {
+        int u = st.top(); st.pop();
+
+        if(!visited[u]) 
+        {
+            vector<int> scc;
+            dfs_reverse_graph(u, scc);
+            scc_list.push_back(scc);
+        }
+    }
+    for(auto& scc: scc_list) std::sort(scc.begin(), scc.end());
+    std::sort(scc_list.begin(), scc_list.end());
+    return scc_list;
+}
+
+void scc_alg_scaffold(int input1, string input2, string expectedResult, Algorithm type)
 {
     Solution ss;
     vector<vector<int>> edges = stringTo2DArray<int>(input2);
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
-    vector<vector<int>> actual = ss.tarjan_alg(input1, edges);
-    if(actual == expected)
+
+    vector<vector<int>> actual;
+    if(type == Algorithm_tarjan)
     {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        actual = ss.tarjan_alg(input1, edges);
+    }
+    else if(type == Algorithm_kosaraju)
+    {
+        actual = ss.kosaraju_alg(input1, edges);
     }
     else
     {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "unknown algorithm";
+        return;
+    }
+
+    if(actual == expected)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 
+                                            << ", expectedResult: " << expectedResult 
+                                            << ", " << Algorithm_toString(type) << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input1 << ", " << input2 
+                                            << ", expectedResult: " << expectedResult 
+                                            << ", " << Algorithm_toString(type) << ") failed";
         util::Log(logERROR) << "Actual: ";
         for(const auto& s: actual) util::Log(logERROR) << numberVectorToString(s);
     }
@@ -105,8 +199,17 @@ int main()
 
     util::Log(logESSENTIAL) << "Running tarjan_alg tests:";
     TIMER_START(tarjan_alg);
-    tarjan_alg_scaffold(8, "[[1,3],[2,1],[3,2],[3,4],[4,5],[5,6],[6,7],[7,8],[8,5]]", "[[1,2,3],[4],[5,6,7,8]]");
-    tarjan_alg_scaffold(9, "[[1,2],[2,1],[2,5],[3,4],[4,3],[4,5],[5,6],[6,7],[7,8],[8,6],[8,9]]", "[[1,2],[3,4],[5],[6,7,8],[9]]");
+    scc_alg_scaffold(8, "[[1,3],[2,1],[3,2],[3,4],[4,5],[5,6],[6,7],[7,8],[8,5]]", "[[1,2,3],[4],[5,6,7,8]]", Algorithm_tarjan);
+    scc_alg_scaffold(9, "[[1,2],[2,1],[2,5],[3,4],[4,3],[4,5],[5,6],[6,7],[7,8],[8,6],[8,9]]", "[[1,2],[3,4],[5],[6,7,8],[9]]", Algorithm_tarjan);
+    scc_alg_scaffold(7, "[[1, 2],[2, 3],[3, 4],[4, 1],[2, 5],[5, 6],[5, 7],[7, 6]]", "[[1,2,3,4],[5],[6],[7]]", Algorithm_tarjan);
     TIMER_STOP(tarjan_alg);
     util::Log(logESSENTIAL) << "tarjan_alg using " << TIMER_MSEC(tarjan_alg) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running kosaraju_alg tests:";
+    TIMER_START(kosaraju_alg);
+    scc_alg_scaffold(8, "[[1,3],[2,1],[3,2],[3,4],[4,5],[5,6],[6,7],[7,8],[8,5]]", "[[1,2,3],[4],[5,6,7,8]]", Algorithm_kosaraju);
+    scc_alg_scaffold(9, "[[1,2],[2,1],[2,5],[3,4],[4,3],[4,5],[5,6],[6,7],[7,8],[8,6],[8,9]]", "[[1,2],[3,4],[5],[6,7,8],[9]]", Algorithm_kosaraju);
+    scc_alg_scaffold(7, "[[1, 2],[2, 3],[3, 4],[4, 1],[2, 5],[5, 6],[5, 7],[7, 6]]", "[[1,2,3,4],[5],[6],[7]]", Algorithm_kosaraju);
+    TIMER_STOP(kosaraju_alg);
+    util::Log(logESSENTIAL) << "kosaraju_alg using " << TIMER_MSEC(kosaraju_alg) << " milliseconds";
 }
