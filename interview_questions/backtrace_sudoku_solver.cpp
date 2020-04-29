@@ -10,6 +10,7 @@ class Solution
 public:
     void solveSudoku(vector<vector<char>>& board);
     vector<vector<string>> solveNQueens(int n);
+    int totalNQueens(int n);
 
 };
 
@@ -115,8 +116,45 @@ vector<vector<string>> Solution::solveNQueens(int n)
 
     auto isValid = [&](int r, int c)
     {
-        
+        /*
+            ↖ ↑ ↗
+            ← . →
+            ↙ ↓ ↘
+        */
 
+        for(int i=0; i<n; ++i)
+        {
+            if(board[r][i] == 'Q' || board[i][c] == 'Q')
+                return false;
+        }
+
+        int i, j;
+
+        // down right
+        for(i=r, j=c; 0<=i && i<n && 0<=j && j<n; ++i, ++j)
+        {
+            if(board[i][j] == 'Q') return false;
+        }
+
+        // up left
+        for(i=r, j=c; 0<=i && i<n && 0<=j && j<n; --i, --j)
+        {
+            if(board[i][j] == 'Q') return false;
+        }
+
+        // left down
+        for(i=r, j=c; 0<=i && i<n && 0<=j && j<n; --i, ++j)
+        {
+            if(board[i][j] == 'Q') return false;
+        }
+
+        // right up
+        for(i=r, j=c; 0<=i && i<n && 0<=j && j<n; ++i, --j)
+        {
+            if(board[i][j] == 'Q') return false;
+        }
+
+        return true;
     };
 
     function<void(int, int)> backtrace = [&](int r, int c)
@@ -127,7 +165,7 @@ vector<vector<string>> Solution::solveNQueens(int n)
             return;
         }
 
-        if(c == n)  return backtrace(r+1, 0);
+        if(c == n)  return;
 
         if(isValid(r, c))
         {
@@ -139,8 +177,96 @@ vector<vector<string>> Solution::solveNQueens(int n)
         {
             return backtrace(r, c+1);
         }
+    };
+
+    for(int i=0; i<n; ++i)
+    {
+        backtrace(0, i);
     }
 
+    return ans;
+}
+
+int Solution::totalNQueens(int n)
+{
+    /*
+        Given an integer n, return the number of distinct solutions to the n-queens puzzle.
+    */
+
+    int ans = 0;
+    vector<string> board(n, string(n, '.'));
+
+    auto isValid = [&](int r, int c)
+    {
+        /*
+            ↖ ↑ ↗
+            ← . →
+            ↙ ↓ ↘
+        */
+
+        for(int i=0; i<n; ++i)
+        {
+            if(board[r][i] == 'Q' || board[i][c] == 'Q')
+                return false;
+        }
+
+        int i, j;
+
+        // down right
+        for(i=r, j=c; 0<=i && i<n && 0<=j && j<n; ++i, ++j)
+        {
+            if(board[i][j] == 'Q') return false;
+        }
+
+        // up left
+        for(i=r, j=c; 0<=i && i<n && 0<=j && j<n; --i, --j)
+        {
+            if(board[i][j] == 'Q') return false;
+        }
+
+        // left down
+        for(i=r, j=c; 0<=i && i<n && 0<=j && j<n; --i, ++j)
+        {
+            if(board[i][j] == 'Q') return false;
+        }
+
+        // right up
+        for(i=r, j=c; 0<=i && i<n && 0<=j && j<n; ++i, --j)
+        {
+            if(board[i][j] == 'Q') return false;
+        }
+
+        return true;
+    };
+
+    function<void(int, int)> backtrace = [&](int r, int c)
+    {
+        if(r == n) 
+        {
+            ++ans;
+            return;
+        }
+
+        if(c == n)  return;
+
+        if(isValid(r, c))
+        {
+            board[r][c] = 'Q';
+            backtrace(r+1, 0);
+            board[r][c] = '.';
+        }
+        else
+        {
+            return backtrace(r, c+1);
+        }
+    };
+
+    for(int i=0; i<n; ++i)
+    {
+        backtrace(0, i);
+    }
+
+    return ans;
 }
 
 void solveSudoku_scaffold(string input, string expectedResult)
@@ -166,14 +292,15 @@ void solveNQueens_scaffold(int input, string expectedResult)
     Solution ss;
     vector<vector<string>> expected = stringTo2DArray<string>(expectedResult);
     vector<vector<string>> board = ss.solveNQueens(input);
-    if(board == expected)
+    if(board.size() == expected.size())
     {
         util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
     }
     else
     {
         util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual: ";
+        util::Log(logERROR) << "Expected Result size: " << expected.size();
+        util::Log(logERROR) << "Actual: " << board.size();
 
         int id = 0;
         for(const auto& s: board) 
@@ -184,6 +311,21 @@ void solveNQueens_scaffold(int input, string expectedResult)
                 util::Log(logERROR) << r;
             }
         }
+    }
+}
+
+void totalNQueens_scaffold(int input, int expectedResult)
+{
+    Solution ss;
+    int actual = ss.totalNQueens(input);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual: " << actual;
     }
 }
 
@@ -234,10 +376,17 @@ int main()
          .Q..]
     ])";
 
-    solveSudoku_scaffold(4, expectedResult);
-    solveSudoku_scaffold(1, "[[Q]]");
-    solveSudoku_scaffold(2, "[[]]");
+    solveNQueens_scaffold(4, expectedResult);
+    solveNQueens_scaffold(1, "[[Q]]");
+    solveNQueens_scaffold(2, "[]");
     TIMER_STOP(solveNQueens);
     util::Log(logESSENTIAL) << "solveNQueens using " << TIMER_MSEC(solveNQueens) << " milliseconds"; 
 
+    util::Log(logESSENTIAL) << "Running totalNQueens tests: ";
+    TIMER_START(totalNQueens);
+    totalNQueens_scaffold(4, 2);
+    totalNQueens_scaffold(1, 1);
+    totalNQueens_scaffold(2, 0);
+    TIMER_STOP(totalNQueens);
+    util::Log(logESSENTIAL) << "totalNQueens using " << TIMER_MSEC(totalNQueens) << " milliseconds"; 
 }
