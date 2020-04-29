@@ -42,6 +42,8 @@ public:
     bool search(const std::string& word) const;
     bool startsWith(const std::string& prefix) const;
 
+    TrieNode* root() { return m_root.get(); }
+
 private:
     TrieNode* find(const std::string& word) const;
 

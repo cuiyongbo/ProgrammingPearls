@@ -129,6 +129,10 @@ add_executable(trie_tree_scaffold trie_tree_scaffold.cpp ${PUB_UTIL_FILES})
 target_compile_features(trie_tree_scaffold PUBLIC cxx_auto_type)
 target_link_libraries(trie_tree_scaffold)
 
+add_executable(trie_tree_replace_word trie_tree_replace_word.cpp ${PUB_UTIL_FILES})
+target_compile_features(trie_tree_replace_word PUBLIC cxx_auto_type)
+target_link_libraries(trie_tree_replace_word)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
