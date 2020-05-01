@@ -133,6 +133,24 @@ add_executable(trie_tree_replace_word trie_tree_replace_word.cpp ${PUB_UTIL_FILE
 target_compile_features(trie_tree_replace_word PUBLIC cxx_auto_type)
 target_link_libraries(trie_tree_replace_word)
 
+add_executable(trie_tree_magic_word trie_tree_magic_word.cpp ${PUB_UTIL_FILES})
+target_compile_features(trie_tree_magic_word PUBLIC cxx_auto_type)
+target_link_libraries(trie_tree_magic_word)
+
+add_executable(trie_tree_map_sum_pairs trie_tree_map_sum_pairs.cpp ${PUB_UTIL_FILES})
+target_compile_features(trie_tree_map_sum_pairs PUBLIC cxx_auto_type)
+target_link_libraries(trie_tree_map_sum_pairs)
+
+add_executable(trie_tree_prefix_and_suffix_search trie_tree_prefix_and_suffix_search.cpp ${PUB_UTIL_FILES})
+target_compile_features(trie_tree_prefix_and_suffix_search PUBLIC cxx_auto_type)
+target_link_libraries(trie_tree_prefix_and_suffix_search)
+
+add_executable(trie_tree_add_and_search_word trie_tree_add_and_search_word.cpp ${PUB_UTIL_FILES})
+target_compile_features(trie_tree_add_and_search_word PUBLIC cxx_auto_type)
+target_link_libraries(trie_tree_add_and_search_word)
+
+
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
