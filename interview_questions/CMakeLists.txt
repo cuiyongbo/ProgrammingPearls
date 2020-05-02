@@ -123,6 +123,10 @@ add_executable(backtrace_sudoku_solver backtrace_sudoku_solver.cpp ${PUB_UTIL_FI
 target_compile_features(backtrace_sudoku_solver PUBLIC cxx_auto_type)
 target_link_libraries(backtrace_sudoku_solver)
 
+add_executable(backtrace_word_search backtrace_word_search.cpp ${PUB_UTIL_FILES})
+target_compile_features(backtrace_word_search PUBLIC cxx_auto_type)
+target_link_libraries(backtrace_word_search)
+
 # ADVANCE TOPICS
 
 add_executable(trie_tree_scaffold trie_tree_scaffold.cpp ${PUB_UTIL_FILES})

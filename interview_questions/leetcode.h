@@ -103,7 +103,8 @@ Node* stringToUndirectedGraph(std::string& input);
 
 bool graph_equal(Node* g1, Node* g2);
 
-static std::vector<std::vector<int>> DIRECTIONS {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+// up, down, left, right
+static std::vector<std::vector<int>> DIRECTIONS {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
 
 struct Coordinate
 {
