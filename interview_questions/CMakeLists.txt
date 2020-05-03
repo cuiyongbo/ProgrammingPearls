@@ -79,6 +79,10 @@ add_executable(graph_unique_path graph_unique_path.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_unique_path PUBLIC cxx_auto_type)
 target_link_libraries(graph_unique_path)
 
+add_executable(graph_region_cut_by_slash graph_region_cut_by_slash.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_region_cut_by_slash PUBLIC cxx_auto_type)
+target_link_libraries(graph_region_cut_by_slash)
+
 # BINARY SEARCH
 
 add_executable(binary_search_search_insert_pos binary_search_search_insert_pos.cpp ${PUB_UTIL_FILES})
@@ -126,6 +130,10 @@ target_link_libraries(backtrace_sudoku_solver)
 add_executable(backtrace_word_search backtrace_word_search.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_word_search PUBLIC cxx_auto_type)
 target_link_libraries(backtrace_word_search)
+
+add_executable(backtrace_word_ladder backtrace_word_ladder.cpp ${PUB_UTIL_FILES})
+target_compile_features(backtrace_word_ladder PUBLIC cxx_auto_type)
+target_link_libraries(backtrace_word_ladder)
 
 # ADVANCE TOPICS
 
