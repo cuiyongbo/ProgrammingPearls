@@ -41,6 +41,7 @@ endif()
 
 add_executable(graph_evaluate_division graph_evaluate_division.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_evaluate_division PUBLIC cxx_std_17)
+#target_compile_features(graph_evaluate_division PUBLIC cxx_auto_type)
 target_link_libraries(graph_evaluate_division)
 
 add_executable(graph_redundant_connection graph_redundant_connection.cpp ${PUB_UTIL_FILES})
@@ -135,6 +136,10 @@ add_executable(backtrace_word_ladder backtrace_word_ladder.cpp ${PUB_UTIL_FILES}
 target_compile_features(backtrace_word_ladder PUBLIC cxx_auto_type)
 target_link_libraries(backtrace_word_ladder)
 
+add_executable(backtrace_01_matrix backtrace_01_matrix.cpp ${PUB_UTIL_FILES})
+target_compile_features(backtrace_01_matrix PUBLIC cxx_auto_type)
+target_link_libraries(backtrace_01_matrix)
+
 # ADVANCE TOPICS
 
 add_executable(trie_tree_scaffold trie_tree_scaffold.cpp ${PUB_UTIL_FILES})
@@ -161,7 +166,15 @@ add_executable(trie_tree_add_and_search_word trie_tree_add_and_search_word.cpp $
 target_compile_features(trie_tree_add_and_search_word PUBLIC cxx_auto_type)
 target_link_libraries(trie_tree_add_and_search_word)
 
+# TWO POINTERS
 
+add_executable(two_pointers_assign_cookies two_pointers_assign_cookies.cpp ${PUB_UTIL_FILES})
+target_compile_features(two_pointers_assign_cookies PUBLIC cxx_auto_type)
+target_link_libraries(two_pointers_assign_cookies)
+
+add_executable(two_pointers_trapping_water two_pointers_trapping_water.cpp ${PUB_UTIL_FILES})
+target_compile_features(two_pointers_trapping_water PUBLIC cxx_auto_type)
+target_link_libraries(two_pointers_trapping_water)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
