@@ -140,6 +140,10 @@ add_executable(backtrace_01_matrix backtrace_01_matrix.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_01_matrix PUBLIC cxx_auto_type)
 target_link_libraries(backtrace_01_matrix)
 
+add_executable(backtrace_partition_array backtrace_partition_array.cpp ${PUB_UTIL_FILES})
+target_compile_features(backtrace_partition_array PUBLIC cxx_auto_type)
+target_link_libraries(backtrace_partition_array)
+
 # ADVANCE TOPICS
 
 add_executable(trie_tree_scaffold trie_tree_scaffold.cpp ${PUB_UTIL_FILES})
