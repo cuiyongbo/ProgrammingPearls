@@ -40,8 +40,8 @@ endif()
 # message("List of compile features: ${CMAKE_CXX_COMPILE_FEATURES}")
 
 add_executable(graph_evaluate_division graph_evaluate_division.cpp ${PUB_UTIL_FILES})
-target_compile_features(graph_evaluate_division PUBLIC cxx_std_17)
-#target_compile_features(graph_evaluate_division PUBLIC cxx_auto_type)
+# target_compile_features(graph_evaluate_division PUBLIC cxx_std_17)
+target_compile_features(graph_evaluate_division PUBLIC cxx_auto_type)
 target_link_libraries(graph_evaluate_division)
 
 add_executable(graph_redundant_connection graph_redundant_connection.cpp ${PUB_UTIL_FILES})

@@ -299,8 +299,20 @@ int Solution::largestComponentSize(vector<int>& A)
 
     auto isSimilar = [&](int i, int j)
     {
-        int cf = std::gcd(A[i], A[j]);
-        return  cf > 1;
+        // require c++17
+        // int cf = std::gcd(A[i], A[j]);
+        // return  cf > 1;
+
+        int min = std::min(A[i], A[j]);
+        if((A[i] % min == 0) && (A[j] % min == 0)) 
+            return true;
+            
+        for(int k=2; k<=min/2; ++k)
+        {
+            if((A[i]%k==0) && (A[j]%k==0))
+                return true;
+        }
+        return false;
     };
 
     int dictCount = A.size();
