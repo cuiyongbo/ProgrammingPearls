@@ -192,6 +192,11 @@ add_executable(two_pointers_trapping_water two_pointers_trapping_water.cpp ${PUB
 target_compile_features(two_pointers_trapping_water PUBLIC cxx_auto_type)
 target_link_libraries(two_pointers_trapping_water)
 
+
+add_executable(two_pointers_squares_of_sorted_array two_pointers_squares_of_sorted_array.cpp ${PUB_UTIL_FILES})
+target_compile_features(two_pointers_squares_of_sorted_array PUBLIC cxx_auto_type)
+target_link_libraries(two_pointers_squares_of_sorted_array)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
