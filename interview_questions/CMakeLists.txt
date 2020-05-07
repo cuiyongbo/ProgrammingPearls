@@ -84,6 +84,10 @@ add_executable(graph_region_cut_by_slash graph_region_cut_by_slash.cpp ${PUB_UTI
 target_compile_features(graph_region_cut_by_slash PUBLIC cxx_auto_type)
 target_link_libraries(graph_region_cut_by_slash)
 
+add_executable(graph_traversal_01 graph_traversal_01.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_traversal_01 PUBLIC cxx_auto_type)
+target_link_libraries(graph_traversal_01)
+
 # BINARY SEARCH
 
 add_executable(binary_search_search_insert_pos binary_search_search_insert_pos.cpp ${PUB_UTIL_FILES})
@@ -169,6 +173,14 @@ target_link_libraries(trie_tree_prefix_and_suffix_search)
 add_executable(trie_tree_add_and_search_word trie_tree_add_and_search_word.cpp ${PUB_UTIL_FILES})
 target_compile_features(trie_tree_add_and_search_word PUBLIC cxx_auto_type)
 target_link_libraries(trie_tree_add_and_search_word)
+
+add_executable(advanced_topics_sliding_window advanced_topics_sliding_window.cpp ${PUB_UTIL_FILES})
+target_compile_features(advanced_topics_sliding_window PUBLIC cxx_auto_type)
+target_link_libraries(advanced_topics_sliding_window)
+
+add_executable(advanced_topics_online_stock_span advanced_topics_online_stock_span.cpp ${PUB_UTIL_FILES})
+target_compile_features(advanced_topics_online_stock_span PUBLIC cxx_auto_type)
+target_link_libraries(advanced_topics_online_stock_span)
 
 # TWO POINTERS
 

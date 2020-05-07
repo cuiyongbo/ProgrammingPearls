@@ -224,7 +224,7 @@ void TimeMap_scaffold(string operations, string args, string expectedOutputs)
     vector<vector<string>> funcArgs = stringTo2DArray<string>(args);
     vector<string> ans = stringTo1DArray<string>(expectedOutputs);
     TimeMap tm;
-    int n = (int)operations.size();
+    int n = (int)ans.size();
     for(int i=0; i<n; ++i)
     {
         if(funcOperations[i] == "set")

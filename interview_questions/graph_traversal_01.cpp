@@ -8,6 +8,7 @@ using namespace osrm;
 class Solution
 {
 public:
+    int numEnclaves(vector<vector<int>>& A);
     int numIslands(vector<vector<int>>& grid);
     int findCircleNum(vector<vector<int>>& M);
     int maxAreaOfIsland(vector<vector<int>>& grid);
@@ -16,6 +17,81 @@ public:
     int largestIsland(vector<vector<int>>& grid);
     int maxDistance(vector<vector<int>>& grid);
 };
+
+int Solution::numEnclaves(vector<vector<int>>& A)
+{
+    /*
+        Given a 2D array A, each cell is 0 (representing sea) or 1 (representing land)
+        A move consists of walking from one land square 4-directionally 
+        to another land square, or off the boundary of the grid.
+        Return the number of land squares in the grid for which we cannot walk off
+        the boundary of the grid in any number of moves.
+
+        Example 1:
+
+        Input: [[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]]
+        Output: 3
+        Explanation: 
+        There are three 1s that are enclosed by 0s, and one 1 that isn't enclosed because its on the boundary.
+
+        Example 2:
+
+        Input: [[0,1,1,0],[0,0,1,0],[0,0,1,0],[0,0,0,0]]
+        Output: 0
+        Explanation: 
+        All 1s are either on the boundary or can reach the boundary.
+        
+        Note:
+            1 <= A.length <= 500
+            1 <= A[i].length <= 500
+            0 <= A[i][j] <= 1
+            All rows have the same size.
+    */
+
+    bool isEncalve = true;
+    int nodeCount = 0;
+    int n = (int)A.size();
+    vector<vector<bool>> visited(n, vector<bool>(n, false));
+    function<void(int, int)> dfs = [&](int r, int c)
+    {
+        nodeCount++;
+        visited[r][c] = true;
+        for(const auto& d: DIRECTIONS)
+        {
+            int x = c + d[0];
+            int y = r + d[1];
+
+            // off-grid
+            if(x<0 || x>n || y<0 || y>n)
+                isEncalve = false;
+
+            if(0<=x && x<n &&
+                0<=y && y<n &&
+                A[y][x] == 1 &&
+                !visited[y][x])
+            {
+                dfs(y, x);
+            }
+        }
+    };
+
+    int ans = 0;
+    for(int i=0; i<n; ++i)
+    {
+        for(int j=0; j<n; ++j)
+        {
+            if(A[i][j] == 0 || visited[i][j])
+                continue;
+
+            isEncalve = true;
+            nodeCount = 0;
+
+            dfs(i, j);
+            if(isEncalve) ans += nodeCount;
+        }
+    }
+    return ans;
+}
 
 int Solution::numIslands(vector<vector<int>>& grid)
 {
@@ -395,9 +471,32 @@ void maxDistance_scaffold(string input, int expectedResult)
     }
 }
 
+void numEnclaves_scaffold(string input, int expectedResult)
+{
+    Solution ss;
+    vector<vector<int>> graph = stringTo2DArray<int>(input);
+    int actual = ss.numEnclaves(graph);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
+        util::Log(logERROR) << "expected: " << expectedResult  << ", actual: " << actual;
+    }
+}
+
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
+
+    util::Log(logESSENTIAL) << "Running numEnclaves tests:";
+    TIMER_START(numEnclaves);
+    numEnclaves_scaffold("[[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]]", 3);
+    numEnclaves_scaffold("[[0,1,1,0],[0,0,1,0],[0,0,1,0],[0,0,0,0]]", 0);
+    TIMER_STOP(numEnclaves);
+    util::Log(logESSENTIAL) << "numEnclaves using " << TIMER_MSEC(numEnclaves) << " milliseconds";
 
     util::Log(logESSENTIAL) << "Running numIslands tests:";
     TIMER_START(numIslands);
