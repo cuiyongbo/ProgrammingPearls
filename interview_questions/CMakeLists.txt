@@ -182,6 +182,10 @@ add_executable(advanced_topics_online_stock_span advanced_topics_online_stock_sp
 target_compile_features(advanced_topics_online_stock_span PUBLIC cxx_auto_type)
 target_link_libraries(advanced_topics_online_stock_span)
 
+add_executable(advanced_topics_range_sum_query advanced_topics_range_sum_query.cpp ${PUB_UTIL_FILES})
+target_compile_features(advanced_topics_range_sum_query PUBLIC cxx_auto_type)
+target_link_libraries(advanced_topics_range_sum_query)
+
 # TWO POINTERS
 
 add_executable(two_pointers_assign_cookies two_pointers_assign_cookies.cpp ${PUB_UTIL_FILES})

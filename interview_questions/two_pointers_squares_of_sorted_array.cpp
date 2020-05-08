@@ -118,9 +118,9 @@ int Solution::subarraysWithKDistinct_bruteforce(vector<int>& A, int K)
         for(int j=i; j<len; j++)
         {
             s.insert(A[j]);
-            if(s.size() > K)
+            if((int)s.size() > K)
                 break;
-            else if(s.size() == K)
+            else if((int)s.size() == K)
                 ans++;
         }
     }
