@@ -29,7 +29,8 @@ static void go_daemonize()
     /*
         A process receives signals from the terminal that it is connected to, 
         and each process inherits its parent's controlling tty. A server should not 
-        receive signals from the process that started it, so it must detach itself from its controlling tty.
+        receive signals from the process that started it, so it must detach itself 
+        from its controlling tty.
 
         start a new process group and session, so detaching the orphaned process
         from its controlling tty
