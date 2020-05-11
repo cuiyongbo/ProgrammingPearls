@@ -33,6 +33,7 @@ interview_questions/_build
 build
 _build
 interview_questions/scaffold.cpp
+interview_questions/scaffold.c
 *.gch
 GdbTutorial
 memcached-scaffold/build

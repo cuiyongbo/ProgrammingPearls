@@ -204,6 +204,10 @@ add_executable(two_pointers_reverse_letters two_pointers_reverse_letters.cpp ${P
 target_compile_features(two_pointers_reverse_letters PUBLIC cxx_auto_type)
 target_link_libraries(two_pointers_reverse_letters)
 
+add_executable(two_pointers_two_sum two_pointers_two_sum.cpp ${PUB_UTIL_FILES})
+target_compile_features(two_pointers_two_sum PUBLIC cxx_auto_type)
+target_link_libraries(two_pointers_two_sum)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
