@@ -74,21 +74,21 @@ class NumArray
 {
 public:
     NumArray(const vector<int>& nums)
-    :m_nums(nums), m_ft(nums)
+    :m_sum(nums), m_ft(nums)
     {}
 
     void update(int i, int val);
     int sumRange(int i, int j);
 
 private:
-    vector<int> m_nums;
+    vector<int> m_sum;
     FenwickTree m_ft;
 };
 
 void NumArray::update(int i, int val)
 {
-    m_ft.update(i+1, val-m_nums[i]);
-    m_nums[i] = val;
+    m_ft.update(i+1, val-m_sum[i]);
+    m_sum[i] = val;
 }
 
 int NumArray::sumRange(int i, int j)
