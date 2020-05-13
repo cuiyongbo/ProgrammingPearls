@@ -214,6 +214,11 @@ add_executable(dp_range_query dp_range_query.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_range_query PUBLIC cxx_auto_type)
 target_link_libraries(dp_range_query)
 
+add_executable(dp_climb_stairs dp_climb_stairs.cpp ${PUB_UTIL_FILES})
+target_compile_features(dp_climb_stairs PUBLIC cxx_auto_type)
+target_link_libraries(dp_climb_stairs)
+
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

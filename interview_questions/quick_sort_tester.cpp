@@ -3,7 +3,7 @@
 using namespace std;
 
 typedef int (*partition_func_t)(vector<int>&, int, int);
-int naive_partitioner(vector<int>&, int, int);
+int partitioner(vector<int>&, int, int);
 int randomized_naive_partitioner(vector<int>&, int, int);
 int hoare_partitioner(vector<int>&, int, int);
 
@@ -14,6 +14,20 @@ void quickSort_hoare(vector<int>& input);
 
 template<class ForwardIter>
 void quickSort_std(ForwardIter first, ForwardIter last);
+
+// Hint: stack the ranges to be sort
+void quickSort_iterative(vector<int>& input)
+{
+    stack<pair<int, int>> st;
+    st.emplace(0, input.size());
+    while(!st.empty())
+    {
+        auto t = st.top(); st.pop();
+        int m = partitioner(input, t.first, t.second);
+        if(t.first < m) st.emplace(t.first, m);
+        if(m+1 < t.second) st.emplace(m+1, t.second);
+    }
+}
 
 int main(int argc, char* argv[])
 {
@@ -55,14 +69,14 @@ int main(int argc, char* argv[])
 
     if(testType == 0)
     {
-        quickSort(input, naive_partitioner);
+        quickSort(input, partitioner);
         quickSort(input, randomized_naive_partitioner);
         quickSort_hoare(input);
         quickSort_std(input.begin(), input.end());
     }
     else if(testType == 1)
     {
-        quickSort(input, naive_partitioner);
+        quickSort(input, partitioner);
     }
     else if(testType == 2)
     {
@@ -97,7 +111,7 @@ void quickSort(vector<int>& input, int start, int end, partition_func_t partitio
     quickSort(input, m+1, end, partition);
 }
 
-int naive_partitioner(vector<int>& input, int start, int end)
+int partitioner(vector<int>& input, int start, int end)
 {
     int i = start - 1;
     int k = input[end-1];
@@ -116,7 +130,7 @@ int randomized_naive_partitioner(vector<int>& input, int start, int end)
 {
     int p = start + rand() % (end - start);
     swap(input[p], input[end-1]);
-    return naive_partitioner(input, start, end);
+    return partitioner(input, start, end);
 }
 
 int hoare_partitioner(vector<int>& input, int start, int end)
