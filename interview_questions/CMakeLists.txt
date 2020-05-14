@@ -218,6 +218,10 @@ add_executable(dp_climb_stairs dp_climb_stairs.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_climb_stairs PUBLIC cxx_auto_type)
 target_link_libraries(dp_climb_stairs)
 
+add_executable(dp_maximum_subarray dp_maximum_subarray.cpp ${PUB_UTIL_FILES})
+target_compile_features(dp_maximum_subarray PUBLIC cxx_auto_type)
+target_link_libraries(dp_maximum_subarray)
+
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
