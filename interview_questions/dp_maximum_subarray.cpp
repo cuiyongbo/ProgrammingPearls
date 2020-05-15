@@ -10,8 +10,6 @@ class Solution
 public:
     int maxSubArray(vector<int>& nums);
     int maxProfit(vector<int>& prices);
-    int climbStairs(int n);
-    int tribonacci(int n);
 };
 
 int Solution::maxSubArray(vector<int>& nums)

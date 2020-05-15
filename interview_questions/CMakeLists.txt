@@ -222,6 +222,9 @@ add_executable(dp_maximum_subarray dp_maximum_subarray.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_maximum_subarray PUBLIC cxx_auto_type)
 target_link_libraries(dp_maximum_subarray)
 
+add_executable(dp_unique_paths dp_unique_paths.cpp ${PUB_UTIL_FILES})
+target_compile_features(dp_unique_paths PUBLIC cxx_auto_type)
+target_link_libraries(dp_unique_paths)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
