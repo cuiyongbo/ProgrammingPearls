@@ -31,8 +31,41 @@ private:
     C m_c;
 };
 
+static C g_cc;
+
+A test_return_arg_ref(A& aa)
+{
+    A a = aa;
+    return a;
+}
+
+A test_return_arg(A aa)
+{
+    A a = aa;
+    return a;
+}
+
+A test_return()
+{
+    A a;
+    return a;
+}
+
 int main()
 {
+    cout << "entering main" << endl;
+
+    cout << "{ A a; A aa = test_return_arg_ref(a); }" << endl;
+    { A a; A aa = test_return_arg_ref(a); }
+
+    cout << "{ A a; A aa = test_return_arg(a); }" << endl;
+    { A a; A aa = test_return_arg(a); }
+
+    exit(0);
+
+    cout << "{ A a = test_return(); }" << endl;
+    { A a = test_return(); }
+
     cout << "{ B bb; }" << endl;
     { B bb; }
 
@@ -58,4 +91,6 @@ int main()
     
     cout << "{A a1; A a2; a2 = a1;}" << endl;
     {A a1; A a2; a2 = a1;}
+
+    cout << "exiting main" << endl;
 }
