@@ -5,6 +5,8 @@
 #include <mutex>
 #include <vector>
 
+using namespace std;
+
 int basic();
 int classicalUsage();
 
@@ -59,8 +61,6 @@ int main()
 
 int basic()
 {
-    using namespace std;
-
     struct C
     {
         int* data;
