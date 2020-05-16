@@ -10,6 +10,8 @@ class Solution
 public:
     int uniquePaths(int m, int n);
     int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid);
+    int minPathSum(vector<vector<int>>& grid);
+    int minimumTotal(vector<vector<int>>& t);
 };
 
 int Solution::uniquePaths(int m, int n)
@@ -91,6 +93,77 @@ int Solution::uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid)
     return dp[m][n];
 }
 
+int Solution::minPathSum(vector<vector<int>>& grid)
+{
+    /*
+        Given a m x n grid filled with non-negative numbers, find a path from top left 
+        to bottom right which minimizes the sum of all numbers along its path.
+
+        Note: You can only move either down or right at any point in time.
+        Example 1:
+            [[1,3,1],
+             [1,5,1],
+             [4,2,1]]
+        Given the above grid map, return 7. Because the path 1→3→1→1→1 minimizes the sum.
+    */
+
+    // dp[i][j] means minPathSum to (i, j)
+    // dp[i][j] = grid[i-1][j-1] + min(dp[i-1][j], dp[i][j-1]);
+    int m = (int)grid.size();
+    int n = (int)grid[0].size();
+    vector<vector<int>> dp(m+1, vector<int>(n+1, INT32_MAX));
+    for(int i=1; i<=m; i++)
+    {
+        for(int j=1; j<=n; j++)
+        {
+            int parent = std::min(dp[i-1][j], dp[i][j-1]);
+            parent = parent == INT32_MAX ? 0 : parent;
+            dp[i][j] = grid[i-1][j-1] +  parent;
+        }
+    }
+    return dp[m][n];
+}
+
+int Solution::minimumTotal(vector<vector<int>>& t)
+{
+    /*
+        Given a triangle, find the minimum path sum from top to bottom. 
+        Each step you may move to adjacent numbers on the row below.
+        For example, given the following triangle:
+            [
+                 [2],
+                [3,4],
+               [6,5,7],
+              [4,1,8,3]
+            ]
+        The minimum path sum from top to bottom is 11 (i.e., 2 + 3 + 5 + 1 = 11).
+    */
+
+    // reuse t[i][j], t[i][j] means minCost to reach (i, j)
+    // t[i][j] = t[i][j] + min(t[i-1][j], t[i-1][j-1])
+    int n = (int)t.size();
+    for(int i=0; i<n; i++)
+    {
+        for(int j=0; j<=i; j++)
+        {
+            if(i==0) continue;
+
+            if(j==0) 
+                t[i][j] += t[i-1][j];
+            else if(j==i)
+                t[i][j] += t[i-1][j-1];
+            else
+                t[i][j] += std::min(t[i-1][j-1], t[i-1][j]);
+        }
+    }
+
+/*
+    for(const auto& v: t)
+        cout << numberVectorToString(v) << endl;
+*/
+    return *min_element(t[n-1].begin(), t[n-1].end());
+}
+
 void uniquePaths_scaffold(int input1, int input2, int expectedResult)
 {
     Solution ss;
@@ -122,6 +195,38 @@ void uniquePathsWithObstacles_scaffold(string input, int expectedResult)
     }
 }
 
+void minPathSum_scaffold(string input, int expectedResult)
+{
+    Solution ss;
+    vector<vector<int>> grid = stringTo2DArray<int>(input);
+    int actual = ss.minPathSum(grid);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual: " << actual;
+    }
+}
+
+void minimumTotal_scaffold(string input, int expectedResult)
+{
+    Solution ss;
+    vector<vector<int>> grid = stringTo2DArray<int>(input);
+    int actual = ss.minimumTotal(grid);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual: " << actual;
+    }
+}
+
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
@@ -137,5 +242,17 @@ int main()
     uniquePathsWithObstacles_scaffold("[[0,0,0],[0,1,0],[0,0,0]]", 2);
     TIMER_STOP(uniquePathsWithObstacles);
     util::Log(logESSENTIAL) << "uniquePathsWithObstacles using " << TIMER_MSEC(uniquePathsWithObstacles) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running minPathSum tests:";
+    TIMER_START(minPathSum);
+    minPathSum_scaffold("[[1,3,1],[1,5,1],[4,2,1]]", 7);
+    TIMER_STOP(minPathSum);
+    util::Log(logESSENTIAL) << "minPathSum using " << TIMER_MSEC(minPathSum) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running minimumTotal tests:";
+    TIMER_START(minimumTotal);
+    minimumTotal_scaffold("[[2],[3,4],[6,5,7],[4,1,8,3]]", 11);
+    TIMER_STOP(minimumTotal);
+    util::Log(logESSENTIAL) << "minimumTotal using " << TIMER_MSEC(minimumTotal) << " milliseconds";
 
 }
