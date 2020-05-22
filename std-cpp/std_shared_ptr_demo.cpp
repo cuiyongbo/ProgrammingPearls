@@ -23,7 +23,7 @@ struct Derived: public Base
     ~Derived() { std::cout << "  Derived::~Derived()\n"; }
 };
 
-void thr(std::shared_ptr<Base> p)
+void thr(const std::shared_ptr<Base>& p)
 {
     std::this_thread::sleep_for(std::chrono::seconds(1));
 

@@ -8,7 +8,6 @@
 
 #include "ngx_core.h"
 
-
 void *ngx_alloc(size_t size);
 void *ngx_calloc(size_t size);
 
@@ -22,7 +21,7 @@ extern ngx_uint_t  ngx_pagesize;
 extern ngx_uint_t  ngx_pagesize_shift;
 extern ngx_uint_t  ngx_cacheline_size;
 
-// must be called before calling any ngx_mem* functions
+// called *BEFORE* calling any ngx_mem* functions
 void ngx_init_mem_params();
 
 #endif

@@ -61,13 +61,14 @@ int main()
     cout << "{ A a; A aa = test_return_arg(a); }" << endl;
     { A a; A aa = test_return_arg(a); }
 
-    exit(0);
 
     cout << "{ A a = test_return(); }" << endl;
     { A a = test_return(); }
 
     cout << "{ B bb; }" << endl;
     { B bb; }
+    
+    exit(0);
 
     cout << "{ B b1; B b2=b1;}" << endl;
     { 
