@@ -1,21 +1,9 @@
 #include <iostream>
 #include <memory>
 
+#include "test_logger.h"
+
 using namespace std;
-
-class TestLogger
-{
-public:
-    TestLogger(string test_case_name)
-        : m_case(test_case_name)
-    {cout << m_case << " begin" << endl;}
-
-    ~TestLogger()
-    {cout << m_case << " end" << endl;}
-
-private:
-    string m_case;
-};
 
 void bad_case()
 {
