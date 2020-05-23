@@ -230,6 +230,10 @@ add_executable(dp_max_rectangle dp_max_rectangle.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_max_rectangle PUBLIC cxx_auto_type)
 target_link_libraries(dp_max_rectangle)
 
+add_executable(dp_house_robber dp_house_robber.cpp ${PUB_UTIL_FILES})
+target_compile_features(dp_house_robber PUBLIC cxx_auto_type)
+target_link_libraries(dp_house_robber)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
