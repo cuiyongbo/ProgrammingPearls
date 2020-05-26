@@ -238,6 +238,10 @@ add_executable(dp_perfect_squares dp_perfect_squares.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_perfect_squares PUBLIC cxx_auto_type)
 target_link_libraries(dp_perfect_squares)
 
+add_executable(dp_word_break dp_word_break.cpp ${PUB_UTIL_FILES})
+target_compile_features(dp_word_break PUBLIC cxx_auto_type)
+target_link_libraries(dp_word_break)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
