@@ -10,6 +10,7 @@ class Solution
 public:
     bool wordBreak(string s, vector<string>& wordDict);
     vector<string> wordBreakII(string s, vector<string>& wordDict);
+    int racecar(int target);
 };
 
 bool Solution::wordBreak(string s, vector<string>& wordDict)
@@ -96,6 +97,48 @@ vector<string> Solution::wordBreakII(string s, vector<string>& wordDict)
     return helper(s);
 }
 
+int Solution::racecar(int target)
+{
+    /*
+        Your car starts at position 0 and speed 1 on an infinite number line. (Your car can go into negative positions.)
+        Your car drives automatically according to a sequence of instructions A (accelerate) and R (reverse).
+        When you get an instruction “A”, your car does the following: position += speed, speed *= 2.
+        When you get an instruction “R”, your car does the following: if your speed is positive then speed = -1 , 
+        otherwise speed = 1.  (Your position stays the same.)
+        For example, after commands “AAR”, your car goes to positions 0->1->3->3, and your speed goes to 1->2->4->-1.
+        Now given some target position, return the length of the shortest sequence of instructions to get there.
+    */
+
+    // dp[i] means minimum commands to reach position i
+    vector<int> dp(target+1, 0);
+    function<int(int)> helper = [&](int t)
+    {
+        if(dp[t] > 0) return dp[t];
+        int n = std::ceil(std::log2(t+1));
+
+        // best case: nA
+        if((1<<n) == t+1) return (dp[t] = n);
+
+        // nA + R + dp(left) 
+        // accelerate for n steps 
+        // pass the target and turn around
+        dp[t] = n + 1 + helper((1<<n) - t - 1);
+
+        for(int m=0; m<n-1; ++m)
+        {
+            // accelerate for n-1 steps and turn around
+            // accelerate for m steps and turn around again
+            int cur = (1<<(n-1)) - (1<<m);
+
+            // ((n-1)A + R + mA + R) + dp(left) 
+            dp[t] = std::min(dp[t], n+m+1+helper(t-cur));
+        }
+        return dp[t];
+    };
+
+    return helper(target);
+}
+
 void wordBreak_scaffold(string input1, string input2, bool expectedResult)
 {
     Solution ss;
@@ -130,6 +173,21 @@ void wordBreakII_scaffold(string input1, string input2, string expectedResult)
     }
 }
 
+void racecar_scaffold(int input, int expectedResult)
+{
+    Solution ss;
+    int actual = ss.racecar(input);
+    if(actual == expectedResult)
+    {
+        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    }
+    else
+    {
+        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual: " << actual;
+    }
+}
+
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
@@ -148,4 +206,12 @@ int main()
     wordBreakII_scaffold("catsanddog", "[cat,cats,and,sand,dog]", "[cat sand dog,cats and dog]");
     TIMER_STOP(wordBreakII);
     util::Log(logESSENTIAL) << "wordBreakII using " << TIMER_MSEC(wordBreakII) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running racecar tests: ";
+    TIMER_START(racecar);
+    racecar_scaffold(3, 2);
+    racecar_scaffold(6, 5);
+    racecar_scaffold(100, 19);
+    TIMER_STOP(racecar);
+    util::Log(logESSENTIAL) << "racecar using " << TIMER_MSEC(racecar) << " milliseconds";
 }

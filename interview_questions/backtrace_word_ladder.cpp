@@ -339,7 +339,7 @@ int Solution::racecar_dp(int target)
         {
             int cur = (1<<(n-1)) - (1<<m);
 
-            //AA...ARA...AR (n-1A + 1R + mA + 1R) + dp(left) 
+            // AA...ARA...AR (n-1A + 1R + mA + 1R) + dp(left) 
             dp[t] = std::min(dp[t], n+m+1+helper(t-cur));
         }
         return dp[t];
