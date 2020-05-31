@@ -242,6 +242,10 @@ add_executable(dp_word_break dp_word_break.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_word_break PUBLIC cxx_auto_type)
 target_link_libraries(dp_word_break)
 
+add_executable(dp_longest_increasing_subsequence dp_longest_increasing_subsequence.cpp ${PUB_UTIL_FILES})
+target_compile_features(dp_longest_increasing_subsequence PUBLIC cxx_auto_type)
+target_link_libraries(dp_longest_increasing_subsequence)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
