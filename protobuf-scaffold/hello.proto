@@ -1,0 +1,6 @@
+syntax = "proto2";
+
+message hello
+{
+    required string data = 1 [default="Hello World!"];
+}

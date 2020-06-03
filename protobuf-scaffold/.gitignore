@@ -1,0 +1,10 @@
+a.out
+*.o
+*.dSYM
+hello
+add_person_cpp
+list_people_cpp
+*.pb.h
+*.pb.cc
+*.data
+
