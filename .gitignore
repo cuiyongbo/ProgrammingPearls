@@ -28,12 +28,12 @@ path_finding_alg/_build/
 test.cpp
 test.c
 .vscode
-interview_questions/build
-interview_questions/_build
+leetcode-scaffold/build
+leetcode-scaffold/_build
 build
 _build
-interview_questions/scaffold.cpp
-interview_questions/scaffold.c
+leetcode-scaffold/scaffold.cpp
+leetcode-scaffold/scaffold.c
 *.gch
 GdbTutorial
 memcached-scaffold/build

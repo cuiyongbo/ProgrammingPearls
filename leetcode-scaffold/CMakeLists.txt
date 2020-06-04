@@ -254,6 +254,10 @@ add_executable(dp_min_shelf_height dp_min_shelf_height.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_min_shelf_height PUBLIC cxx_auto_type)
 target_link_libraries(dp_min_shelf_height)
 
+add_executable(dp_palindrome_partition dp_palindrome_partition.cpp ${PUB_UTIL_FILES})
+target_compile_features(dp_palindrome_partition PUBLIC cxx_auto_type)
+target_link_libraries(dp_palindrome_partition)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
