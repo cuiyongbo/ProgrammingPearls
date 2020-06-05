@@ -74,7 +74,9 @@ vector<int> Solution::grayCode(int n)
         The gray code is a binary numeral system where two successive values differ in only one bit.
 
         Given a non-negative integer n representing the total number of bits in the code, 
-        print the sequence of gray code. A gray code sequence must begin with 0.   
+        print the sequence of gray code. A gray code sequence must begin with 0.  
+
+        Note: refer to <hacker's delight> ch13 for futher info. 
     */
 
     // dp[i] = dp[i-1] + {x|(1<<(i-1)) for x in reversed(dp[i-1])}
