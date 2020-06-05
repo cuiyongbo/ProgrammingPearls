@@ -258,6 +258,10 @@ add_executable(dp_palindrome_partition dp_palindrome_partition.cpp ${PUB_UTIL_FI
 target_compile_features(dp_palindrome_partition PUBLIC cxx_auto_type)
 target_link_libraries(dp_palindrome_partition)
 
+add_executable(dp_edit_distance dp_edit_distance.cpp ${PUB_UTIL_FILES})
+target_compile_features(dp_edit_distance PUBLIC cxx_auto_type)
+target_link_libraries(dp_edit_distance)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
