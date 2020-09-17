@@ -262,6 +262,12 @@ add_executable(dp_edit_distance dp_edit_distance.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_edit_distance PUBLIC cxx_auto_type)
 target_link_libraries(dp_edit_distance)
 
+# BINARY SEARCH 
+
+add_executable(binary_tree_traversal binary_tree_traversal.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_tree_traversal PUBLIC cxx_auto_type)
+target_link_libraries(binary_tree_traversal)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

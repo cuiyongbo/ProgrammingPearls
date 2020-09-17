@@ -13,11 +13,9 @@ public:
     vector<int> postOrderTraversal_iterative(TreeNode* root);
 };
 
-vector<int> Solution::inOrderTraversal_recursive(TreeNode* root)
-{
+vector<int> Solution::inOrderTraversal_recursive(TreeNode* root) {
     vector<int> ans;
-    function<void(TreeNode*)> dfs = [&](TreeNode* node)
-    {
+    function<void(TreeNode*)> dfs = [&](TreeNode* node) {
         if(node == NULL) return;
         dfs(node->left);
         ans.push_back(node->val);
@@ -28,11 +26,9 @@ vector<int> Solution::inOrderTraversal_recursive(TreeNode* root)
     return ans;
 }
 
-vector<int> Solution::preOrderTraversal_recursive(TreeNode* root)
-{
+vector<int> Solution::preOrderTraversal_recursive(TreeNode* root) {
     vector<int> ans;
-    function<void(TreeNode*)> dfs = [&](TreeNode* node)
-    {
+    function<void(TreeNode*)> dfs = [&](TreeNode* node) {
         if(node == NULL) return;
         ans.push_back(node->val);
         dfs(node->left);
@@ -43,11 +39,9 @@ vector<int> Solution::preOrderTraversal_recursive(TreeNode* root)
     return ans;
 }
 
-vector<int> Solution::postOrderTraversal_recursive(TreeNode* root)
-{
+vector<int> Solution::postOrderTraversal_recursive(TreeNode* root) {
     vector<int> ans;
-    function<void(TreeNode*)> dfs = [&](TreeNode* node)
-    {
+    function<void(TreeNode*)> dfs = [&](TreeNode* node) {
         if(node == NULL) return;
         dfs(node->left);
         dfs(node->right);
@@ -58,19 +52,19 @@ vector<int> Solution::postOrderTraversal_recursive(TreeNode* root)
     return ans;
 }
 
-vector<int> Solution::inOrderTraversal_iterative(TreeNode* root)
-{
+vector<int> Solution::inOrderTraversal_iterative(TreeNode* root) {
     vector<int> ans;
+    if(root == nullptr) {
+        return ans;
+    }
+
     stack<TreeNode*> s;
     TreeNode* q = root;
-    while(q != NULL || !s.empty())
-    {
-        while(q != NULL)
-        {
+    while(!s.empty() || q != nullptr) {
+        while(q != nullptr) {
             s.push(q);
             q = q->left;
         }
-
         auto n = s.top(); s.pop();
         ans.push_back(n->val);
         q = n->right;
@@ -78,44 +72,46 @@ vector<int> Solution::inOrderTraversal_iterative(TreeNode* root)
     return ans;
 }
 
-vector<int> Solution::preOrderTraversal_iterative(TreeNode* root)
-{
+vector<int> Solution::preOrderTraversal_iterative(TreeNode* root) {
     vector<int> ans;
-    if(root == NULL) return ans;
-    stack<TreeNode*> s;
-    s.push(root);
-    while(!s.empty())
-    {
+    if(root == NULL) {
+        return ans;
+    }
+
+    stack<TreeNode*> s; s.push(root);
+    while(!s.empty()) {
         auto n = s.top(); s.pop();
         ans.push_back(n->val);
 
-        if(n->right != NULL)
+        if(n->right != NULL) {
             s.push(n->right);
+        }
 
-        if(n->left != NULL)
+        if(n->left != NULL) {
             s.push(n->left);
+        }
     }
     return ans;
 }
 
-vector<int> Solution::postOrderTraversal_iterative(TreeNode* root)
-{
+vector<int> Solution::postOrderTraversal_iterative(TreeNode* root) {
     vector<int> ans;
-    if(root == NULL) return ans;
-    stack<TreeNode*> s;
-    s.push(root);
-    while(!s.empty())
-    {
+    if (root == nullptr) {
+        return ans;
+    }
+
+    stack<TreeNode*> s; s.push(root);
+    while (!s.empty()) {
         auto n = s.top(); s.pop();
         ans.push_back(n->val);
-
-        if(n->left != NULL)
+        if(n->left != nullptr) {
             s.push(n->left);
-
-        if(n->right != NULL)
+        }
+        if (n->right != nullptr) {
             s.push(n->right);
+        }
     }
-    reverse(ans.begin(), ans.end());
+    std::reverse(ans.begin(), ans.end());
     return ans;
 }
 
@@ -123,10 +119,9 @@ vector<int> Solution::postOrderTraversal_iterative(TreeNode* root)
 1
 2 3
 4 5 6 7
-in: 4, 2, 5, 1, 6, 3,7
+in: 4, 2, 5, 1, 6, 3, 7
 pre: 1,2,4,5,3,6,7
 post: 4,5,2,6,7,3,1
-1,3,7,6,2,5,4
 */
 
 void preOrderTraversal_tester()
