@@ -26,8 +26,7 @@
 #include "util/disjoint_set.h"
 #include "util/dist_table_wrapper.hpp"
 
-struct ListNode
-{
+struct ListNode {
     int val;
     ListNode* next;
     ListNode(int n=0):
@@ -35,18 +34,16 @@ struct ListNode
     {}
 };
 
-struct TreeNode
-{
+struct TreeNode {
     int val;
     TreeNode* left;
     TreeNode* right;
 
     TreeNode(int n=0) :
-        val(n), left(nullptr), right(nullptr)
-    {}
+        val(n), left(nullptr), right(nullptr) {
+    }
 
-    ~TreeNode()
-    {
+    ~TreeNode() {
         delete left;
         delete right;
     }
@@ -68,8 +65,7 @@ bool binaryTree_equal(TreeNode* t1, TreeNode* t2);
 void destroyBinaryTree(TreeNode* root);
 void destroyLinkedList(ListNode* head);
 
-class Node
-{
+class Node {
 public:
     int val;
     std::vector<Node*> neighbors;

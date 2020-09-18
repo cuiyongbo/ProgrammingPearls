@@ -5,43 +5,60 @@ using namespace osrm;
 
 /* leetcode: 235, 236, 865 */ 
 
-class Solution
-{
+class Solution {
 public:
     TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q);
     TreeNode* BST_lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q);
     TreeNode* subtreeWithAllDeepest(TreeNode* root);
 };
 
-TreeNode* Solution::lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q)
-{
-    function<TreeNode*(TreeNode*)> dfs = [&] (TreeNode* node)
-    {
-        if(node == NULL || node == p || node == q)
-            return node;
-        
-        TreeNode* l = dfs(node->left);
-        TreeNode* r = dfs(node->right);
-        if(l != NULL && r != NULL)
-            return node;
-        else
-            return l != NULL ? l : r;        
-    };
-    return dfs(root);
+TreeNode* Solution::lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+/*
+Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between 
+two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow 
+a node to be a descendant of itself).”
+Note:
+    All of the nodes' values will be unique.
+    p and q are different and both values will exist in the binary tree.
+*/
+
+    if (root == nullptr || root == p || root == q) {
+        return root;
+    }
+    auto l = lowestCommonAncestor(root->left, p, q);
+    auto r = lowestCommonAncestor(root->right, p, q);
+    if (l != nullptr && r != nullptr) {
+        return root;
+    } else {
+        return l != nullptr ? l : r;
+    }
 }
 
 TreeNode* Solution::BST_lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q)
 {
-    int a = min(p->val, q->val);
-    int b = max(p->val, q->val);
-    function<TreeNode*(TreeNode*)> dfs = [&](TreeNode* t)
-    {
-        if(t == NULL || (a<= t->val && t->val <= b))
-            return t;
-        else if(t->val > b)
-            return dfs(t->left);
-        else
-            return dfs(t->right);
+/*
+Given a binary search tree (BST), find the lowest common ancestor (LCA) of two given nodes in the BST.
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes 
+p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
+Constraints:
+    All of the nodes' values will be unique.
+    p and q are different and both values will exist in the BST.    
+*/
+
+    int a = std::min(p->val, q->val);
+    int b = std::max(p->val, q->val);
+    function<TreeNode*(TreeNode*)> dfs = [&] (TreeNode* root) {
+        if (root == nullptr || (a <= root->val && root->val <= b )) {
+            return root;
+        }
+        if (root->val < a) {
+            return dfs(root->right);
+        } else if (root->val > b) {
+            return dfs(root->left);
+        } else {
+            return root;
+        }
     };
 
     return dfs(root);
@@ -56,98 +73,84 @@ TreeNode* Solution::subtreeWithAllDeepest(TreeNode* root)
         Return the node with the largest depth such that it contains all the deepest nodes in its subtree.
     */
 
-    function<pair<int, TreeNode*>(TreeNode*)> dfs = [&] (TreeNode* t)
-    {
-        TreeNode* ans = NULL;
-        if(t == NULL) return make_pair(-1, ans);
-
+    function<pair<int, TreeNode*>(TreeNode*)> dfs = [&] (TreeNode* t) {
+        TreeNode* ans = nullptr;
+        if (t == nullptr) {
+            return std::make_pair(-1, ans);
+        }
         auto l = dfs(t->left);
         auto r = dfs(t->right);
-        if(l.first == r.first)
+        if(l.first == r.first) {
             ans = t;
-        else
+        } else {
             ans = (l.first > r.first) ? l.second : r.second;
-
-        return make_pair(max(l.first, r.first)+1, ans);
+        }
+        return std::make_pair(std::max(l.first, r.first)+1, ans);
     };
 
     return dfs(root).second;
 }
 
-void lowestCommonAncestor_scaffold()
-{
+void lowestCommonAncestor_scaffold() {
     string input = "[1,2,3,4,5,6,7,8]";
     TreeNode* root = stringToTreeNode(input);
     std::unique_ptr<TreeNode> doorkeeper (root);
 
     Solution ss;
-    auto tester = [&](TreeNode* p, TreeNode* q, TreeNode* expected)
-    {
+    auto tester = [&](TreeNode* p, TreeNode* q, TreeNode* expected) {
         TreeNode* ans = ss.lowestCommonAncestor(root, p, q);
-        if(ans == expected)
-        {
+        if (ans == expected) {
             util::Log() << "Case: (" << p->val << ", " << q->val << ", expected<" << expected->val << ">) passed";
-        }
-        else
-        {
+        } else {
             util::Log(logERROR) << "Case: (" << p->val << ", " << q->val << ", expected<" << expected->val << ">) failed";
-            util::Log(logERROR) << "Expected" << expected->val << ", actual: " << ans->val;
+            util::Log(logERROR) << "Expected: " << expected->val << ", actual: " << ans->val;
         }
     };
-
+    util::Log(logINFO) << "input: " << input; 
     tester(root->left->left->left, root->left->left, root->left->left);
     tester(root->left->left->left, root->left, root->left);
     tester(root->left->left->left, root->left->right, root->left);
     tester(root->left->left->left, root->right->left, root);
 }
 
-void BST_lowestCommonAncestor_scaffold()
-{
+void BST_lowestCommonAncestor_scaffold() {
     string input = "[4,2,5,1,3,null,6]";
     TreeNode* root = stringToTreeNode(input);
     std::unique_ptr<TreeNode> doorkeeper (root);
 
     Solution ss;
-    auto tester = [&](TreeNode* p, TreeNode* q, TreeNode* expected)
-    {
+    auto tester = [&](TreeNode* p, TreeNode* q, TreeNode* expected) {
         TreeNode* ans = ss.BST_lowestCommonAncestor(root, p, q);
-        if(ans == expected)
-        {
+        if (ans == expected) {
             util::Log() << "Case: (" << p->val << ", " << q->val << ", expected<" << expected->val << ">) passed";
-        }
-        else
-        {
+        } else {
             util::Log(logERROR) << "Case: (" << p->val << ", " << q->val << ", expected<" << expected->val << ">) failed";
-            util::Log(logERROR) << "Expected" << expected->val << ", actual: " << ans->val;
+            util::Log(logERROR) << "Expected: " << expected->val << ", actual: " << ans->val;
         }
     };
 
+    util::Log(logINFO) << "input: " << input; 
     tester(root->left->left, root->left, root->left);
     tester(root->left->left, root->left->right, root->left);
     tester(root->left->left, root->right, root);
     tester(root->left->left, root->right->right, root);
 }
 
-void subtreeWithAllDeepest_scaffold(string input, int expectedResult)
-{
+void subtreeWithAllDeepest_scaffold(string input, int expectedResult) {
     TreeNode* root = stringToTreeNode(input);
     std::unique_ptr<TreeNode> doorkeeper (root);
 
     Solution ss;
     TreeNode* ans = ss.subtreeWithAllDeepest(root);
-    if(ans->val == expectedResult)
-    {
+    if(ans->val == expectedResult) {
         util::Log() << "Case(" << input << ", " << expectedResult << ") passed";
-    }
-    else
-    {
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << expectedResult << ") faild";
         util::Log(logERROR) << "Expected: " << expectedResult << ", actual: " << ans->val;
     }
 }
 
-int main()
-{
+int main() {
     util::LogPolicy::GetInstance().Unmute();
 
     util::Log(logESSENTIAL) << "Running lowestCommonAncestor tests:";

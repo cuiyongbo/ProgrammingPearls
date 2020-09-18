@@ -268,6 +268,26 @@ add_executable(binary_tree_traversal binary_tree_traversal.cpp ${PUB_UTIL_FILES}
 target_compile_features(binary_tree_traversal PUBLIC cxx_auto_type)
 target_link_libraries(binary_tree_traversal)
 
+add_executable(binary_tree_level_order_traversal binary_tree_level_order_traversal.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_tree_level_order_traversal PUBLIC cxx_auto_type)
+target_link_libraries(binary_tree_level_order_traversal)
+
+add_executable(binary_tree_depth binary_tree_depth.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_tree_depth PUBLIC cxx_auto_type)
+target_link_libraries(binary_tree_depth)
+
+add_executable(binary_tree_lowest_common_ancestor binary_tree_lowest_common_ancestor.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_tree_lowest_common_ancestor PUBLIC cxx_auto_type)
+target_link_libraries(binary_tree_lowest_common_ancestor)
+
+add_executable(binary_tree_is_subtree binary_tree_is_subtree.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_tree_is_subtree PUBLIC cxx_auto_type)
+target_link_libraries(binary_tree_is_subtree)
+
+add_executable(binary_tree_vertical_traversal binary_tree_vertical_traversal.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_tree_vertical_traversal PUBLIC cxx_auto_type)
+target_link_libraries(binary_tree_vertical_traversal)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
