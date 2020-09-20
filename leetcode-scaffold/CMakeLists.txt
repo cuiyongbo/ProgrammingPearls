@@ -312,6 +312,10 @@ add_executable(binary_tree_serialization_and_deserializaiton binary_tree_seriali
 target_compile_features(binary_tree_serialization_and_deserializaiton PUBLIC cxx_auto_type)
 target_link_libraries(binary_tree_serialization_and_deserializaiton)
 
+add_executable(add_two_numbers add_two_numbers.cpp ${PUB_UTIL_FILES})
+target_compile_features(add_two_numbers PUBLIC cxx_auto_type)
+target_link_libraries(add_two_numbers)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
