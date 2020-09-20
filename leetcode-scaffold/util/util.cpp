@@ -76,12 +76,10 @@ ListNode* stringToListNode(string input)
 }
 
 // string in format like [1,2,null,3,null]
-TreeNode* stringToTreeNode(string input)
-{
+TreeNode* stringToTreeNode(string input) {
     trimTrailingSpaces(input);
     input = input.substr(1, input.size() - 2);
-    if (input.empty())
-    {
+    if (input.empty()) {
         return nullptr;
     }
 
@@ -93,27 +91,25 @@ TreeNode* stringToTreeNode(string input)
     TreeNode* root = new TreeNode(stoi(item));
     queue<TreeNode*> q;
     q.push(root);
-    while (true)
-    {
-        if (!getline(ss, item, delimiter))
-            break;
-
+    while (true) {
         auto t = q.front(); q.pop();
 
         // left child
+        if (!getline(ss, item, delimiter)) {
+            break;
+        }
         trimTrailingSpaces(item);
-        if (item != "null")
-        {
+        if (item != "null") {
             t->left = new TreeNode(stoi(item));
             q.push(t->left);
         }
 
-        if (!getline(ss, item, delimiter))
+        // right child
+        if (!getline(ss, item, delimiter)) {
             break;
-
+        }
         trimTrailingSpaces(item);
-        if (item != "null")
-        {
+        if (item != "null") {
             t->right = new TreeNode(stoi(item));
             q.push(t->right);
         }
@@ -121,12 +117,12 @@ TreeNode* stringToTreeNode(string input)
     return root;
 }
 
-void destroyBinaryTree(TreeNode* root)
-{
-    if (root == nullptr)
+void destroyBinaryTree(TreeNode* root) {
+    if (root == nullptr) {
         return;
+    }
 
-    // go on postorder traversal to remove all nodes
+    // perform a postorder traversal to remove all nodes
     destroyBinaryTree(root->left);
     destroyBinaryTree(root->right);
     delete root;

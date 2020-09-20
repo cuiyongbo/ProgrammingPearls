@@ -3,14 +3,35 @@
 using namespace std;
 using namespace osrm;
 
-/*leetcode: 104, 111  */
+/*leetcode: 104, 110, 111 */
 class Solution {
 public:
     int maxDepth(TreeNode* root);
     int minDepth(TreeNode* root);
     int maxDepth_recursive(TreeNode* root);
     int maxDepth_iterative(TreeNode* root);
+    bool isBalanced(TreeNode* root);
 };
+
+bool Solution::isBalanced(TreeNode* root) {
+/*
+Given a binary tree, determine if it is height-balanced.
+A height-balanced binary tree is defined as: a binary tree in which the left and 
+right subtrees of every node differ in height by no more than 1.
+*/
+
+    if (root == nullptr) {
+        return true;
+    } else {
+        int l = maxDepth(root->left);
+        int r = maxDepth(root->right);
+        if (std::abs(l-r) > 1) {
+            return false;
+        } else {
+            return isBalanced(root->left) && isBalanced(root->right);
+        }
+    }
+}
 
 int Solution::maxDepth(TreeNode* root) {
 /*
@@ -121,6 +142,17 @@ void minDepth_scaffold(string input1, string input2) {
     }
 }
 
+void isBalanced_scaffold(string input1, bool expected) {
+    TreeNode* root = stringToTreeNode(input1);
+    Solution ss;
+    bool ans = ss.isBalanced(root);
+    if (ans == expected) {
+        util::Log(logINFO) << "Case(" << input1 << ", " << expected << ") passed.";
+    } else {
+        util::Log(logERROR) << "Case(" << input1 << ", " << expected << ") failed.";
+    }
+}
+
 int main() {
     util::LogPolicy::GetInstance().Unmute();
     util::Log(logESSENTIAL) << "Running maxDepth tests:";
@@ -140,6 +172,16 @@ int main() {
     minDepth_scaffold("[3,9,20,null,null,15,7]", "2");
     TIMER_STOP(minDepth);
     util::Log(logESSENTIAL) << "minDepth tests using " << TIMER_MSEC(minDepth) <<"ms";    
+
+    util::Log(logESSENTIAL) << "Running isBalanced tests:";
+    TIMER_START(isBalanced);
+    isBalanced_scaffold("[]", true);
+    isBalanced_scaffold("[1]", true);
+    isBalanced_scaffold("[1,2,3,4,5]", true);
+    isBalanced_scaffold("[3,9,20,null,null,15,7]", true);
+    isBalanced_scaffold("[1,2,2,3,3,null,null,4,4]", false);
+    TIMER_STOP(isBalanced);
+    util::Log(logESSENTIAL) << "isBalanced tests using " << TIMER_MSEC(isBalanced) <<"ms"; 
 
     return 0;
 }

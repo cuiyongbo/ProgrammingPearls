@@ -62,7 +62,10 @@ TreeNode* stringToTreeNode(std::string input);
 bool list_equal(ListNode* l1, ListNode* l2);
 bool binaryTree_equal(TreeNode* t1, TreeNode* t2);
 
+// don't call this function any more, it would result in double-free exception since
+// TreeNode's destructor will try to free its children.
 void destroyBinaryTree(TreeNode* root);
+
 void destroyLinkedList(ListNode* head);
 
 class Node {

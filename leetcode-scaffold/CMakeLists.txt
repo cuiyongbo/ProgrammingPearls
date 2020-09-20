@@ -288,6 +288,18 @@ add_executable(binary_tree_vertical_traversal binary_tree_vertical_traversal.cpp
 target_compile_features(binary_tree_vertical_traversal PUBLIC cxx_auto_type)
 target_link_libraries(binary_tree_vertical_traversal)
 
+add_executable(binary_tree_symmetric_tree binary_tree_symmetric_tree.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_tree_symmetric_tree PUBLIC cxx_auto_type)
+target_link_libraries(binary_tree_symmetric_tree)
+
+add_executable(binary_tree_leaf_similar binary_tree_leaf_similar.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_tree_leaf_similar PUBLIC cxx_auto_type)
+target_link_libraries(binary_tree_leaf_similar)
+
+add_executable(binary_tree_prune_tree binary_tree_prune_tree.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_tree_prune_tree PUBLIC cxx_auto_type)
+target_link_libraries(binary_tree_prune_tree)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
