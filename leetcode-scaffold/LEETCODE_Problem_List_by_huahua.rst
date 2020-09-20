@@ -26,7 +26,18 @@ Binary Tree
 * 872 Leaf-Similar Trees
 * 814 Binary Tree Pruning       
 * 669 Trim a Binary Search Tree   
-* 1325 Delete Leaves With a Given Value    
+* 1325 Delete Leaves With a Given Value
+* 112 Path Sum 
+* 113 Path Sum II    
+* 437 Path Sum III
+* 129 Sum Root to Leaf Numbers    
+* 257 Binary Tree Paths 
+* 236 Lowest Common Ancestor of a Binary Tree   
+* 235 Lowest Common Ancestor of a Binary Search Tree    
+* 449 Serialize and Deserialize BST
+* 297 Serialize and Deserialize Binary Tree    
+
+
 
 
 .. rubric:: Footnotes

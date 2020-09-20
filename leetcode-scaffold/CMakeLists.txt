@@ -300,6 +300,18 @@ add_executable(binary_tree_prune_tree binary_tree_prune_tree.cpp ${PUB_UTIL_FILE
 target_compile_features(binary_tree_prune_tree PUBLIC cxx_auto_type)
 target_link_libraries(binary_tree_prune_tree)
 
+add_executable(binary_tree_path_sum binary_tree_path_sum.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_tree_path_sum PUBLIC cxx_auto_type)
+target_link_libraries(binary_tree_path_sum)
+
+add_executable(sum_root_to_leaf_numbers sum_root_to_leaf_numbers.cpp ${PUB_UTIL_FILES})
+target_compile_features(sum_root_to_leaf_numbers PUBLIC cxx_auto_type)
+target_link_libraries(sum_root_to_leaf_numbers)
+
+add_executable(binary_tree_serialization_and_deserializaiton binary_tree_serialization_and_deserializaiton.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_tree_serialization_and_deserializaiton PUBLIC cxx_auto_type)
+target_link_libraries(binary_tree_serialization_and_deserializaiton)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

@@ -23,7 +23,7 @@ void generateTestArray(vector<int>& input, int arraySize, bool allEqual, bool so
 void printLinkedList(ListNode* head)
 {
     ListNode* p = head;
-    while(p != NULL)
+    while(p != nullptr)
     {
         if(p != head)
         {
@@ -130,7 +130,7 @@ void destroyBinaryTree(TreeNode* root) {
 
 void destroyLinkedList(ListNode* head)
 {
-    while(head != NULL)
+    while(head != nullptr)
     {
         ListNode* p = head->next;
         delete head;
@@ -140,16 +140,16 @@ void destroyLinkedList(ListNode* head)
 
 bool list_equal(ListNode* l1, ListNode* l2)
 {
-    if(l1 == NULL && l2 == NULL)
+    if(l1 == nullptr && l2 == nullptr)
     {
         return true;
     }
-    else if(l1 == NULL || l2 == NULL)
+    else if(l1 == nullptr || l2 == nullptr)
     {
         return false;
     }
 
-    while(l1 != NULL && l2 != NULL)
+    while(l1 != nullptr && l2 != nullptr)
     {
         if(l1->val != l2->val)
         {
@@ -160,32 +160,19 @@ bool list_equal(ListNode* l1, ListNode* l2)
         l2 = l2->next;
     }
 
-    return l1==NULL && l2==NULL;
+    return l1==nullptr && l2==nullptr;
 }
 
-bool binaryTree_equal(TreeNode* t1, TreeNode* t2)
-{
-    function<bool(TreeNode*, TreeNode*)> isSame = [&](TreeNode* t1, TreeNode* t2)
-    {
-        if(t1 == NULL && t2 == NULL)
-        {
-            return true;
-        }
-        else if(t1 == NULL || t2 == NULL)
-        {
-            return false;
-        }
-        else if(t1->val != t2->val)
-        {
-            return false;
-        }
-        else
-        {
-            return isSame(t1->left, t2->left) && isSame(t1->right, t2->right);
-        }
-    };
-
-    return isSame(t1, t2);
+bool binaryTree_equal(TreeNode* t1, TreeNode* t2) {
+    if(t1 == nullptr && t2 == nullptr) {
+        return true;
+    } else if(t1 == nullptr || t2 == nullptr) {
+        return false;
+    } else if(t1->val != t2->val) {
+        return false;
+    } else {
+        return binaryTree_equal(t1->left, t2->left) && binaryTree_equal(t1->right, t2->right);
+    }
 }
 
 // in format like [[2,4],[1,3],[2,4],[1,3]]
@@ -204,18 +191,18 @@ Node* stringToUndirectedGraph(std::string& input)
 
     vector<vector<int>> adjLists = stringTo2DArray<int>(input);
 
-    if(adjLists.empty()) return NULL;
+    if(adjLists.empty()) return nullptr;
 
     int nodeCount = adjLists.size();
-    vector<Node*> nodes(nodeCount, NULL);
+    vector<Node*> nodes(nodeCount, nullptr);
     for(int i=0; i<nodeCount; ++i)
     {
-        if(nodes[i] == NULL)
+        if(nodes[i] == nullptr)
             nodes[i] = new Node(i+1);
 
         for(auto n: adjLists[i])
         {
-            if(nodes[n-1] == NULL)
+            if(nodes[n-1] == nullptr)
                 nodes[n-1] = new Node(n);
 
             nodes[i]->neighbors.push_back(nodes[n-1]);
@@ -230,11 +217,11 @@ bool graph_equal(Node* g1, Node* g2)
     set<Node*> visited;
     function<bool(Node*, Node*)> dfs = [&](Node* g1, Node* g2)
     {
-        if(g1 == NULL && g2 == NULL)
+        if(g1 == nullptr && g2 == nullptr)
         {
             return true;
         }
-        else if(g1 == NULL || g2 == NULL)
+        else if(g1 == nullptr || g2 == nullptr)
         {
             return false;
         }
