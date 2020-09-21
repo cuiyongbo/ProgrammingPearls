@@ -42,7 +42,15 @@ List
 
 * 2 Add Two Numbers
 * 445 Add Two Numbers II    
-
+* 24 Swap Nodes in Pairs
+* 206 Reverse Linked List
+* 141 Linked List Cycle
+* 142 Linked List Cycle II    
+* 21 Merge Two Sorted Lists    
+* 23 Merge k Sorted Lists
+* 147 Insertion Sort List
+* 148 Sort List
+* 707 Design Linked List 
 
 
 .. rubric:: Footnotes

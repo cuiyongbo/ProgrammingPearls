@@ -312,9 +312,21 @@ add_executable(binary_tree_serialization_and_deserializaiton binary_tree_seriali
 target_compile_features(binary_tree_serialization_and_deserializaiton PUBLIC cxx_auto_type)
 target_link_libraries(binary_tree_serialization_and_deserializaiton)
 
-add_executable(add_two_numbers add_two_numbers.cpp ${PUB_UTIL_FILES})
-target_compile_features(add_two_numbers PUBLIC cxx_auto_type)
-target_link_libraries(add_two_numbers)
+add_executable(list_traversal list_traversal.cpp ${PUB_UTIL_FILES})
+target_compile_features(list_traversal PUBLIC cxx_auto_type)
+target_link_libraries(list_traversal)
+
+add_executable(list_cycle list_cycle.cpp ${PUB_UTIL_FILES})
+target_compile_features(list_cycle PUBLIC cxx_auto_type)
+target_link_libraries(list_cycle)
+
+add_executable(list_sort list_sort.cpp ${PUB_UTIL_FILES})
+target_compile_features(list_sort PUBLIC cxx_auto_type)
+target_link_libraries(list_sort)
+
+add_executable(singly_linked_list_tester singly_linked_list_tester.cpp ${PUB_UTIL_FILES})
+target_compile_features(singly_linked_list_tester PUBLIC cxx_auto_type)
+target_link_libraries(singly_linked_list_tester)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

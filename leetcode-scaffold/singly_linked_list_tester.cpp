@@ -24,8 +24,7 @@ using namespace osrm;
     `deleteAtIndex(index)` : Delete the index-th node in the linked list, if the index is valid.
 */
 
-class MyLinkedList
-{
+class MyLinkedList {
 public:
     MyLinkedList();
     ~MyLinkedList();
@@ -48,85 +47,73 @@ private:
 };
 
 MyLinkedList::MyLinkedList()
-{
-    m_nodeCount = 0;
+    :m_nodeCount(0) {
 }
 
-MyLinkedList::~MyLinkedList()
-{
+MyLinkedList::~MyLinkedList() {
     destroyLinkedList(m_dummyNode.next);
 }
 
-int MyLinkedList::get(int index)
-{
-    if(index >= m_nodeCount || index < 0)
+int MyLinkedList::get(int index) {
+    if (index >= m_nodeCount || index < 0) {
         return -1;
+    }
 
     ListNode* p = m_dummyNode.next;
-    for(int curIndex = 0; curIndex != index; ++curIndex)
-    {
+    for (int curIndex = 0; curIndex != index; ++curIndex) {
         p = p->next;
     }
     return p->val;
 }
 
-void MyLinkedList::addAtHead(int val)
-{
+void MyLinkedList::addAtHead(int val) {
     addAtIndex(0, val);
 }
 
-void MyLinkedList::addAtTail(int val)
-{
+void MyLinkedList::addAtTail(int val) {
     addAtIndex(m_nodeCount, val);
 }
 
-void MyLinkedList::addAtIndex(int index, int val)
-{
-    if (index > m_nodeCount || index < 0)
-    {
+void MyLinkedList::addAtIndex(int index, int val) {
+    if (index > m_nodeCount || index < 0) {
         return;
     }
 
     ListNode* p = &m_dummyNode;
     ListNode* q = m_dummyNode.next;
-    for(int curIndex = 0; q != NULL && curIndex != index; ++curIndex)
-    {
+    for (int curIndex = 0; q != nullptr && curIndex != index; ++curIndex) {
         p = q;
         q = q->next;
     }
 
     ListNode* t = new ListNode(val);
-    t->next = p->next;
+    t->next = q;
     p->next = t;
 
     ++m_nodeCount;
 }
 
-void MyLinkedList::deleteAtIndex(int index)
-{
-    if (index >= m_nodeCount || index < 0)
-    {
+void MyLinkedList::deleteAtIndex(int index) {
+    if (index >= m_nodeCount || index < 0) {
         return;
     }
 
     ListNode* p = &m_dummyNode;
-    ListNode* q = m_dummyNode.next;
-    for(int curIndex = 0; q != NULL && curIndex != index; ++curIndex)
-    {
+    ListNode* q = m_dummyNode.next; // the node to delete
+    for (int curIndex = 0; q != nullptr && curIndex != index; ++curIndex) {
         p = q;
         q = q->next;
     }
 
     p->next = q->next;
-    q->next = NULL;
+    q->next = nullptr;
 
     delete q;
 
     --m_nodeCount;
 }
 
-void basic_test()
-{
+void basic_test() {
     MyLinkedList* myList = new MyLinkedList;
 
     myList->addAtHead(1);   // 1
@@ -135,37 +122,32 @@ void basic_test()
 
     ListNode* expected = stringToListNode("[1,2,3]");
     ListNode* actual = myList->data();
-    if(!list_equal(actual, expected))
-    {
+    if (!list_equal(actual, expected)) {
         util::Log(logERROR) << "MyLinkedList insertion failed";
         return;
     }
 
     int val = myList->get(0);
-    if(val != 1)
-    {
+    if (val != 1) {
         util::Log(logERROR) << "MyLinkedList::get failed, expect: " << 1 << ", acutal: " << val;
         return;
     }
 
     val = myList->get(2);
-    if(val != 3)
-    {
+    if (val != 3) {
         util::Log(logERROR) << "MyLinkedList::get failed, expect: " << 3 << ", acutal: " << val;
         return;
     }
 
     val = myList->get(4);
-    if(val != -1)
-    {
+    if (val != -1) {
         util::Log(logERROR) << "MyLinkedList::get failed, expect: " << -1 << ", acutal: " << val;
         return;
     }
 
     myList->deleteAtIndex(1);
     val = myList->get(1);
-    if(val != 3)
-    {
+    if (val != 3) {
         util::Log(logERROR) << "MyLinkedList::deleteAtIndex failed, expect: " << 3 << ", acutal: " << val;
         return;
     }
@@ -176,6 +158,5 @@ void basic_test()
 int main()
 {
     util::LogPolicy::GetInstance().Unmute();
-
     basic_test();
 }

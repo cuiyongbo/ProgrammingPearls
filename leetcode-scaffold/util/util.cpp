@@ -128,31 +128,23 @@ void destroyBinaryTree(TreeNode* root) {
     delete root;
 }
 
-void destroyLinkedList(ListNode* head)
-{
-    while(head != nullptr)
-    {
+void destroyLinkedList(ListNode* head) {
+    while (head != nullptr) {
         ListNode* p = head->next;
         delete head;
         head = p;
     }
 }
 
-bool list_equal(ListNode* l1, ListNode* l2)
-{
-    if(l1 == nullptr && l2 == nullptr)
-    {
+bool list_equal(ListNode* l1, ListNode* l2) {
+    if (l1 == nullptr && l2 == nullptr) {
         return true;
-    }
-    else if(l1 == nullptr || l2 == nullptr)
-    {
+    } else if(l1 == nullptr || l2 == nullptr) {
         return false;
     }
 
-    while(l1 != nullptr && l2 != nullptr)
-    {
-        if(l1->val != l2->val)
-        {
+    while(l1 != nullptr && l2 != nullptr) {
+        if(l1->val != l2->val) {
             return false;
         }
 
@@ -160,7 +152,7 @@ bool list_equal(ListNode* l1, ListNode* l2)
         l2 = l2->next;
     }
 
-    return l1==nullptr && l2==nullptr;
+    return l1 == nullptr && l2 == nullptr;
 }
 
 bool binaryTree_equal(TreeNode* t1, TreeNode* t2) {

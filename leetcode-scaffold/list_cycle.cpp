@@ -6,34 +6,30 @@ using namespace osrm::timing;
 
 /* leetcode: 141, 142 */
 
-class Solution
-{
+class Solution {
 public:
     bool hasCycle(ListNode *head);
     ListNode *detectCycle(ListNode *head);
 };
 
-bool Solution::hasCycle(ListNode *head)
-{
+bool Solution::hasCycle(ListNode *head) {
     ListNode* slow = head;
     ListNode* fast = head;
-    while(fast != NULL)
-    {
+    while (fast != nullptr) {
         fast = fast->next;
-        if(fast == NULL)
+        if(fast == nullptr) {
             break;
-
+        }
         fast = fast->next;    
         slow = slow->next;
-
-        if (slow == fast)
+        if (slow == fast) {
             break;
+        }
     }
-    return fast != NULL;
+    return fast != nullptr;
 }
 
-ListNode* Solution::detectCycle(ListNode *head)
-{
+ListNode* Solution::detectCycle(ListNode *head) {
     /* 
         Given a linked list, return the node where the cycle begins.
         If there is no cycle, return null.
@@ -41,24 +37,21 @@ ListNode* Solution::detectCycle(ListNode *head)
 
     ListNode* slow = head;
     ListNode* fast = head;
-    while(fast != NULL)
-    {
+    while (fast != nullptr) {
         fast = fast->next;
-        if(fast == NULL)
+        if(fast == nullptr) {
             break;
-
+        }
         fast = fast->next;    
         slow = slow->next;
-
-        if (slow == fast)
+        if (slow == fast) {
             break;
+        }
     }
 
-    if(fast != NULL)
-    {
+    if (fast != nullptr) {
         fast = head;
-        while(fast != slow)
-        {
+        while (fast != slow) {
             slow = slow->next;
             fast = fast->next;
         }
@@ -66,68 +59,53 @@ ListNode* Solution::detectCycle(ListNode *head)
     return fast;
 }
 
-void hasCycle_scaffold(string input1, int pivot, bool expectedResult)
-{
+void hasCycle_scaffold(string input1, int pivot, bool expectedResult) {
     ListNode* l1 = stringToListNode(input1);
-
-    ListNode* p = NULL;
-    ListNode* q = NULL;
+    ListNode* p = nullptr;
+    ListNode* q = nullptr;
     ListNode* head = l1;
-    while(head != NULL)
-    {
+    while (head != nullptr) {
         p = head;
-        if(head->val == pivot)
-        {
+        if(head->val == pivot) {
             q = head;
         }
         head = head->next;
     }
-
-    if(p != NULL) p->next = q;
+    if(p != nullptr) {
+        p->next = q;
+    }
 
     Solution ss;
     bool ans = ss.hasCycle(l1);
-    if(ans == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << expectedResult << ") passed";
-    }
-    else
-    {
+    if(ans == expectedResult) {
+        util::Log(logINFO) << "Case(" << input1 << ", " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input1 << ", " << expectedResult << ") failed";
     }
-
-    // destroyLinkedList(l1);
 }
 
-void detectCycle_scaffold(string input1, int pivot, bool expectedResult)
-{
+void detectCycle_scaffold(string input1, int pivot, bool expectedResult) {
     ListNode* l1 = stringToListNode(input1);
-
-    ListNode* p = NULL;
-    ListNode* q = NULL;
+    ListNode* p = nullptr;
+    ListNode* q = nullptr;
     ListNode* head = l1;
-    while(head != NULL)
-    {
+    while (head != nullptr) {
         p = head;
-        if(head->val == pivot)
-        {
+        if(head->val == pivot) {
             q = head;
         }
         head = head->next;
     }
-
-    if(p != NULL) p->next = q;
+    if(p != nullptr) {
+        p->next = q;
+    }
 
     Solution ss;
     ListNode* ans = ss.detectCycle(l1);
-
-    bool actual = ans != NULL && ans->val == pivot;
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << expectedResult << ") passed";
-    }
-    else
-    {
+    bool actual = ans != nullptr && ans->val == pivot;
+    if(actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input1 << ", " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input1 << ", " << expectedResult << ") failed";
     }
 }
@@ -136,8 +114,8 @@ int main()
 {
     util::LogPolicy::GetInstance().Unmute();
 
+    util::Log(logESSENTIAL) << "Running hasCycle tests:";
     TIMER_START(hasCycle);
-    util::Log() << "Running hasCycle tests:";
     hasCycle_scaffold("[]", 0, false);
     hasCycle_scaffold("[1]", 0, false);
     hasCycle_scaffold("[1]", 1, true);
@@ -145,10 +123,10 @@ int main()
     hasCycle_scaffold("[1,2,3,4]", 2, true);
     hasCycle_scaffold("[1,2,3,4,5,6,7,8,9,10]", 5, true);
     TIMER_STOP(hasCycle);
-    util::Log() << "hasCycle: " << TIMER_MSEC(hasCycle) << " milliseconds.";
+    util::Log(logESSENTIAL) << "hasCycle: " << TIMER_MSEC(hasCycle) << " milliseconds.";
 
+    util::Log(logESSENTIAL) << "Running detectCycle tests:";
     TIMER_START(detectCycle);
-    util::Log() << "Running detectCycle tests:";
     detectCycle_scaffold("[]", 0, false);
     detectCycle_scaffold("[1]", 0, false);
     detectCycle_scaffold("[1]", 1, true);
@@ -156,5 +134,5 @@ int main()
     detectCycle_scaffold("[1,2,3,4]", 2, true);
     detectCycle_scaffold("[1,2,3,4,5,6,7,8,9,10]", 5, true);
     TIMER_STOP(detectCycle);
-    util::Log() << "detectCycle: " << TIMER_MSEC(detectCycle) << " milliseconds.";
+    util::Log(logESSENTIAL) << "detectCycle: " << TIMER_MSEC(detectCycle) << " milliseconds.";
 }
