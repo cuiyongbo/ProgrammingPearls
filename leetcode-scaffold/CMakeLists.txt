@@ -328,6 +328,18 @@ add_executable(singly_linked_list_tester singly_linked_list_tester.cpp ${PUB_UTI
 target_compile_features(singly_linked_list_tester PUBLIC cxx_auto_type)
 target_link_libraries(singly_linked_list_tester)
 
+add_executable(divide_and_conquer_exercises divide_and_conquer_exercises.cpp ${PUB_UTIL_FILES})
+target_compile_features(divide_and_conquer_exercises PUBLIC cxx_auto_type)
+target_link_libraries(divide_and_conquer_exercises)
+
+add_executable(bst_traversal bst_traversal.cpp ${PUB_UTIL_FILES})
+target_compile_features(bst_traversal PUBLIC cxx_auto_type)
+target_link_libraries(bst_traversal)
+
+add_executable(bst_search bst_search.cpp ${PUB_UTIL_FILES})
+target_compile_features(bst_search PUBLIC cxx_auto_type)
+target_link_libraries(bst_search)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

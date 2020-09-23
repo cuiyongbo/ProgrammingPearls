@@ -37,6 +37,18 @@ Binary Tree
 * 449 Serialize and Deserialize BST
 * 297 Serialize and Deserialize Binary Tree    
 
+Binary Search Tree
+==================
+
+* 98 Validate Binary Search Tree
+* 530 Minimum Absolute Difference in BST    
+* 700 Search in a Binary Search Tree
+* 701 Insert into a Binary Search Tree
+* 230 Kth Smallest Element in a BST   
+* 99 Recover Binary Search Tree
+* 108 Convert Sorted Array to Binary Search Tree
+* 450 Delete Node in a BST
+
 List
 ====
 
@@ -51,6 +63,19 @@ List
 * 147 Insertion Sort List
 * 148 Sort List
 * 707 Design Linked List 
+
+Divide and conquer
+==================
+
+* 169 Majority Element
+* 153 Find Minimum in Rotated Sorted Array    
+* 154 Find Minimum in Rotated Sorted Array II  
+* 912 Sort an Array 
+* 315 Count of Smaller Numbers After Self
+
+
+
+
 
 
 .. rubric:: Footnotes
