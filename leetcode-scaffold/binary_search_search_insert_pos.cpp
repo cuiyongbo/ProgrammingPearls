@@ -5,8 +5,7 @@ using namespace osrm;
 
 /* leetcode exercises: 34, 35, 704, 981 */
 
-class Solution 
-{
+class Solution {
 public:
     int searchInsert(vector<int>& nums, int target);
     vector<int> searchRange(vector<int>& nums, int target);
@@ -17,152 +16,121 @@ private:
     int upper_bound(vector<int>& nums, int target);
 };
 
-int Solution::binary_search(vector<int>& nums, int target)
-{
+int Solution::binary_search(vector<int>& nums, int target) {
     /*
         Given a sorted (in ascending order) integer array nums of n elements and a target value, 
         write a function to search target in nums. If target exists, then return its index, otherwise return -1.
     */
 
     int l = 0;
-    int r = (int)nums.size() - 1;
-    while(l <= r)
-    {
+    int r = nums.size() - 1;
+    while (l <= r) {
         int m = l + (r-l)/2;
-        if(nums[m] == target)
-        {
+        if(nums[m] == target) {
             return m;
-        }
-        else if(nums[m] < target)
-        {
+        } else if(nums[m] < target) {
             l = m+1;
-        }
-        else
-        {
+        } else {
             r = m-1;
         }
     }
     return -1;
 }
 
-int Solution::lower_bound(vector<int>& nums, int target)
-{
+int Solution::lower_bound(vector<int>& nums, int target) {
     int l = 0;
     int r = nums.size();
-    while(l < r)
-    {
+    while (l < r) {
         int m = l + (r-l)/2;
-        if(nums[m] < target)
-        {
+        if (nums[m] < target) {
             l = m+1;
-        }
-        else
-        {
+        } else {
             r = m;
         }
     }
     return l;
 }
 
-int Solution::upper_bound(vector<int>& nums, int target)
-{
+int Solution::upper_bound(vector<int>& nums, int target) {
     int l = 0;
     int r = nums.size();
-    while(l < r)
-    {
+    while (l < r) {
         int m = l + (r-l)/2;
-        if(nums[m] <= target)
-        {
+        if (nums[m] <= target) {
             l = m+1;
-        }
-        else
-        {
+        } else {
             r = m;
         }
     }
     return l;
 }
 
-int Solution::searchInsert(vector<int>& nums, int target)
-{
+int Solution::searchInsert(vector<int>& nums, int target) {
     /*
         Given a sorted array and a target value, return the index if the target is found. 
         If not, return the index where it would be if it were inserted in order.
+
+        Hint: perform the lower_bound search and return the index of the first element in nums that is not less than target.
     */
+
     return lower_bound(nums, target);
 }
 
-vector<int> Solution::searchRange(vector<int>& nums, int target)
-{
+vector<int> Solution::searchRange(vector<int>& nums, int target) {
     /*
         Given an array of integers nums sorted in ascending order, 
         find the starting and ending position of a given target value.
         Your algorithm’s runtime complexity must be in the order of O(log n).
         If the target is not found in the array, return [-1, -1].
+        Hint: perform lower_bound to find the left boundray, and upper_bound for right boundary (not inclusive).
     */
 
     int l = lower_bound(nums, target);
     int r = upper_bound(nums, target);
-    if(0 <= l && l < (int)nums.size() && nums[l] == target)
-    {
-        return {l, r-1};
-    }
-    else
-    {
+    if (l == r) {
         return {-1, -1};
+    } else {
+        return {l, r-1};
     }
 }
 
-void searchInsert_scaffold(string input, int target, int expectedResult)
-{
+void searchInsert_scaffold(string input, int target, int expectedResult) {
     Solution ss;
     vector<int> nums = stringTo1DArray<int>(input);
     int actual = ss.searchInsert(nums, target);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if(actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual: " << actual;
     }
 }
 
-void searchRange_scaffold(string input, int target, string expectedResult)
-{
+void searchRange_scaffold(string input, int target, string expectedResult) {
     Solution ss;
     auto nums = stringTo1DArray<int>(input);
     auto expected = stringTo1DArray<int>(expectedResult);
     auto actual = ss.searchRange(nums, target);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed";
     }
 }
 
-void binary_search_scaffold(string input, int target, int expectedResult)
-{
+void binary_search_scaffold(string input, int target, int expectedResult) {
     Solution ss;
     vector<int> nums = stringTo1DArray<int>(input);
     int actual = ss.binary_search(nums, target);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if(actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual: " << actual;
     }
 }
 
-class TimeMap
-{
+class TimeMap {
 /*
     Create a timebased key-value store class TimeMap, that supports two operations.
 
@@ -180,13 +148,13 @@ class TimeMap
     inputs = [[],["foo","bar",1],["foo",1],["foo",3],["foo","bar2",4],["foo",4],["foo",5]]
     Output: [null,null,"bar","bar",null,"bar2","bar2"]
     Explanation:   
-    TimeMap kv;   
-    kv.set("foo", "bar", 1); // store the key "foo" and value "bar" along with timestamp = 1   
-    kv.get("foo", 1);  // output "bar"   
-    kv.get("foo", 3); // output "bar" since there is no value corresponding to foo at timestamp 3 and timestamp 2, then the only value is at timestamp 1 ie "bar"   
-    kv.set("foo", "bar2", 4);   
-    kv.get("foo", 4); // output "bar2"   
-    kv.get("foo", 5); //output "bar2"  
+        TimeMap kv;   
+        kv.set("foo", "bar", 1); // store the key "foo" and value "bar" along with timestamp = 1   
+        kv.get("foo", 1);  // output "bar"   
+        kv.get("foo", 3); // output "bar" since there is no value corresponding to foo at timestamp 3 and timestamp 2, then the only value is at timestamp 1 ie "bar"   
+        kv.set("foo", "bar2", 4);   
+        kv.get("foo", 4); // output "bar2"   
+        kv.get("foo", 5); //output "bar2"  
 */
 public:
     TimeMap() = default;
@@ -199,56 +167,43 @@ private:
     unordered_map<string, map<int, string>> m_table;
 };
 
-void TimeMap::set(string key, string val, int timestamp)
-{
+void TimeMap::set(string key, string val, int timestamp) {
     m_table[key][timestamp] = val;
 }
 
-string TimeMap::get(string key, int timestamp)
-{
+string TimeMap::get(string key, int timestamp) {
     string ans;
-    if(m_table.count(key) != 0)
-    {
+    if(m_table.count(key) != 0) {
         const auto& it = m_table[key].upper_bound(timestamp);
-        if(it != m_table[key].begin())
-        {
+        if (it != m_table[key].begin()) {
             ans = std::prev(it)->second;
         }
     }
     return ans;
 }
 
-void TimeMap_scaffold(string operations, string args, string expectedOutputs)
-{
+void TimeMap_scaffold(string operations, string args, string expectedOutputs) {
     vector<string> funcOperations = stringTo1DArray<string>(operations);
     vector<vector<string>> funcArgs = stringTo2DArray<string>(args);
     vector<string> ans = stringTo1DArray<string>(expectedOutputs);
     TimeMap tm;
     int n = (int)ans.size();
-    for(int i=0; i<n; ++i)
-    {
-        if(funcOperations[i] == "set")
-        {
+    for (int i=0; i<n; ++i) {
+        if(funcOperations[i] == "set") {
             tm.set(funcArgs[i][0], funcArgs[i][1], std::stoi(funcArgs[i][2]));
-        }
-        else if(funcOperations[i] == "get")
-        {
+        } else if(funcOperations[i] == "get") {
             string actual = tm.get(funcArgs[i][0], std::stoi(funcArgs[i][1]));
-            if(actual != ans[i])
-            {
+            if (actual != ans[i]) {
                 util::Log(logERROR) << "get(" << funcArgs[i][0] << ", " << funcArgs[i][1] << ") failed";
                 util::Log(logERROR) << "Expected: " << ans[i] << ", actual: " << actual;
-            }
-            else
-            {
-                util::Log(logESSENTIAL) << "get(" << funcArgs[i][0] << ", " << funcArgs[i][1] << ") passed";
+            } else {
+                util::Log(logINFO) << "get(" << funcArgs[i][0] << ", " << funcArgs[i][1] << ") passed";
             }
         }
     }
 }
 
-int main()
-{
+int main() {
     util::LogPolicy::GetInstance().Unmute();
 
     util::Log(logESSENTIAL) << "Running searchInsert tests:";

@@ -3,10 +3,9 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode exercises: 17, 39, 40, 77, 78, 216 */
+/* leetcode exercises: 17, 39, 40, 77, 78 */
 
-class Solution
-{
+class Solution {
 public:
     vector<string> letterCombinations(string digits);
     vector<vector<int>> combinationSum(vector<int>& candidates, int target);
@@ -14,11 +13,17 @@ public:
     vector<vector<int>> combinationSum3(int k, int n);
     vector<vector<int>> combine(int n, int k);
     vector<vector<int>> subsets(vector<int>& nums);
-    vector<vector<int>> subsets2(vector<int>& nums);
+    vector<vector<int>> subsetsWithDup(vector<int>& nums);
 };
 
-vector<string> Solution::letterCombinations(string digits)
-{
+vector<string> Solution::letterCombinations(string digits) {
+/*
+    Given a string containing digits from 2-9 inclusive, 
+    return all possible letter combinations that the number could represent.
+
+    A mapping of digit to letters (just like on the telephone buttons) is given below. 
+    Note that 1 does not map to any letters.
+*/
     vector<vector<char>> d(10);
     d[0] = {' '};
     d[1] = {'@'};
@@ -32,16 +37,13 @@ vector<string> Solution::letterCombinations(string digits)
     d[9] = {'w','x','y','z'};
 
     vector<string> ans;
-    function<void(int, string)> dfs = [&](int pos, string cur)
-    {
-        if(pos == (int)digits.size())
-        {
+    function<void(int, string)> dfs = [&](int pos, string cur) {
+        if(pos == (int)digits.size()) {
             ans.push_back(cur);
             return;
         }
 
-        for(const auto& c: d[digits[pos] - '0'])
-        {
+        for(const auto& c: d[digits[pos] - '0']) {
             cur.push_back(c);
             dfs(pos+1, cur);
             cur.pop_back();
@@ -54,8 +56,7 @@ vector<string> Solution::letterCombinations(string digits)
     return ans;
 }
 
-vector<vector<int>> Solution::combinationSum(vector<int>& candidates, int target)
-{
+vector<vector<int>> Solution::combinationSum(vector<int>& candidates, int target) {
     /*
         Given a set of candidate numbers (C) (without duplicates) and a target number (T), 
         find all unique combinations in C where the candidate numbers sums to T.
@@ -69,16 +70,15 @@ vector<vector<int>> Solution::combinationSum(vector<int>& candidates, int target
 
     vector<vector<int>> ans;
     int count = (int)candidates.size();
-    function<void(int, int, vector<int>&)> dfs = [&](int pos, int sum, vector<int>& cur)
-    {
-        if(sum >= target)
-        {
-            if(sum == target) ans.push_back(cur);
+    function<void(int, int, vector<int>&)> dfs = [&](int pos, int sum, vector<int>& cur) {
+        if (sum >= target) {
+            if (sum == target) {
+                ans.push_back(cur);
+            }
             return;
         }
         
-        for(int i=pos; i<count; ++i)
-        {
+        for (int i=pos; i<count; ++i) {
             cur.push_back(candidates[i]);
             dfs(i, sum+candidates[i], cur);
             cur.pop_back();
@@ -107,16 +107,15 @@ vector<vector<int>> Solution::combinationSum2(vector<int>& candidates, int targe
 
     set<vector<int>> ans;
     int count = (int)candidates.size();
-    function<void(int, int, vector<int>&)> dfs = [&](int pos, int sum, vector<int>& cur)
-    {
-        if(sum >= target)
-        {
-            if(sum == target) ans.emplace(cur);
+    function<void(int, int, vector<int>&)> dfs = [&](int pos, int sum, vector<int>& cur) {
+        if (sum >= target) {
+            if(sum == target) {
+                ans.emplace(cur);
+            }
             return;
         }
         
-        for(int i=pos; i<count; ++i)
-        {
+        for(int i=pos; i<count; ++i) {
             cur.push_back(candidates[i]);
             dfs(i+1, sum+candidates[i], cur);
             cur.pop_back();
@@ -129,25 +128,23 @@ vector<vector<int>> Solution::combinationSum2(vector<int>& candidates, int targe
     return vector<vector<int>>(ans.begin(), ans.end());
 }
 
-vector<vector<int>> Solution::combinationSum3(int k, int n)
-{
+vector<vector<int>> Solution::combinationSum3(int k, int n) {
     /*
         Find all possible combinations of k numbers that add up to a number n, 
-        given that only numbers from 1 to 9 can be used and each combination should be a unique set of numbers.
+        given that only numbers from 1 to 9 can be used and each combination 
+        should be a unique set of numbers.
     */
 
     vector<vector<int>> ans;
-    function<void(int, int, vector<int>&)> dfs = [&](int pos, int sum, vector<int>& cur)
-    {
-        if(pos >= 9 || sum >= n)
-        {
-            if(sum == n && k == (int)cur.size()) ans.push_back(cur);
+    function<void(int, int, vector<int>&)> dfs = [&](int pos, int sum, vector<int>& cur) {
+        if (k <= (int)cur.size() || sum >= n) {
+            if(sum == n && k == (int)cur.size()) {
+                ans.push_back(cur);
+            }
             return;
         }
 
-        for(int i=pos; i<=9; ++i)
-        {
-            if(sum+i > n || k <= (int)cur.size()) continue;
+        for (int i=pos; i<10; ++i) {
             cur.push_back(i);
             dfs(i+1, sum+i, cur);
             cur.pop_back();
@@ -159,23 +156,19 @@ vector<vector<int>> Solution::combinationSum3(int k, int n)
     return ans;
 }
 
-vector<vector<int>> Solution::combine(int n, int k)
-{
+vector<vector<int>> Solution::combine(int n, int k) {
     /*
         Given two integers n and k, return all possible combinations of k numbers out of 1 … n.
     */
 
     vector<vector<int>> ans;
-    function<void(int, vector<int>&)> dfs = [&](int pos, vector<int>& cur)
-    {
-        if(k == (int)cur.size())
-        {
+    function<void(int, vector<int>&)> dfs = [&](int pos, vector<int>& cur) {
+        if (k == (int)cur.size()) {
             ans.push_back(cur);
             return;
         }
 
-        for(int i=pos; i<=n; ++i)
-        {
+        for (int i=pos; i<=n; ++i) {
             cur.push_back(i);
             dfs(i+1, cur);
             cur.pop_back();
@@ -187,8 +180,7 @@ vector<vector<int>> Solution::combine(int n, int k)
     return ans;
 }
 
-vector<vector<int>> Solution::subsets(vector<int>& nums)
-{
+vector<vector<int>> Solution::subsets(vector<int>& nums) {
     /* 
         Given a set of n distinct integers, return its power set
         Note: the solution must contain no duplicate.
@@ -200,14 +192,12 @@ vector<vector<int>> Solution::subsets(vector<int>& nums)
     vector<int> cur;
     vector<vector<int>> ans;
     int size = (int)nums.size();
-    function<void(int)> dfs = [&](int pos)
-    {
+    function<void(int)> dfs = [&](int pos) {
         ans.push_back(cur);
-
-        if(pos == size) return;
-
-        for(int i=pos; i<size; ++i)
-        {
+        if (pos == size) {
+            return;
+        }
+        for (int i=pos; i<size; ++i) {
             cur.push_back(nums[i]);
             dfs(i+1);
             cur.pop_back();
@@ -218,28 +208,38 @@ vector<vector<int>> Solution::subsets(vector<int>& nums)
     return ans;
 }
 
-vector<vector<int>> Solution::subsets2(vector<int>& nums)
-{
+vector<vector<int>> Solution::subsetsWithDup(vector<int>& nums) {
     /* 
-        Given a collection of integers that may contains duplicates, return its power set.
+        Given a collection of integers that may contains duplicates, return all possible subsets (power set).
         Note: the solution must contain no duplicate.
+        Example:
+            Input: [1,2,2]
+            Output:
+            [
+                [2],
+                [1],
+                [1,2,2],
+                [2,2],
+                [1,2],
+                []
+            ]
     */
 
-    // not necessay, but would make tests easier
     std::sort(nums.begin(), nums.end());
 
     vector<int> cur;
     vector<vector<int>> ans;
     int size = (int)nums.size();
-    function<void(int)> dfs = [&](int pos)
-    {
+    function<void(int)> dfs = [&](int pos) {
         ans.push_back(cur);
-        if(pos == size) return;
-        for(int i=pos; i<size; ++i)
-        {
+        if (pos == size) {
+            return;
+        }
+        for (int i=pos; i<size; ++i) {
             // Same number can only be used once at each depth
-            if(i>pos && nums[i] == nums[i-1]) continue;
-            
+            if (i>pos && nums[i] == nums[i-1]) {
+                continue;
+            }
             cur.push_back(nums[i]);
             dfs(i+1);
             cur.pop_back();
@@ -250,14 +250,12 @@ vector<vector<int>> Solution::subsets2(vector<int>& nums)
     return ans;
 }
 
-void letterCombinations_scaffold(string input, string expectedResult)
-{
+void letterCombinations_scaffold(string input, string expectedResult) {
     Solution ss;
     vector<string> actual = ss.letterCombinations(input);
     vector<string> expected = stringTo1DArray<string>(expectedResult);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
     }
     else
     {
@@ -267,106 +265,83 @@ void letterCombinations_scaffold(string input, string expectedResult)
     }
 }
 
-void combinationSum_scaffold(string input1, int input2, string expectedResult)
-{
+void combinationSum_scaffold(string input1, int input2, string expectedResult) {
     Solution ss;
     vector<int> candidates = stringTo1DArray<int>(input1);
     vector<vector<int>> actual = ss.combinationSum(candidates, input2);
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input1 << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input1 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual:";
         for(const auto& s: actual) util::Log(logERROR) << numberVectorToString(s);
     }
 }
 
-void combinationSum2_scaffold(string input1, int input2, string expectedResult)
-{
+void combinationSum2_scaffold(string input1, int input2, string expectedResult) {
     Solution ss;
     vector<int> candidates = stringTo1DArray<int>(input1);
     vector<vector<int>> actual = ss.combinationSum2(candidates, input2);
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input1 << ", expectedResult: " << expectedResult << ") passed";
+    } else {
+        util::Log(logERROR) << "Case(" << input1 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual:";
         for(const auto& s: actual) util::Log(logERROR) << numberVectorToString(s);
     }
 }
 
-void combinationSum3_scaffold(int input1, int input2, string expectedResult)
-{
+void combinationSum3_scaffold(int input1, int input2, string expectedResult) {
     Solution ss;
     vector<vector<int>> actual = ss.combinationSum3(input1, input2);
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input1 << ", expectedResult: " << expectedResult << ") passed";
+    } else {
+        util::Log(logERROR) << "Case(" << input1 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual:";
         for(const auto& s: actual) util::Log(logERROR) << numberVectorToString(s);
     }
 }
 
-void combine_scaffold(int input1, int input2, string expectedResult)
-{
+void combine_scaffold(int input1, int input2, string expectedResult) {
     Solution ss;
     vector<vector<int>> actual = ss.combine(input1, input2);
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if(actual == expected) {
+        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual:";
         for(const auto& s: actual) util::Log(logERROR) << numberVectorToString(s);
     }
 }
 
-void subsets_scaffold(string input, string expectedResult, bool duplicate)
-{
+void subsets_scaffold(string input, string expectedResult, bool duplicate) {
     Solution ss;
     vector<vector<int>> actual;
     vector<int> nums = stringTo1DArray<int>(input);
-    if(duplicate)
-    {
-        actual = ss.subsets2(nums);
-    }
-    else
-    {
+    if (duplicate) {
+        actual = ss.subsetsWithDup(nums);
+    } else {
         actual = ss.subsets(nums);
     }
     
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
-    BOOST_ASSERT(actual.size() == pow(2, input.size()));
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual:";
-        for(const auto& s: actual) util::Log(logERROR) << numberVectorToString(s);
+        for(const auto& s: actual) {
+            util::Log(logERROR) << numberVectorToString(s);
+        }
     }
 }
 
-int main()
-{
+int main() {
     util::LogPolicy::GetInstance().Unmute();
 
     util::Log(logESSENTIAL) << "Running letterCombinations tests:";

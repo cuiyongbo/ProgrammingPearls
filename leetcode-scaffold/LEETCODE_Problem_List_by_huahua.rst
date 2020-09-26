@@ -73,9 +73,32 @@ Divide and conquer
 * 912 Sort an Array 
 * 315 Count of Smaller Numbers After Self
 
+Binary Search
+=============
 
+* 704 Binary Search    
+* 34 Find First and Last Position of Element in Sorted Array    
+* 35 Search Insert Position
+* 981 Time Based Key-Value Store
+* 74 Search a 2D Matrix
+* 4 Median of Two Sorted Arrays
+* 378 Kth Smallest Element in a Sorted Matrix
+* 668 Kth Smallest Number in Multiplication Table   
+* 719 Find K-th Smallest Pair Distance
+* 786 K-th Smallest Prime Fraction   
+* 875 Koko Eating Bananas
+* 1011 Capacity To Ship Packages Within D Days   
+* 69 Sqrt(x) 
 
+Backtrace
+=========
 
+* 17 Letter Combinations of a Phone Number
+* 39 Combination Sum
+* 40 Combination Sum II    
+* 77 Combinations
+* 78 Subsets   
+* 90 Subsets II
 
 
 .. rubric:: Footnotes
