@@ -108,6 +108,13 @@ Backtrace
 * 20 Valid Parentheses    
 * 22 Generate Parentheses
 * 301 Remove Invalid Parentheses    
+* 37 Sudoku Solver
+* 51 N-Queens
+* 52 N-Queens II
+* 79 Word Search
+* 212 Word Search II    
+
+Solution
 
 .. rubric:: Footnotes
 

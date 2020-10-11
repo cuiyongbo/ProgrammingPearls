@@ -5,15 +5,13 @@ using namespace osrm;
 
 /* leetcode: 79, 212 */
 
-class Solution 
-{
+class Solution {
 public:
     bool exist(const vector<vector<char>> &board, const string& word);
     vector<string> findWords(const vector<vector<char>>& board, const vector<string>& words);
 };
 
-bool Solution::exist(const vector<vector<char>>& board, const string& word)
-{
+bool Solution::exist(const vector<vector<char>>& board, const string& word) {
     /*
         Given a 2D board and a word, find if the word exists in the grid.
 
@@ -24,50 +22,43 @@ bool Solution::exist(const vector<vector<char>>& board, const string& word)
 
     int rows = (int)board.size();
     int columns = (int)board[0].size();
-
-    string courier;
     vector<vector<bool>> used(rows, vector<bool>(columns, false));
-    auto isValid = [&](int r, int c)
-    {
-        return courier.size() < word.size() && 
-                0<=r && r<rows && 
+    auto isValid = [&](int r, int c, int p) {
+        return  0<=r && r<rows && 
                 0<=c && c<columns && 
                 !used[r][c] &&
-                board[r][c] == word[courier.size()];
+                board[r][c] == word[p];
     };
 
-    function<bool(int,int)> backtrace = [&](int i, int j)
-    {
-        if(courier == word) return true;
-        for(const auto& d: DIRECTIONS)
-        {
+    function<bool(int,int,int)> backtrace = [&](int i, int j, int p) {
+        if (p == word.size()) {
+            return true;
+        }
+        for (const auto& d: DIRECTIONS) {
             int r = i+d[1];
             int c = j+d[0];
-            if(isValid(r, c))
-            {
+            if (isValid(r, c, p)) {
                 used[r][c] = true;
-                courier.push_back(board[r][c]);
-                if(backtrace(r, c)) return true;
-                courier.pop_back();
+                if(backtrace(r, c, p+1)) {
+                    return true;
+                }
                 used[r][c] = false;
             }
         }
         return false;
     };
 
-    for(int i=0; i<rows; i++)
-    {
-        for(int j=0; j<columns; j++)
-        {
-            if(backtrace(i, j)) 
+    for(int i=0; i<rows; i++) {
+        for (int j=0; j<columns; j++) {
+            if (backtrace(i, j, 0)) {
                 return true;
+            }
         }
     }
     return false;
 }
 
-vector<string> Solution::findWords(const vector<vector<char>>& board, const vector<string>& words)
-{
+vector<string> Solution::findWords(const vector<vector<char>>& board, const vector<string>& words) {
     /*
         Given a 2D board and a list of words from the dictionary, find all words in the board.
 
@@ -77,10 +68,10 @@ vector<string> Solution::findWords(const vector<vector<char>>& board, const vect
     */
 
     vector<string> ans;
-    for(const auto& s: words)
-    {
-        if(exist(board, s))
+    for(const auto& s: words) {
+        if (exist(board, s)) {
             ans.push_back(s);
+        }
     }
 
     // not necessary, out of convenience for test
@@ -88,43 +79,34 @@ vector<string> Solution::findWords(const vector<vector<char>>& board, const vect
     return ans;
 }
 
-void exist_scaffold(string input1, string input2, bool expectedResult)
-{
+void exist_scaffold(string input1, string input2, bool expectedResult) {
     Solution ss;
     vector<vector<char>> board = stringTo2DArray<char>(input1);
     bool actual = ss.exist(board, input2);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual: " << actual;
     }
 }
 
-void findWords_scaffold(string input1, string input2, string expectedResult)
-{
+void findWords_scaffold(string input1, string input2, string expectedResult) {
     Solution ss;
     vector<vector<char>> board = stringTo2DArray<char>(input1);
     vector<string> words = stringTo1DArray<string>(input2);
     vector<string> expected = stringTo1DArray<string>(expectedResult);
     vector<string> actual = ss.findWords(board, words);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if(actual == expected) {
+        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual: ";
         for(const auto& s: actual) util::Log(logERROR) << s;
     }
 }
 
-int main()
-{
+int main() {
     util::LogPolicy::GetInstance().Unmute();
 
     util::Log(logESSENTIAL) << "Running exist tests: ";
@@ -142,6 +124,8 @@ int main()
     exist_scaffold(board, "SFCSA", false);
     exist_scaffold(board, "ABCES", true);
     exist_scaffold(board, "SADECS", true);
+    exist_scaffold(board, "CESCC", false);
+    exist_scaffold(board, "EEE", false);
 
     TIMER_STOP(exist);
     util::Log(logESSENTIAL) << "exist using " << TIMER_MSEC(exist) << " milliseconds"; 
