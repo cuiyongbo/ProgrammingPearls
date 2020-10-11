@@ -7,8 +7,8 @@
 
 using namespace std;
 
-int basic();
-int classicalUsage();
+void basic();
+void classicalUsage();
 
 struct Base
 {
@@ -59,7 +59,7 @@ int main()
     classicalUsage();
 }
 
-int basic()
+void basic()
 {
     struct C
     {
@@ -87,10 +87,9 @@ int basic()
     cout << "p7: " << p7.use_count() << "\n";
     cout << "p8: " << p8.use_count() << "\n";
     cout << "p9: " << p9.use_count() << "\n";
-    return 0;
 }
 
-int classicalUsage()
+void classicalUsage()
 {
     using namespace std;
 

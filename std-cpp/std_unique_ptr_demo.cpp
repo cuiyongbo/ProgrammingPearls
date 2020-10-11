@@ -31,9 +31,11 @@ std::unique_ptr<D> pass_through(std::unique_ptr<D> p)
 }
  
 void close_file(std::FILE* fp) { std::fclose(fp);}
- 
+
 int main()
 {
+
+
   	std::cout << "unique ownership semantics demo\n";
   	{
   	    auto p = std::make_unique<D>(); // p is a unique_ptr that owns a D

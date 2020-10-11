@@ -63,6 +63,7 @@ List
 * 147 Insertion Sort List
 * 148 Sort List
 * 707 Design Linked List 
+* 160. Intersection of Two Linked Lists
 
 Divide and conquer
 ==================
@@ -99,7 +100,14 @@ Backtrace
 * 77 Combinations
 * 78 Subsets   
 * 90 Subsets II
-
+* 46 Permutations    
+* 47 Permutations II    
+* 784 Letter Case Permutation    
+* 943 Find the Shortest Superstring (Unsolved)
+* 996 Number of Squareful Arrays    
+* 20 Valid Parentheses    
+* 22 Generate Parentheses
+* 301 Remove Invalid Parentheses    
 
 .. rubric:: Footnotes
 

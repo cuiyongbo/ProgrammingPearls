@@ -3,7 +3,7 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode: 2, 445, 206, 24*/
+/* leetcode: 2, 445, 206, 24, 160*/
 
 class Solution {
 public:
@@ -11,8 +11,8 @@ public:
     ListNode* addTwoNumbersII(ListNode* l1, ListNode* l2);
     ListNode* reverseList(ListNode* head);
     ListNode* swapPairs(ListNode* head);
+    ListNode* getIntersectionNode(ListNode* l1, ListNode* l2);
 };
-
 
 ListNode* Solution::addTwoNumbers(ListNode* l1, ListNode* l2) {
 /*
@@ -165,6 +165,35 @@ ListNode* Solution::swapPairs(ListNode* head) {
     }
     return dummy.next;
 }
+
+ListNode* Solution::getIntersectionNode(ListNode* l1, ListNode* l2) {
+/*
+    Write a program to find the node at which the intersection of two singly linked lists begins.
+
+    Example 1:
+    Input: intersectVal = 2, listA = [1,9,1,2,4], listB = [3,2,4], skipA = 3, skipB = 1
+    Output: Reference of the node with value = 2
+    Input Explanation: The intersected node's value is 2 (note that this must not be 0 if the two lists intersect). 
+    There are 3 nodes before the intersected node in A; There are 1 node before the intersected node in B.
+
+    Example 2:
+    Input: intersectVal = 0, listA = [2,6,4], listB = [1,5], skipA = 3, skipB = 2
+    Output: null
+    Input Explanation: Since the two lists do not intersect, intersectVal must be 0, 
+    while skipA and skipB can be arbitrary values. Explanation: The two lists do not intersect, so return null.
+*/
+    ListNode* p1 = l1;
+    ListNode* p2 = l2;
+    while (p1 != nullptr || p2 != nullptr) {
+        if (p1 == p2) {
+            break;
+        }
+        p1 = (p1 == nullptr) ? l2 : p1->next;
+        p2 = (p2 == nullptr) ? l1 : p2->next;
+    }
+    return p1;
+}
+
 
 void reverseList_scaffold(string input1, string expectedResult) {
     ListNode* l1 = stringToListNode(input1);
