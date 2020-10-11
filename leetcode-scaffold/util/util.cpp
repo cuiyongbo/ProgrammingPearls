@@ -168,39 +168,33 @@ bool binaryTree_equal(TreeNode* t1, TreeNode* t2) {
 }
 
 // in format like [[2,4],[1,3],[2,4],[1,3]]
-Node* stringToUndirectedGraph(std::string& input)
-{
+Node* stringToUndirectedGraph(std::string& input) {
     /*
         Test case format:
-
-            For simplicity sake, each node's value is the same as the node's index (1-indexed).
+            For sake of simplicity, each node's value is the same as the node's index (1-indexed).
             For example, the first node with val = 1, the second node with val = 2, and so on.
             The graph is represented in the test case using an adjacency list.
-
             Adjacency list is a collection of unordered lists used to represent a finite graph.
             Each list describes the set of neighbors of a node in the graph.
     */
 
     vector<vector<int>> adjLists = stringTo2DArray<int>(input);
-
-    if(adjLists.empty()) return nullptr;
-
+    if (adjLists.empty()) {
+        return nullptr;
+    }
     int nodeCount = adjLists.size();
     vector<Node*> nodes(nodeCount, nullptr);
-    for(int i=0; i<nodeCount; ++i)
-    {
-        if(nodes[i] == nullptr)
+    for (int i=0; i<nodeCount; ++i) {
+        if (nodes[i] == nullptr) {
             nodes[i] = new Node(i+1);
-
-        for(auto n: adjLists[i])
-        {
-            if(nodes[n-1] == nullptr)
+        }
+        for (auto n: adjLists[i]) {
+            if(nodes[n-1] == nullptr) {
                 nodes[n-1] = new Node(n);
-
+            }
             nodes[i]->neighbors.push_back(nodes[n-1]);
         }
     }
-
     return nodes[0];
 }
 

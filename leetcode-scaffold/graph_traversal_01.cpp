@@ -5,21 +5,18 @@ using namespace osrm;
 
 /* leetcode exercises: 200, 547, 695, 733, 827, 1162, 1020 */
 
-class Solution
-{
+class Solution {
 public:
     int numEnclaves(vector<vector<int>>& A);
     int numIslands(vector<vector<int>>& grid);
     int findCircleNum(vector<vector<int>>& M);
     int maxAreaOfIsland(vector<vector<int>>& grid);
-    vector<vector<int>> floodFill(vector<vector<int>>& image,
-                                  int sr, int sc, int newColor);
+    vector<vector<int>> floodFill(vector<vector<int>>& image, int sr, int sc, int newColor);
     int largestIsland(vector<vector<int>>& grid);
     int maxDistance(vector<vector<int>>& grid);
 };
 
-int Solution::numEnclaves(vector<vector<int>>& A)
-{
+int Solution::numEnclaves(vector<vector<int>>& A) {
     /*
         Given a 2D array A, each cell is 0 (representing sea) or 1 (representing land)
         A move consists of walking from one land square 4-directionally 
@@ -28,14 +25,12 @@ int Solution::numEnclaves(vector<vector<int>>& A)
         the boundary of the grid in any number of moves.
 
         Example 1:
-
         Input: [[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]]
         Output: 3
         Explanation: 
         There are three 1s that are enclosed by 0s, and one 1 that isn't enclosed because its on the boundary.
 
         Example 2:
-
         Input: [[0,1,1,0],[0,0,1,0],[0,0,1,0],[0,0,0,0]]
         Output: 0
         Explanation: 
@@ -48,53 +43,41 @@ int Solution::numEnclaves(vector<vector<int>>& A)
             All rows have the same size.
     */
 
-    bool isEncalve = true;
-    int nodeCount = 0;
-    int n = (int)A.size();
-    vector<vector<bool>> visited(n, vector<bool>(n, false));
-    function<void(int, int)> dfs = [&](int r, int c)
-    {
-        nodeCount++;
-        visited[r][c] = true;
-        for(const auto& d: DIRECTIONS)
-        {
-            int x = c + d[0];
-            int y = r + d[1];
-
-            // off-grid
-            if(x<0 || x>n || y<0 || y>n)
-                isEncalve = false;
-
-            if(0<=x && x<n &&
-                0<=y && y<n &&
-                A[y][x] == 1 &&
-                !visited[y][x])
-            {
-                dfs(y, x);
+    int rows = A.size();
+    int columns = A[0].size();
+    function<std::pair<bool, int>(int, int)> dfs = [&] (int r, int c) {
+        if ((r<0 || r>rows)  || (c<0 || c> columns)) {
+            return std::make_pair(true, 0);
+        } else if (A[r][c] != 1) {
+            return std::make_pair(false, 0);
+        } else {
+            A[r][c] = 2;
+            int nodeCount = 1;
+            bool isOffGrid = false;
+            for (const auto& d: DIRECTIONS) {
+                auto p = dfs(r + d[0], c + d[1]);
+                isOffGrid |= p.first;
+                nodeCount += p.second;
             }
+            return std::make_pair(isOffGrid, nodeCount);
         }
     };
 
     int ans = 0;
-    for(int i=0; i<n; ++i)
-    {
-        for(int j=0; j<n; ++j)
-        {
-            if(A[i][j] == 0 || visited[i][j])
-                continue;
-
-            isEncalve = true;
-            nodeCount = 0;
-
-            dfs(i, j);
-            if(isEncalve) ans += nodeCount;
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<columns; j++) {
+            if (A[i][j] == 1) {
+                auto p = dfs(i, j);
+                if (!p.first) {
+                    ans += p.second;
+                }
+            }
         }
     }
     return ans;
 }
 
-int Solution::numIslands(vector<vector<int>>& grid)
-{
+int Solution::numIslands(vector<vector<int>>& grid) {
     /*
         Given a 2d grid map of '1's (land) and '0's (water), count the number of islands.
         An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically.
@@ -103,33 +86,25 @@ int Solution::numIslands(vector<vector<int>>& grid)
 
     int rows = grid.size();
     int columns = grid[0].size();
-    function<void(int, int)> dfs = [&](int row, int col)
-    {
-        if(row < 0 || row >= rows)
+    function<void(int, int)> dfs = [&](int row, int col) {
+        if ((row < 0 || row >= rows) || (col < 0 || col >= columns)) {
             return;
-
-        if(col < 0 || col >= columns)
+        }
+        if(grid[row][col] != 1) {
             return;
-
-        if(grid[row][col] == 0)
-            return;
-
-        grid[row][col] = 0;
-
-        for(auto& d: DIRECTIONS)
-        {
+        }
+        grid[row][col] = 2;
+        for (auto& d: DIRECTIONS) {
             dfs(row+d[0], col+d[1]);
         }
     };
 
     int ans = 0;
-    for(int i=0; i<rows; ++i)
-    {
-        for(int j=0; j<columns; ++j)
-        {
-            if(grid[i][j] == 0)
+    for (int i=0; i<rows; ++i) {
+        for (int j=0; j<columns; ++j) {
+            if (grid[i][j] != 1) {
                 continue;
-
+            }
             ++ans;
             dfs(i, j);
         }
@@ -137,8 +112,7 @@ int Solution::numIslands(vector<vector<int>>& grid)
     return ans;
 }
 
-int Solution::findCircleNum(vector<vector<int>>& M)
-{
+int Solution::findCircleNum(vector<vector<int>>& M) {
     /*
         There are N students in a class. Some of them are friends, while some are not.
         Their friendship is transitive in nature. For example, if A is a direct friend of B,
@@ -153,8 +127,7 @@ int Solution::findCircleNum(vector<vector<int>>& M)
     return numIslands(M);
 }
 
-int Solution::maxAreaOfIsland(vector<vector<int>>& grid)
-{
+int Solution::maxAreaOfIsland(vector<vector<int>>& grid) {
     /*
         Given a non-empty 2D array grid of 0’s and 1’s, an island is a group of 1‘s (representing land)
         connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid
@@ -165,28 +138,16 @@ int Solution::maxAreaOfIsland(vector<vector<int>>& grid)
 
     int rows = grid.size();
     int columns = grid[0].size();
-
-    function<int(int, int)> dfs = [&](int r, int c)
-    {
-        if(r<0 || r>=rows)
-        {
+    function<int(int, int)> dfs = [&](int r, int c) {
+        if ((r<0 || r>=rows) || (c<0 || c>=columns)) {
             return 0;
-        }
-        else if(c<0 || c>=columns)
-        {
+        } else if (grid[r][c] != 1) {
             return 0;
-        }
-        else if(grid[r][c] == 0)
-        {
-            return 0;
-        }
-        else
-        {
-            grid[r][c] = 0;
+        } else {
+            grid[r][c] = 2;
 
             int area = 1;
-            for(const auto& d: DIRECTIONS)
-            {
+            for (const auto& d: DIRECTIONS) {
                 area += dfs(r+d[0], c+d[1]);
             }
             return area;
@@ -194,19 +155,15 @@ int Solution::maxAreaOfIsland(vector<vector<int>>& grid)
     };
 
     int ans = 0;
-    for (int i = 0; i < rows; ++i)
-    {
-        for (int j = 0; j < columns; ++j)
-        {
-            ans = max(dfs(i, j), ans);
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < columns; ++j) {
+            ans = std::max(dfs(i, j), ans);
         }
     }
     return ans;
 }
 
-vector<vector<int>> Solution::floodFill(vector<vector<int>>& grid,
-                                  int sr, int sc, int newColor)
-{
+vector<vector<int>> Solution::floodFill(vector<vector<int>>& grid, int sr, int sc, int newColor) {
     /*
         An image is represented by a 2D array of integers, each integer representing the pixel value
         of the image (from 0 to 65535).
@@ -224,36 +181,24 @@ vector<vector<int>> Solution::floodFill(vector<vector<int>>& grid,
 
     int rows = grid.size();
     int columns = grid[0].size();
-    if(sr<0 || sr>=rows || sc<0 || sc>=columns)
-        return grid;
-
     int originalColor = grid[sr][sc];
-    function<void(int, int)> dfs = [&](int r, int c)
-    {
-        if(r<0 || r>=rows || c<0 || c>=columns)
-        {
+    function<void(int, int)> dfs = [&](int r, int c) {
+        if (r<0 || r>=rows || c<0 || c>=columns) {
             return;
-        }
-        else if(grid[r][c] != originalColor)
-        {
+        } else if (grid[r][c] != originalColor) {
             return;
-        }
-        else
-        {
+        } else {
             grid[r][c] = newColor;
-            for(const auto& d: DIRECTIONS)
-            {
+            for (const auto& d: DIRECTIONS) {
                 dfs(r+d[0], c+d[1]);
             }
         }
     };
-
     dfs(sr, sc);
     return grid;
 }
 
-int Solution::largestIsland(vector<vector<int>>& grid)
-{
+int Solution::largestIsland(vector<vector<int>>& grid) {
     /*
         In a 2D grid of 0s and 1s, we change at most one 0 to a 1.
         After, what is the size of the largest island? (An island is a 4-directionally connected group of 1s).
@@ -265,22 +210,14 @@ int Solution::largestIsland(vector<vector<int>>& grid)
     int curIslandId = 0;
     map<int, int> islandAreaMap;
     map<Coordinate, int> coorToIslandIdMap;
-    vector<vector<int>> copyMap = grid;
-
-    function<int(int, int)> dfs = [&](int r, int c)
-    {
-        if(r<0 || r>=rows || c<0 || c>=columns || copyMap[r][c] == 0)
-        {
+    function<int(int, int)> dfs = [&](int r, int c) {
+        if (r<0 || r>=rows || c<0 || c>=columns || grid[r][c] != 1) {
             return 0;
-        }
-        else
-        {
+        } else {
             coorToIslandIdMap.emplace(Coordinate(r,c), curIslandId);
-
-            copyMap[r][c] = 0;
+            grid[r][c] = 2;
             int area = 1;
-            for(const auto& d: DIRECTIONS)
-            {
+            for (const auto& d: DIRECTIONS) {
                 area += dfs(r+d[0], c+d[1]);
             }
             return area;
@@ -288,84 +225,76 @@ int Solution::largestIsland(vector<vector<int>>& grid)
     };
 
     int ans = 0;
-    for (int i = 0; i < rows; ++i)
-    {
-        for (int j = 0; j < columns; ++j)
-        {
-            if(copyMap[i][j] == 1)
-            {
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < columns; ++j) {
+            if (grid[i][j] == 1) {
                 islandAreaMap[curIslandId] = dfs(i, j);
-                ans = max(ans, islandAreaMap[curIslandId]);
+                ans = std::max(ans, islandAreaMap[curIslandId]);
                 ++curIslandId;
             }
         }
     }
 
     set<int> visited;
-    for (int i = 0; i < rows; ++i)
-    {
-        for (int j = 0; j < columns; ++j)
-        {
-            if(grid[i][j] == 0)
-            {
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < columns; ++j) {
+            if(grid[i][j] == 0) {
                 visited.clear();
-                for(const auto& d: DIRECTIONS)
-                {
+                for(const auto& d: DIRECTIONS) {
                     Coordinate c(i+d[0], j+d[1]);
                     const auto& it = coorToIslandIdMap.find(c);
-                    if(it != coorToIslandIdMap.end())
+                    if (it != coorToIslandIdMap.end()) {
                         visited.emplace(it->second);
+                    }
                 }
 
                 int cur = 1;
-                for(int n: visited) cur += islandAreaMap[n];
-                ans = max(ans, cur);
+                for (auto n: visited) {
+                    cur += islandAreaMap[n];
+                }
+                ans = std::max(ans, cur);
             }
         }
     }
     return ans;
 }
 
-int Solution::maxDistance(vector<vector<int>>& grid)
-{
+int Solution::maxDistance(vector<vector<int>>& grid) {
     /*
         Given an N x N grid containing only values 0 and 1, where 0 represents water and 1 represents land,
         find a water cell such that its distance to the nearest land cell is maximized and return the distance.
-        The distance used in this problem is the Manhattan distance: the distance between two cells (x0, y0) and (x1, y1)is |x0 - x1| + |y0 - y1|.
-        If no land or water exists in the grid, return -1.
+        The distance used in this problem is the Manhattan distance: the distance between two cells (x0, y0) 
+        and (x1, y1) is |x0 - x1| + |y0 - y1|. If no land or water exists in the grid, return -1.
     */
-
-    auto distance = [](int x0, int y0, int x1, int y1) { return abs(x0-x1) + abs(y0-y1);};
 
     int rows = grid.size();
     int columns = grid[0].size();
-
     queue<Coordinate> q;
-    for (int i = 0; i < rows; ++i)
-    {
-        for (int j = 0; j < columns; ++j)
-        {
-            if(grid[i][j] == 1)
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < columns; ++j) {
+            if (grid[i][j] == 1) {
                 q.emplace(i, j);
+            }
         }
     }
 
     int ans = -1;
     int steps = 0;
-    while(!q.empty())
-    {
+    while (!q.empty()) {
         int size = q.size();
-        for(int i=0; i<size; ++i)
-        {
+        for (int i=0; i<size; ++i) {
             const auto& c = q.front(); q.pop();
-            if(grid[c.x][c.y] == 2) ans = steps;
-            for(const auto& d: DIRECTIONS)
-            {
+            if(grid[c.x][c.y] == 2) {
+                // encounter a former water cell
+                ans = steps;
+            } 
+            for (const auto& d: DIRECTIONS) {
                 int x = c.x + d[0];
                 int y = c.y + d[1];
-                if(x<0 || x>=rows || y<0 || y>=columns || grid[x][y] != 0)
+                if(x<0 || x>=rows || y<0 || y>=columns || grid[x][y] != 0) {
                     continue;
-
+                }
+                // mark a water cell
                 grid[x][y] = 2;
                 q.emplace(x, y);
             }
@@ -375,120 +304,91 @@ int Solution::maxDistance(vector<vector<int>>& grid)
     return ans;
 }
 
-void numIslands_scaffold(string input, int expectedResult)
-{
+void numIslands_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.numIslands(graph);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
         util::Log(logERROR) << "expected: " << expectedResult  << ", actual: " << actual;
     }
 }
 
-void findCircleNum_scaffold(string input, int expectedResult)
-{
+void findCircleNum_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.findCircleNum(graph);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
         util::Log(logERROR) << "expected: " << expectedResult  << ", actual: " << actual;
     }
 }
 
-void maxAreaOfIsland_scaffold(string input, int expectedResult)
-{
+void maxAreaOfIsland_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.maxAreaOfIsland(graph);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
         util::Log(logERROR) << "expected: " << expectedResult  << ", actual: " << actual;
     }
 }
 
-void floodFill_scaffold(string input, int sr, int sc, int newColor, string expectedResult)
-{
+void floodFill_scaffold(string input, int sr, int sc, int newColor, string expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
     vector<vector<int>> actual = ss.floodFill(graph, sr, sc, newColor);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
     }
 }
 
-void largestIsland_scaffold(string input, int expectedResult)
-{
+void largestIsland_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.largestIsland(graph);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
         util::Log(logERROR) << "expected: " << expectedResult  << ", actual: " << actual;
     }
 }
 
-void maxDistance_scaffold(string input, int expectedResult)
-{
+void maxDistance_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.maxDistance(graph);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
         util::Log(logERROR) << "expected: " << expectedResult  << ", actual: " << actual;
     }
 }
 
-void numEnclaves_scaffold(string input, int expectedResult)
-{
+void numEnclaves_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.numEnclaves(graph);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
         util::Log(logERROR) << "expected: " << expectedResult  << ", actual: " << actual;
     }
 }
 
-int main()
-{
+int main() {
     util::LogPolicy::GetInstance().Unmute();
 
     util::Log(logESSENTIAL) << "Running numEnclaves tests:";

@@ -30,6 +30,7 @@ bool Solution::exist(const vector<vector<char>>& board, const string& word) {
                 board[r][c] == word[p];
     };
 
+    std::vector<std::vector<int>> DIRECTIONS {{0, -1}, {0, 1}, {-1, 0}, {1, 0}, {0, 0}};
     function<bool(int,int,int)> backtrace = [&](int i, int j, int p) {
         if (p == word.size()) {
             return true;
@@ -126,6 +127,7 @@ int main() {
     exist_scaffold(board, "SADECS", true);
     exist_scaffold(board, "CESCC", false);
     exist_scaffold(board, "EEE", false);
+    exist_scaffold("[[E]]", "E", true);
 
     TIMER_STOP(exist);
     util::Log(logESSENTIAL) << "exist using " << TIMER_MSEC(exist) << " milliseconds"; 

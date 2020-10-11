@@ -88,6 +88,10 @@ add_executable(graph_traversal_01 graph_traversal_01.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_traversal_01 PUBLIC cxx_auto_type)
 target_link_libraries(graph_traversal_01)
 
+add_executable(graph_clone graph_clone.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_clone PUBLIC cxx_auto_type)
+target_link_libraries(graph_clone)
+
 # BINARY SEARCH
 
 add_executable(binary_search_search_insert_pos binary_search_search_insert_pos.cpp ${PUB_UTIL_FILES})

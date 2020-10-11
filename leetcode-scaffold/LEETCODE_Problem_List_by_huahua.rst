@@ -112,7 +112,21 @@ Backtrace
 * 51 N-Queens
 * 52 N-Queens II
 * 79 Word Search
-* 212 Word Search II    
+* 212 Word Search II  
+
+
+Graph
+=====
+
+* 133 Clone Graph
+* 138 Copy List with Random Pointer 
+* 200 Number of Islands
+* 547 Friend Circles
+* 695 Max Area of Island 
+* 733 Flood Fill       
+* 827 Making A Large Island 
+* 1162 As Far from Land as Possible   
+* 1020 Number of Enclaves        
 
 Solution
 
