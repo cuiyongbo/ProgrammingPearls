@@ -5,46 +5,42 @@ using namespace osrm;
 
 /* leetcode exercises: 207, 210, 802 */
 
-class Solution
-{
+class Solution {
 public:
     bool canFinish(int numCourses, vector<vector<int>>& prerequisites);
     vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites);
     vector<int> eventualSafeNodes(vector<vector<int>>& graph);
 };
 
-bool Solution::canFinish(int numCourses, vector<vector<int>>& prerequisites)
-{
+bool Solution::canFinish(int numCourses, vector<vector<int>>& prerequisites) {
     /*
         There are a total of n courses you have to take, labeled from 0 to n - 1.
         Some courses may have prerequisites, for example to take course 0 you have to first take course 1,
         which is expressed as a pair: [0,1]
         Given the total number of courses and a list of prerequisite pairs,
-        is it possible for you to finish all courses?
+        is it possible for you to finish all courses? (no cycle dependency found)
 
-        Hint: use dfs (coloring) to detect cycle in a graph.
+        Hint: use dfs (coloring) to detect cycle in a graph. 
     */
 
     vector<vector<int>> graph(numCourses, vector<int>());
-    for(const auto& p : prerequisites)
-    {
-        if(p[0] == p[1]) return false;
+    for(const auto& p : prerequisites) {
+        if (p[0] == p[1]) { // self-dependency
+            return false;
+        }
         graph[p[0]].push_back(p[1]);
     }
 
     vector<int> colors(numCourses, 0);
-    function<bool(int)> dfs = [&](int u)
-    {
+    function<bool(int)> dfs = [&](int u) {
         colors[u] = 1; // visiting
-        for(const auto& v: graph[u])
-        {
+        for (const auto& v: graph[u]) {
             if(colors[v] == 0)
             { // unvisited
-                if(!dfs(v))
+                if(!dfs(v)) {
                     return false;
-            }
-            else if(colors[v] == 1)
-            {
+                }
+            } else if(colors[v] == 1) {
                 return false;
             }
         }
@@ -52,19 +48,17 @@ bool Solution::canFinish(int numCourses, vector<vector<int>>& prerequisites)
         return true;
     };
 
-    for (int i = 0; i < numCourses; ++i)
-    {
-        if(colors[i] == 0)
-        {
-            if(!dfs(i))
+    for (int i = 0; i < numCourses; ++i) {
+        if (colors[i] == 0) {
+            if(!dfs(i)) {
                 return false;
+            }
         }
     }
     return true;
 }
 
-vector<int> Solution::findOrder(int numCourses, vector<vector<int>>& prerequisites)
-{
+vector<int> Solution::findOrder(int numCourses, vector<vector<int>>& prerequisites) {
     /*
         There are a total of n courses you have to take, labeled from 0 to n - 1.
         Some courses may have prerequisites, for example to take course 0 you have
@@ -79,29 +73,23 @@ vector<int> Solution::findOrder(int numCourses, vector<vector<int>>& prerequisit
 
     vector<int> ans;
     ans.reserve(numCourses);
-
     vector<vector<int>> graph(numCourses, vector<int>());
-    for(const auto& p : prerequisites)
-    {
-        if(p[0] == p[1]) return ans;
+    for(const auto& p : prerequisites) {
+        if (p[0] == p[1]) { // self-dependency
+            return ans;
+        }
         graph[p[0]].push_back(p[1]);
     }
 
     vector<int> colors(numCourses, 0);
-    function<bool(int)> dfs = [&](int u)
-    {
+    function<bool(int)> dfs = [&](int u) {
         colors[u] = 1; // visiting
-        for(const auto& v: graph[u])
-        {
-            if(colors[v] == 0)
-            { // unvisited
-                if(!dfs(v))
-                {
+        for (const auto& v: graph[u]) {
+            if (colors[v] == 0) { // unvisited
+                if (!dfs(v)) {
                     return false;
                 }
-            }
-            else if(colors[v] == 1)
-            {
+            } else if (colors[v] == 1) {
                 ans.clear();
                 return false;
             }
@@ -111,22 +99,20 @@ vector<int> Solution::findOrder(int numCourses, vector<vector<int>>& prerequisit
         return true;
     };
 
-    for (int i = 0; i < numCourses; ++i)
-    {
-        if(colors[i] == 0)
-        {
-            if(!dfs(i)) break;
+    for (int i = 0; i < numCourses; ++i) {
+        if (colors[i] == 0) {
+            if (!dfs(i)) {
+                break;
+            }
         }
     }
-
     return ans;
 }
 
-vector<int> Solution::eventualSafeNodes(vector<vector<int>>& graph)
-{
+vector<int> Solution::eventualSafeNodes(vector<vector<int>>& graph) {
     /*
-        In a directed graph, we start at some node and every turn,
-        walk along a directed edge of the graph. If we reach a node that is terminal
+        In a directed graph, we start at some node and walk along a directed edge of the graph 
+        at every turn. If we reach a node that is terminal
         (that is, it has no outgoing directed edges), we stop.
 
         Now, say our starting node is eventually safe if and only if we must eventually
@@ -138,26 +124,22 @@ vector<int> Solution::eventualSafeNodes(vector<vector<int>>& graph)
         The directed graph has N nodes with labels 0, 1, ..., N-1, where N is the length of graph.
         The graph is given in the following form: graph[i] is a list of labels j such that (i, j)
         is a directed edge of the graph.
+
+        Hint: remove nodes in a connected component which contains cycle(s) but note that a terminal
+        node is always safe itself.
     */
 
+    set<int> candidate;
     int nodeCount = graph.size();
     vector<int> colors(nodeCount, 0);
-
-    set<int> candidate;
-    function<bool(int)> dfs = [&](int u)
-    {
+    function<bool(int)> dfs = [&](int u) {
         colors[u] = 1;
-        for(const auto& v: graph[u])
-        {
-            if(colors[v] == 0)
-            {
-                if(!dfs(v))
-                {
+        for (const auto& v: graph[u]) {
+            if (colors[v] == 0) {
+                if(!dfs(v)) {
                     return false;
                 }
-            }
-            else if(colors[v] == 1)
-            {
+            } else if (colors[v] == 1) {
                 return false;
             }
         }
@@ -166,65 +148,52 @@ vector<int> Solution::eventualSafeNodes(vector<vector<int>>& graph)
         return true;
     };
 
-    for (int i = 0; i < nodeCount; ++i)
-    {
-        if(colors[i] == 0)
+    for (int i = 0; i < nodeCount; ++i) {
+        if (colors[i] == 0) {
             dfs(i);
+        }
     }
     return vector<int>(candidate.begin(), candidate.end());
 }
 
-void canFinish_scaffold(int numCourses, string input, bool expectedResult)
-{
+void canFinish_scaffold(int numCourses, string input, bool expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     bool actual = ss.canFinish(numCourses, graph);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << numCourses << ", " << input << "," << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << numCourses << ", " << input << "," << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << numCourses << ", " << input << "," << expectedResult  << ") failed";
     }
 }
 
-void findOrder_scaffold(int numCourses, string input, string expectedResult)
-{
+void findOrder_scaffold(int numCourses, string input, string expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     vector<int> actual = ss.findOrder(numCourses, graph);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << numCourses << ", " << input << "," << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << numCourses << ", " << input << "," << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << numCourses << ", " << input << "," << expectedResult  << ") failed";
-        util::Log(logERROR) << "Expected: " << expectedResult << ", acutal: " << intVectorToString(actual);
+        util::Log(logERROR) << "Expected: " << expectedResult << ", acutal: " << numberVectorToString<int>(actual);
     }
 }
 
-void eventualSafeNodes_scaffold(string input, string expectedResult)
-{
+void eventualSafeNodes_scaffold(string input, string expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     vector<int> actual = ss.eventualSafeNodes(graph);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << "," << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input << "," << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << "," << expectedResult << ") failed";
-        util::Log(logERROR) << "Expected: " << expectedResult << ", acutal: " << intVectorToString(actual);
+        util::Log(logERROR) << "Expected: " << expectedResult << ", acutal: " << numberVectorToString<int>(actual);
     }
 }
 
-int main()
-{
+int main() {
     util::LogPolicy::GetInstance().Unmute();
 
     util::Log(logESSENTIAL) << "Running canFinish tests:";

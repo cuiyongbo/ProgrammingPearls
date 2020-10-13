@@ -127,8 +127,12 @@ Graph
 * 827 Making A Large Island 
 * 1162 As Far from Land as Possible   
 * 1020 Number of Enclaves        
+* 841 Keys and Rooms
+* 1202 Smallest String With Swaps    
+* 207 Course Schedule
+* 210 Course Schedule II    
+* 802 Find Eventual Safe States   
 
-Solution
 
 .. rubric:: Footnotes
 

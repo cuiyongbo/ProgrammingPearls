@@ -84,13 +84,17 @@ add_executable(graph_region_cut_by_slash graph_region_cut_by_slash.cpp ${PUB_UTI
 target_compile_features(graph_region_cut_by_slash PUBLIC cxx_auto_type)
 target_link_libraries(graph_region_cut_by_slash)
 
-add_executable(graph_traversal_01 graph_traversal_01.cpp ${PUB_UTIL_FILES})
-target_compile_features(graph_traversal_01 PUBLIC cxx_auto_type)
-target_link_libraries(graph_traversal_01)
+add_executable(graph_traversal graph_traversal.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_traversal PUBLIC cxx_auto_type)
+target_link_libraries(graph_traversal)
 
 add_executable(graph_clone graph_clone.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_clone PUBLIC cxx_auto_type)
 target_link_libraries(graph_clone)
+
+add_executable(graph_course_schedule graph_course_schedule.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_course_schedule PUBLIC cxx_auto_type)
+target_link_libraries(graph_course_schedule)
 
 # BINARY SEARCH
 
