@@ -96,6 +96,11 @@ add_executable(graph_course_schedule graph_course_schedule.cpp ${PUB_UTIL_FILES}
 target_compile_features(graph_course_schedule PUBLIC cxx_auto_type)
 target_link_libraries(graph_course_schedule)
 
+add_executable(graph_coloring graph_coloring.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_coloring PUBLIC cxx_auto_type)
+target_link_libraries(graph_coloring)
+
+
 # BINARY SEARCH
 
 add_executable(binary_search_search_insert_pos binary_search_search_insert_pos.cpp ${PUB_UTIL_FILES})

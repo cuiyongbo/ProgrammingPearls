@@ -3,8 +3,7 @@
 #include <numeric>
 #include <vector>
 
-class DisjointSet
-{
+class DisjointSet {
 public:
     DisjointSet(int n);
     int find(int x);

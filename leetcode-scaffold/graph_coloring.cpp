@@ -4,16 +4,14 @@ using namespace std;
 using namespace osrm;
 
 /* leetcode: 785, 886, 1042*/
-class Solution
-{
+class Solution {
 public:
     bool isBipartite(vector<vector<int>>& graph);
     bool possibleBipartition(int N, vector<vector<int>>& dislikes);
     vector<int> gardenNoAdj(int N, vector<vector<int>>& paths);
 };
 
-bool Solution::isBipartite(vector<vector<int>>& graph)
-{
+bool Solution::isBipartite(vector<vector<int>>& graph) {
     /*
         Given an undirected graph, return true if and only if it is bipartite.
         
@@ -25,26 +23,30 @@ bool Solution::isBipartite(vector<vector<int>>& graph)
         for which the edge between nodes i and j exists.  Each node is an integer 
         between 0 and graph.length - 1. There are no self edges or parallel edges: 
         graph[i] does not contain i, and it doesn't contain any element twice.
+
+        as wikipedia puts it: In the mathematical field of graph theory, a bipartite graph (or bigraph) 
+        is a graph whose vertices can be divided into two disjoint and independent sets U and V such that 
+        every edge connects a vertex in U to one in V. Vertex sets U and V are usually called the parts of the graph. 
+        Equivalently, a bipartite graph is a graph that does not contain any odd-length cycles. 
+        The two sets U and V may be thought of as a coloring of the graph with two colors: 
+        if one colors all nodes in U blue, and all nodes in V green, each edge has endpoints of differing colors, 
+        as is required in the graph coloring problem.
     */
 
-    if(graph.empty()) return true;
+    if(graph.empty()) {
+        return true;
+    }
     int n = graph.size();
     vector<int> colors(n, 0);
     colors[0] = 1;
     queue<int> q; q.push(0);
-    while(!q.empty())
-    {
+    while (!q.empty()) {
         auto u = q.front(); q.pop();
-
-        for(auto v: graph[u])
-        {
-            if(colors[v] == 0)
-            {
+        for (auto v: graph[u]) {
+            if (colors[v] == 0) {
                 q.push(v);
                 colors[v] = colors[u] == 1 ? 2 : 1;
-            }
-            else if(colors[u] == colors[v])
-            {
+            } else if (colors[u] == colors[v]) {
                 return false;
             }
         }
@@ -52,8 +54,7 @@ bool Solution::isBipartite(vector<vector<int>>& graph)
     return true;
 }
 
-bool Solution::possibleBipartition(int N, vector<vector<int>>& dislikes)
-{
+bool Solution::possibleBipartition(int N, vector<vector<int>>& dislikes) {
     /*
         Given a set of N people (numbered 1, 2, ..., N), we would like to split everyone into two groups of any size.
         Each person may dislike some other people, and they should not go into the same group. 
@@ -62,26 +63,19 @@ bool Solution::possibleBipartition(int N, vector<vector<int>>& dislikes)
     */
 
     vector<vector<int>> graph(N+1, vector<int>());
-    for(auto& p: dislikes)
-    {
+    for (auto& p: dislikes) {
         graph[p[0]].push_back(p[1]);
         graph[p[1]].push_back(p[0]);
     }
 
-    vector<int> colors(N+1, 0);
-    colors[1] = 1;
+    vector<int> colors(N+1, 0); colors[1] = 1;
     queue<int> q; q.push(1);
-    while(!q.empty())
-    {
+    while (!q.empty()) {
         auto u = q.front(); q.pop();
-        for(auto v: graph[u])
-        {
-            if(colors[u] == colors[v])
-            {
+        for (auto v: graph[u]) {
+            if (colors[u] == colors[v]) {
                 return false;
-            }
-            else if(colors[v] == 0)
-            {
+            } else if (colors[v] == 0) {
                 colors[v] = colors[u] == 1 ? 2 : 1;
                 q.push(v);
             }
@@ -90,11 +84,10 @@ bool Solution::possibleBipartition(int N, vector<vector<int>>& dislikes)
    return true;
 }
 
-vector<int> Solution::gardenNoAdj(int N, vector<vector<int>>& paths)
-{
+vector<int> Solution::gardenNoAdj(int N, vector<vector<int>>& paths) {
     /*
         You have N gardens, labelled 1 to N. In each garden, you want to plant one of 4 types of flowers.
-        paths[i] = [x, y] describes the existence of a bidirectional path from garden x to garden y.
+        paths[i] = [x, y] means there is a bidirectional path from garden x to garden y.
         Also, there is no garden that has more than 3 paths coming into or leaving it.
         Your task is to choose a flower type for each garden such that, 
         for any two gardens connected by a path, they have different types of flowers.
@@ -103,81 +96,63 @@ vector<int> Solution::gardenNoAdj(int N, vector<vector<int>>& paths)
     */
 
     vector<vector<int>> graph(N+1, vector<int>());
-    for(auto& p: paths)
-    {
+    for (auto& p: paths) {
         graph[p[0]].push_back(p[1]);
         graph[p[1]].push_back(p[0]);
     }
 
     vector<int> colors(N+1, 0);
-    for(int i=1; i<=N; ++i)
-    {
-        if(colors[i] != 0) continue;
-
+    for (int i=1; i<=N; ++i) {
         int mask = 0;
-        for(auto j: graph[i]) mask |= (1 << colors[j]);
-        for(int c=1; c<=4; ++c)
-        {
-            if(!(mask & (1<<c)))
-            {
+        for (auto j: graph[i]) {
+            mask |= (1 << colors[j]);
+        } 
+        for (int c=1; c<=4; ++c) {
+            if (!(mask & (1<<c))) {
                 colors[i] = c;
                 break;
             }
         }
     }
-
     return vector<int>(colors.begin()+1, colors.end());
 }
 
-void isBipartite_scaffold(string input, bool expectedResult)
-{
+void isBipartite_scaffold(string input, bool expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     bool actual = ss.isBipartite(graph);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult<" << expectedResult << ">) passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", expectedResult<" << expectedResult << ">) passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", expectedResult<" << expectedResult << ">) failed";
     }
 }
 
-void possibleBipartition_scaffold(int N, string input, bool expectedResult)
-{
+void possibleBipartition_scaffold(int N, string input, bool expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     bool actual = ss.possibleBipartition(N, graph);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << N << ", " << input << ", expectedResult<" << expectedResult << ">) passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << N << ", " << input << ", expectedResult<" << expectedResult << ">) passed";
+    } else {
         util::Log(logERROR) << "Case(" << N << ", " << input << ", expectedResult<" << expectedResult << ">) failed";
     }
 }
 
-void gardenNoAdj_scaffold(int N, string input, string expectedResult)
-{
+void gardenNoAdj_scaffold(int N, string input, string expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     vector<int> actual = ss.gardenNoAdj(N, graph);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << N << ", " << input << ", " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << N << ", " << input << ", " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << N << ", " << input << ", " << expectedResult << ") failed";
-        util::Log(logERROR) << "acutal: " << intVectorToString(actual) << ", expected: " << expectedResult;
+        util::Log(logERROR) << "acutal: " << numberVectorToString(actual) << ", expected: " << expectedResult;
     }
 }
 
-int main()
-{
+int main() {
     util::LogPolicy::GetInstance().Unmute();
 
     util::Log(logESSENTIAL) << "Running isBipartite tests: ";

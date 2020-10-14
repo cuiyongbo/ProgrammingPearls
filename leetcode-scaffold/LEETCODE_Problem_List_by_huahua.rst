@@ -132,6 +132,14 @@ Graph
 * 207 Course Schedule
 * 210 Course Schedule II    
 * 802 Find Eventual Safe States   
+* 399	Evaluate Division
+* 839 Similar String Groups   
+* 952 Largest Component Size by Common Factor   
+* 990 Satisfiability of Equality Equations 
+* 721 Accounts Merge    
+* 785 Is Graph Bipartite   
+* 886 Possible Bipartition 
+* 1042 Flower Planting With No Adjacent     
 
 
 .. rubric:: Footnotes
