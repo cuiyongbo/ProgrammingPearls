@@ -3,10 +3,9 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode exercises: 443, 815, 863, 1129,  1263*/
+/* leetcode exercises: 433, 815, 863, 1129,  1263*/
 
-class Solution
-{
+class Solution {
 public:
     int minMutation(string start, string end, vector<string>& bank);
     int numBusesToDestination(vector<vector<int>>& routes, int S, int T);
@@ -20,8 +19,7 @@ private:
     int numBusesToDestination_napolen(vector<vector<int>>& routes, int S, int T);
 };
 
-int Solution::minMutation(string start, string end, vector<string>& bank)
-{
+int Solution::minMutation(string start, string end, vector<string>& bank) {
     /*
         A gene string can be represented by an 8-character long string, with choices from "A", "C", "G", "T".
 
@@ -43,12 +41,12 @@ int Solution::minMutation(string start, string end, vector<string>& bank)
             You may assume start and end string is not the same.
     */
 
-    auto isValidMutation = [](const string& s, const string& b)
-    {
+    auto isValidMutation = [](const string& s, const string& b) {
         int count = 0;
-        for(int i=0; i<(int)s.length(); ++i)
-        {
-            if(s[i] != b[i]) ++count;
+        for (int i=0; i<(int)s.length(); ++i) {
+            if (s[i] != b[i]) {
+                ++count;
+            }
         }
         return count == 1;
     };
@@ -57,24 +55,19 @@ int Solution::minMutation(string start, string end, vector<string>& bank)
     visited.emplace(start);
 
     int steps = 0;
-    queue<string> q;
-    q.push(start);
-
-    while(!q.empty())
-    {
+    queue<string> q; q.push(start);
+    while (!q.empty()) {
         int size = (int)q.size();
-        for(int i=0; i<size; ++i)
-        {
-            auto s = std::move(q.front()); q.pop();
-            if(s == end) return steps;
-
-
-            for(const auto& b: bank)
-            {
-                if(visited.count(b) != 0) continue;
-                if(!isValidMutation(s, b)) continue;
-                visited.emplace(b);
-                q.push(b);
+        for (int i=0; i<size; ++i) {
+            auto s = q.front(); q.pop();
+            if (s == end) {
+                return steps;
+            }
+            for(const auto& b: bank) {
+                if (visited.count(b) == 0 && isValidMutation(s, b)) {
+                    visited.emplace(b);
+                    q.push(b);
+                } 
             }
         }
         ++steps;
@@ -82,8 +75,7 @@ int Solution::minMutation(string start, string end, vector<string>& bank)
     return -1;
 }
 
-int Solution::numBusesToDestination(vector<vector<int>>& routes, int S, int T)
-{
+int Solution::numBusesToDestination(vector<vector<int>>& routes, int S, int T) {
     /*
         We have a list of bus routes. Each routes[i] is a bus route that the i-th bus repeats forever. 
         For example if routes[0] = [1, 5, 7], this means that the first bus (0-th indexed) travels 
@@ -94,9 +86,9 @@ int Solution::numBusesToDestination(vector<vector<int>>& routes, int S, int T)
         our destination? Return -1 if it is not possible.
     */
 
-    //return numBusesToDestination_bfs(routes, S, T);
+    return numBusesToDestination_bfs(routes, S, T);
     //return numBusesToDestination_dsu(routes, S, T);
-    return numBusesToDestination_napolen(routes, S, T);
+    //return numBusesToDestination_napolen(routes, S, T);
 }
 
 int Solution::numBusesToDestination_napolen(vector<vector<int>>& routes, int S, int T)
@@ -215,47 +207,38 @@ int Solution::numBusesToDestination_dsu(vector<vector<int>>& routes, int S, int 
     return -1;
 }
 
-int Solution::numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int T)
-{
+int Solution::numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int T) {
     map<int, vector<int>> stationToBusMap;
-    for(int i=0; i<(int)routes.size(); ++i)
-    {
-        for(const auto& n: routes[i])
+    for (int i=0; i<(int)routes.size(); ++i) {
+        for (const auto& n: routes[i]) {
             stationToBusMap[n].push_back(i);
+        }
     }
-
-    vector<bool> visited(routes.size(), false);
-
     int steps = 0;
-    queue<int> q;
-    q.push(S);
-    while(!q.empty())
-    {
+    queue<int> q; q.push(S);
+    vector<bool> visited(routes.size(), false);
+    while (!q.empty()) {
         int size = (int)q.size();
-        for(int i=0; i<size; ++i)
-        {
+        for (int i=0; i<size; ++i) {
             auto u = q.front(); q.pop();
-            if(u == T)  return steps;
-
-            for(const auto& r: stationToBusMap[u])
-            {
-                if(visited[r]) continue;
-                visited[r] = true;
-
-                for(const auto& v: routes[r])
-                {
-                    q.push(v);
+            if(u == T) {
+                return steps;
+            } 
+            for (const auto& r: stationToBusMap[u]) {
+                if (!visited[r]) {
+                    visited[r] = true;
+                    for (const auto& v: routes[r]) {
+                        q.push(v);
+                    }
                 }
             }
         }
         ++steps;
     }
-
     return -1;
 }
 
-vector<int> Solution::distanceK(TreeNode* root, int target, int K)
-{
+vector<int> Solution::distanceK(TreeNode* root, int target, int K) {
     /*
         We are given a binary tree (with root node root), a target node, and an integer value K.
         Return a list of the values of all nodes that have a distance K from the target node. 
@@ -265,66 +248,46 @@ vector<int> Solution::distanceK(TreeNode* root, int target, int K)
         return the nodes at the Kth traversal.
     */
 
-    vector<pair<int, int>> edges;
-    auto treeToGraphEdges = [&](TreeNode* root)
-    {
-        queue<TreeNode*> q;
-        q.push(root);
-        while(!q.empty())
-        {
-            size_t size = q.size();
-            for(size_t i=0; i != size; ++i)
-            {
-                auto t = q.front(); q.pop();
-
-                if(t->left != NULL)
-                {
-                    edges.emplace_back(t->val, t->left->val);
-                    q.push(t->left);
-                }
-
-                if(t->right != NULL)
-                {
-                    edges.emplace_back(t->val, t->right->val);
-                    q.push(t->right);
-                }
+    map<int, vector<int>> graph;
+    function<void(TreeNode*)> build_graph = [&] (TreeNode* node) {
+        if (node != nullptr) {
+            if (node->left != nullptr) {
+                graph[node->val].push_back(node->left->val);
+                graph[node->left->val].push_back(node->val);
+                build_graph(node->left);
+            }
+            if (node->right != nullptr) {
+                graph[node->val].push_back(node->right->val);
+                graph[node->right->val].push_back(node->val);
+                build_graph(node->right);
             }
         }
     };
 
-    treeToGraphEdges(root);
-
-    map<int, vector<int>> graph;
-    for(const auto& e: edges)
-    {
-        graph[e.first].push_back(e.second);
-        graph[e.second].push_back(e.first);
-    }
-
-    queue<int> q;
-    q.push(target);
+    build_graph(root);
 
     set<int> visited;
     visited.insert(target);
 
-    vector<int> ans;
     int steps = 0;
-    while(!q.empty())
-    {
+    vector<int> ans;
+    queue<int> q; q.push(target);
+    while (!q.empty()) {
         ans.clear();
         size_t size = q.size();
-        for(size_t i=0; i != size; ++i)
-        {
+        for (size_t i=0; i != size; ++i) {
             auto u = q.front(); q.pop();
-            for(const auto& v: graph[u])
-            {
-                if(visited.count(v) != 0) continue;
-                ans.push_back(v);
-                q.push(v);
+            for (const auto& v: graph[u]) {
+                if (visited.count(v) == 0) {
+                    visited.insert(v);
+                    ans.push_back(v);
+                    q.push(v);
+                }
             }
         }
-        ++steps;
-        if(steps == K) break;
+        if(++steps == K) {
+            break;
+        }
     }
 
     // sort is not necessary, but performing a sort make it much easier for test
@@ -332,8 +295,7 @@ vector<int> Solution::distanceK(TreeNode* root, int target, int K)
     return ans;
 }
 
-vector<int> Solution::shortestAlternatingPaths(int n, vector<vector<int>>& red_edges, vector<vector<int>>& blue_edges)
-{
+vector<int> Solution::shortestAlternatingPaths(int n, vector<vector<int>>& red_edges, vector<vector<int>>& blue_edges) {
     /*
         Consider a directed graph, with nodes labelled 0, 1, ..., n-1.
         In this graph, each edge is either red or blue, and there could be self-edges or parallel edges.
@@ -347,38 +309,38 @@ vector<int> Solution::shortestAlternatingPaths(int n, vector<vector<int>>& red_e
 
     // red graph
     graphs[0].resize(n);
-    for(const auto& e: red_edges) graphs[0][e[0]].push_back(e[1]);
+    for (const auto& e: red_edges) {
+        graphs[0][e[0]].push_back(e[1]);
+    }
 
     // blue graph
     graphs[1].resize(n); 
-    for(const auto& e: blue_edges) graphs[1][e[0]].push_back(e[1]);
+    for (const auto& e: blue_edges) {
+        graphs[1][e[0]].push_back(e[1]);
+    }
 
     vector<int> ans(n, INT32_MAX);
     ans[0] = 0;
 
-    auto search = [&](int color)
-    {
-        if(graphs[color][0].empty())
+    auto search = [&](int color) {
+        if (graphs[color][0].empty()) {
             return;
+        }
         
+        int steps = 0;
         set<int> visited_set[2];
         visited_set[color].insert(0);
-
-        int steps = 0;
-        queue<int> q;
-        q.push(0);
-        while(!q.empty())
-        {
+        queue<int> q; q.push(0);
+        while (!q.empty()) {
             size_t size = q.size();
-            while(size-- > 0)
-            {
+            while (size-- > 0) {
                 auto u = q.front(); q.pop();
                 ans[u] = std::min(ans[u], steps);
-                for(const auto& v: graphs[color][u])
-                {
-                    if(visited_set[color].count(v) != 0) continue;
-                    visited_set[color].insert(v);
-                    q.push(v);
+                for (const auto& v: graphs[color][u]) {
+                    if (visited_set[color].count(v) == 0) {
+                        visited_set[color].insert(v);
+                        q.push(v);
+                    }
                 }
             }
             color = !color; // reverse color
@@ -386,16 +348,15 @@ vector<int> Solution::shortestAlternatingPaths(int n, vector<vector<int>>& red_e
         }
     };
 
+    // search from red color
     search(0);
+    // search from blue color
     search(1);
-
     std::transform(ans.begin(), ans.end(), ans.begin(), [](int n) {return n==INT32_MAX ? -1 : n;});
-
     return ans;
 }
 
-int Solution::minPushBox(vector<vector<char>>& grid)
-{
+int Solution::minPushBox(vector<vector<char>>& grid) {
     /*
         Storekeeper is a game in which the player pushes boxes around in a warehouse trying to get them to target locations.
 
@@ -404,8 +365,8 @@ int Solution::minPushBox(vector<vector<char>>& grid)
         Your task is move the box 'B' to the target position 'T' under the following rules:
 
             Player is represented by character 'S' and can move up, down, left, right in the grid if it is a floor (empy cell).
-            Floor is represented by character '.' that means free cell to walk.
-            Wall is represented by character '#' that means obstacle  (impossible to walk there). 
+            Floor is represented by character '.' that means a free cell to walk.
+            Wall is represented by character '#' that means an obstacle  (impossible to walk there). 
             There is only one box 'B' and one target cell 'T' in the grid.
             The box can be moved to an adjacent free cell by standing next to the box and then moving in the direction of the box. This is a push.
             The player cannot walk through the box.
@@ -418,59 +379,43 @@ int Solution::minPushBox(vector<vector<char>>& grid)
 
     int id = 0;
     int box=0, player=0, dest=0;
-    for(int r=0; r<rows; ++r)
-    {
-        for(int c=0; c<columns; ++c)
-        {
-            if(grid[r][c] == 'S')
+    for (int r=0; r<rows; ++r) {
+        for (int c=0; c<columns; ++c) {
+            if (grid[r][c] == 'S') {
                 player = id;
-
-            if(grid[r][c] == 'T')
+            }
+            if (grid[r][c] == 'T') {
                 dest = id;
-
-            if(grid[r][c] == 'B')
+            }
+            if (grid[r][c] == 'B') {
                 box = id;
-
+            }
             ++id;
         }
     }
 
-    queue<int> q;
-    q.push(box);
-
-    unordered_set<int> visited;
-    visited.emplace(box);
-    
     const vector<vector<int>> MOVES {{-columns, columns}, {columns, -columns}, {-1, 1}, {1, -1}};
-    auto hasPath = [&](int box, int player, const vector<int>& move)
-    {
-        unordered_set<int> visited;
-        visited.emplace(player);
-
-        queue<int> q;
-        q.push(player);
-
-        while(!q.empty())
-        {   
+    auto hasPath = [&](int box, int player, const vector<int>& move) {
+        queue<int> q; q.push(player);
+        unordered_set<int> visited; visited.emplace(player);
+        while (!q.empty()) {   
             int size = (int)q.size();
-            for(int i=0; i<size; ++i)
-            {
+            for (int i=0; i<size; ++i) {
                 auto t = q.front(); q.pop();
-                if(t == box + move[1]) return true;
-                for (const auto& m: MOVES)
-                {
+                if(t == box + move[1]) {
+                    // ok, play got to a position to push box
+                    return true;
+                }
+                for (const auto& m: MOVES) {
                     int s = t + m[0];
-                    if(s<0 || s>=rows*columns)
+                    if (s<0 || s>=rows*columns) {
                         continue;
-
+                    }
                     int r = s / columns;
                     int c = s % columns;
-                    if(grid[r][c] == '#' || s == box)
+                    if (grid[r][c] == '#' || s == box || visited.count(s) != 0) {
                         continue;
-
-                    if(visited.count(s) != 0)
-                        continue;
-                    
+                    }
                     visited.emplace(s);
                     q.push(s);
                 }
@@ -480,30 +425,27 @@ int Solution::minPushBox(vector<vector<char>>& grid)
     };
 
     int steps = 0;
-    while(!q.empty())
-    {
+    queue<int> q; q.push(box);
+    unordered_set<int> visited; visited.emplace(box);
+    while (!q.empty()) {
         int size = (int)q.size();
-        for(int i=0; i<size; ++i)
-        {
+        for (int i=0; i<size; ++i) {
             auto t = q.front(); q.pop();
-            if(t == dest) return steps;
-
-            for(const auto& m: MOVES)
-            {
+            if (t == dest) {
+                return steps;
+            }
+            for (const auto& m: MOVES) {
                 int s = t + m[0];
-                if(s<0 || s>=rows*columns)
+                if (s<0 || s>=rows*columns) {
                     continue;
-
+                }
                 int r = s / columns;
                 int c = s % columns;
-                if(grid[r][c] == '#')
+                if (grid[r][c] == '#' || visited.count(s) != 0) {
                     continue;
-                
-                if(visited.count(s) != 0)
-                    continue;
-
-                if(hasPath(t, player, m))
-                {
+                }
+                // can player push t?
+                if (hasPath(t, player, m)) {
                     visited.emplace(s);
                     q.push(s);
                 }
@@ -511,96 +453,73 @@ int Solution::minPushBox(vector<vector<char>>& grid)
         }
         ++steps;
     }
-
     return -1;
 }
 
-void minMutation_scaffold(string input1, string input2, string input3, int expectedResult)
-{
+void minMutation_scaffold(string input1, string input2, string input3, int expectedResult) {
     Solution ss;
-    //vector<string> bank = stringTo1DArray<string>(input3);
     vector<string> bank = stringTo1DArray<string>(input3);
     int actual = ss.minMutation(input1, input2, bank);
-    if (actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actutal: " << actual;
     }
 }
 
-void numBusesToDestination_scaffold(string input1, int input2, int input3, int expectedResult)
-{
+void numBusesToDestination_scaffold(string input1, int input2, int input3, int expectedResult) {
     Solution ss;
     vector<vector<int>> routes = stringTo2DArray<int>(input1);
     int actual = ss.numBusesToDestination(routes, input2, input3);
-    if (actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actutal: " << actual;
     }
 }
 
-void distanceK_scaffold(string input1, int input2, int input3, string expectedResult)
-{
+void distanceK_scaffold(string input1, int input2, int input3, string expectedResult) {
     Solution ss;
     TreeNode* root = stringToTreeNode(input1);
     vector<int> actual = ss.distanceK(root, input2, input3);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
-    if (actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actutal: " << numberVectorToString(actual);
     }
 }
 
-void shortestAlternatingPaths_scaffold(int input1, string input2, string input3, string expectedResult)
-{
+void shortestAlternatingPaths_scaffold(int input1, string input2, string input3, string expectedResult) {
     Solution ss;
     vector<vector<int>> red_edges = stringTo2DArray<int>(input2);
     vector<vector<int>> blue_edges = stringTo2DArray<int>(input3);
     vector<int> actual = ss.shortestAlternatingPaths(input1, red_edges, blue_edges);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
-    if (actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actutal: " << numberVectorToString(actual);
     }
 }
 
-void minPushBox_scaffold(string input, int expectedResult)
-{
+void minPushBox_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<char>> grid = stringTo2DArray<char>(input);
     int actual = ss.minPushBox(grid);
-    if (actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actutal: " << actual;
     }
 }
 
-int main()
-{
+int main() {
     util::LogPolicy::GetInstance().Unmute();
 
     util::Log(logESSENTIAL) << "Running minMutation tests:";

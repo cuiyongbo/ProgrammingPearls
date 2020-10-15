@@ -5,14 +5,12 @@ using namespace osrm;
 
 /* leetcode exercise: 997 */
 
-class Solution
-{
+class Solution {
 public:
     int findJudge(int N, vector<vector<int>> &trusts);
 };
 
-int Solution::findJudge(int N, vector<vector<int>> &trusts)
-{
+int Solution::findJudge(int N, vector<vector<int>> &trusts) {
     /*
         In a town, there are N people labelled from 1 to N.
         There is a rumor that one of these people is secretly the town judge.
@@ -24,20 +22,32 @@ int Solution::findJudge(int N, vector<vector<int>> &trusts)
         that the person labelled a trusts the person labelled b.
         If the town judge exists and can be identified, return the label of the town judge.
         Otherwise, return -1.
+        Hint: node with degree (in_degree - out_degree == N-1) is the judge
     */
 
+    function<int(int)> op_solver = [&] (int n) {
+        vector<int> degree(n+1, 0);
+        for (const auto& t: trusts) {
+            --degree[t[0]];
+            ++degree[t[1]];
+        }
+        for (int i=0; i<=n; i++) {
+            if (degree[i] == n-1) {
+                return i;
+            }
+        }
+        return -1;
+    };
+    return op_solver(N);
+
     vector<pair<int, int>> graph(N+1); // in, out
-    for(const auto& t: trusts)
-    {
+    for (const auto& t: trusts) {
         graph[t[0]].second++;
         graph[t[1]].first++;
     }
-
     int judge = -1;
-    for(int i=1; i<=N; ++i)
-    {
-        if(graph[i].first == N-1 && graph[i].second == 0)
-        {
+    for (int i=1; i<=N; ++i) {
+        if (graph[i].first == N-1 && graph[i].second == 0) {
             judge = i;
             break;
         }
@@ -45,26 +55,20 @@ int Solution::findJudge(int N, vector<vector<int>> &trusts)
     return judge;
 }
 
-void findJudge_scaffold(int N, string input, int expectedResult)
-{
+void findJudge_scaffold(int N, string input, int expectedResult) {
     Solution ss;
     auto trusts = stringTo2DArray<int>(input);
     int actual = ss.findJudge(N, trusts);
-    if (actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << N << ", " << input << ", expected: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << N << ", " << input << ", expected: " << expectedResult << ") passed";
+    } else {
         util::Log(logESSENTIAL) << "Case(" << N << ", " << input << ", expected: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual: " << actual;
     }
 }
 
-int main()
-{
+int main() {
     util::LogPolicy::GetInstance().Unmute();
-
     util::Log(logESSENTIAL) << "Running findJudge tests:";
     TIMER_START(findJudge);
     findJudge_scaffold(2, "[[1,2]]", 2);

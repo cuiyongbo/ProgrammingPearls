@@ -140,6 +140,12 @@ Graph
 * 785 Is Graph Bipartite   
 * 886 Possible Bipartition 
 * 1042 Flower Planting With No Adjacent     
+* 997 Find the Town Judge
+* 433 Minimum Genetic Mutation
+* 815 Bus Routes
+* 863 All Nodes Distance K in Binary Tree  
+* 1129 Shortest Path with Alternating Colors
+* 1263 Minimum Moves to Move a Box to Their Target Location          
 
 
 Advanced topics
