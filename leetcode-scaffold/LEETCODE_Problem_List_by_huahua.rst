@@ -142,6 +142,12 @@ Graph
 * 1042 Flower Planting With No Adjacent     
 
 
+Advanced topics
+===============
+
+146 LRU Cache
+
+
 .. rubric:: Footnotes
 
 .. [#] `https://zxi.mytechroad.com/blog/leetcode-problem-categories/`_

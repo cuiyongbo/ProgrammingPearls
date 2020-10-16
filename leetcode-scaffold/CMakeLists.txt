@@ -199,6 +199,10 @@ add_executable(advanced_topics_range_sum_query advanced_topics_range_sum_query.c
 target_compile_features(advanced_topics_range_sum_query PUBLIC cxx_auto_type)
 target_link_libraries(advanced_topics_range_sum_query)
 
+add_executable(lru_cache lru_cache.cpp ${PUB_UTIL_FILES})
+target_compile_features(lru_cache PUBLIC cxx_auto_type)
+target_link_libraries(lru_cache)
+
 # TWO POINTERS
 
 add_executable(two_pointers_assign_cookies two_pointers_assign_cookies.cpp ${PUB_UTIL_FILES})
