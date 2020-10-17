@@ -145,7 +145,15 @@ Graph
 * 815 Bus Routes
 * 863 All Nodes Distance K in Binary Tree  
 * 1129 Shortest Path with Alternating Colors
-* 1263 Minimum Moves to Move a Box to Their Target Location          
+* 1263 Minimum Moves to Move a Box to Their Target Location  
+* 684 Redundant Connection    
+* 685 Redundant Connection II  
+* 1319 Number of Operations to Make Network Connected  
+* 743 Network Delay Time  
+* 787 Cheapest Flights Within K Stops
+* 882 Reachable Nodes In Subdivided Graph (Don't get the intention of it)
+* 924 Minimize Malware Spread    
+* 1334 Find the City With the Smallest Number of Neighbors at a Threshold Distance
 
 
 Advanced topics

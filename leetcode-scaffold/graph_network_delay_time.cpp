@@ -5,8 +5,7 @@ using namespace osrm;
 
 /* leetcode exercises: 743, 787, 882, 1334 */
 
-class Solution
-{
+class Solution {
 public:
     int networkDelayTime(vector<vector<int>>& times, int N, int K);
     int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int K);
@@ -15,52 +14,57 @@ public:
     int findTheCity(int n, vector<vector<int>>& edges, int t);
 };
 
-int Solution::networkDelayTime(vector<vector<int>>& times, int N, int K)
-{
+int Solution::networkDelayTime(vector<vector<int>>& times, int N, int K) {
     /*
         There are N network nodes, labelled 1 to N.
         Given times, a list of travel times as directed edges times[i] = (u, v, w),
         where u is the source node, v is the target node, and w is the time it takes 
         for a signal to travel from source to target.
 
-        Now, we send a signal from a certain node K. How long will it take for all nodes to receive the signal?
-        If it is impossible, return -1.
+        Now, we send a signal from a certain node K. How long will it take for all nodes
+        to receive the signal? If it is impossible, return -1.
     */
 
     vector<vector<pair<int, int>>> graph(N+1); // dest, time
-    for(const auto& t: times)
-    {
+    for (const auto& t: times) {
         graph[t[0]].push_back({t[1], t[2]});
     }
-
-    int ans = -1;
-    set<int> visited;
-    queue<pair<int, int>> q;
-    q.push({K, 0});
-    while(!q.empty())
-    {
-        int size = (int)q.size();
-        for(int i=0; i<size; ++i)
-        {
-            const auto& u = q.front(); q.pop();
-            visited.emplace(u.first);
-            ans = std::max(ans, u.second);
-
-            for(const auto& v: graph[u.first])
-            {
-                if(visited.count(v.first) != 0)
-                    continue;
-                
-                q.push({v.first, u.second + v.second});
+    auto compareByCost = [] (const pair<int,int>& l, const pair<int,int>& r) {
+        return l.second > r.second;
+    };
+    // min heap keyed on edge weight
+    typedef pair<int,int> val_type;
+    priority_queue<val_type, vector<val_type>, decltype(compareByCost)> pq(compareByCost);
+    for (int i=1; i<=N; i++) {
+        pq.push({i, i==K ? 0 : INT32_MAX});
+    }
+    set<int> visited; 
+    vector<int> cost(N+1, INT32_MAX); cost[K] = 0; 
+    while (!pq.empty()) {
+        while (!pq.empty() && visited.count(pq.top().first) != 0) {
+            pq.pop();
+        }
+        if (pq.empty()) {
+            break;
+        }
+        auto u = pq.top(); pq.pop();
+        if (u.second == INT32_MAX) {
+            // unreachable node
+            break;
+        }
+        visited.emplace(u.first);
+        for (auto v: graph[u.first]) {
+            if (cost[v.first] > cost[u.first] + v.second) {
+                cost[v.first] = cost[u.first] + v.second;
+                pq.emplace(v.first, cost[v.first]);
             }
         }
     }
-
-    return N == (int)visited.size() ? ans : -1;
+    int ans = *std::max_element(std::next(cost.begin()), cost.end());
+    return ans == INT32_MAX ? -1 : ans;       
 }
 
-int Solution::findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int K)
-{
+int Solution::findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int K) {
     /*
         There are n cities connected by m flights. 
         Each flight [u, v, w] starts from city u and arrives at v with a price w.
@@ -71,27 +75,21 @@ int Solution::findCheapestPrice(int n, vector<vector<int>>& flights, int src, in
     */
 
     vector<vector<pair<int, int>>> graph(n); // dest, time
-    for(const auto& t: flights)
-    {
+    for (const auto& t: flights) {
         graph[t[0]].push_back({t[1], t[2]});
     }
 
-    vector<int> distanceTable(n, INT32_MAX);
-    distanceTable[src] = 0;
+    vector<int> distanceTable(n, INT32_MAX); distanceTable[src] = 0;
 
     int steps = 0;
-    queue<pair<int, int>> q;
-    q.push({src, 0});
-    while(steps <= K && !q.empty())
-    {
+    queue<pair<int, int>> q; q.push({src, 0});
+    while (steps <= K && !q.empty()) {
         int size = (int)q.size();
-        for(int i=0; i<size; ++i)
-        {
+        for (int i=0; i<size; ++i) {
             auto u = q.front(); q.pop();
-            for(const auto& v: graph[u.first])
-            {
-                if(distanceTable[v.first] > u.second + v.second)
-                {
+            for (const auto& v: graph[u.first]) {
+                // why don't we record nodes that were already visited?
+                if (distanceTable[v.first] > u.second + v.second) {
                     distanceTable[v.first] = u.second + v.second;
                     q.push({v.first, distanceTable[v.first]});
                 }
@@ -99,7 +97,6 @@ int Solution::findCheapestPrice(int n, vector<vector<int>>& flights, int src, in
         }
         ++steps;
     }
-
     return distanceTable[dst] == INT32_MAX ? -1 : distanceTable[dst];
 }
 
@@ -120,8 +117,7 @@ int Solution::reachableNodes(vector<vector<int>>& edges, int M, int N)
     return -1;
 }
 
-int Solution::minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial)
-{
+int Solution::minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial) {
     /*
         In a network of nodes, each node i is directly connected to another node j if and only if graph[i][j] = 1.
 
@@ -129,71 +125,66 @@ int Solution::minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial)
         and at least one of those two nodes is infected by malware, both nodes will be infected by malware.  
         This spread of malware will continue until no more nodes can be infected in this manner.
 
-        Suppose M(initial) is the final number of nodes infected with malware in the entire network, 
-        after the spread of malware stops.
+        Suppose M(initial) is the final number of infected nodes after the spread of malware stops.
 
         We will remove one node from the initial list.  Return the node that if removed, would minimize M(initial).
         If multiple nodes could be removed to minimize M(initial), return such a node with the smallest index. 
 
         Note that if a node was removed from the initial list of infected nodes, 
         it may still be infected later as a result of the malware spread.
+    Note:
+        1 < graph.length = graph[0].length <= 300
+        0 <= graph[i][j] == graph[j][i] <= 1
+        graph[i][i] == 1
+        1 <= initial.length <= graph.length
+        0 <= initial[i] < graph.length        
     */
 
+    // 1. work out all connected components
     int nodeCount = graph.size();
     DisjointSet dsu(nodeCount);
-    for(int i=0; i<nodeCount; ++i)
-    {
-        for(int j=0; j<i; ++j)
-        {
-            if(graph[i][j]) 
+    for (int i=0; i<nodeCount; ++i) {
+        for (int j=0; j<i; ++j) {
+            if (graph[i][j]) {
                 dsu.unionFunc(i, j);
+            }
         }
     }
-
     map<int, int> groupCountMap;
-    for(int i=0; i<nodeCount; ++i)
-    {
+    for (int i=0; i<nodeCount; ++i) {
         groupCountMap[dsu.find(i)]++;
     }
 
-    map<int, pair<int, int>> initGrp; // groupId, nodeCount, minGroupId
-    for(const auto& u: initial)
-    {
+    // work out the distribution of nodes in initial
+    map<int, pair<int, int>> initGrp; // groupId, nodeCount, minNodeId
+    for (const auto& u: initial) {
         int g = dsu.find(u);
-        if(initGrp.count(g) == 0)
-        {
+        if (initGrp.count(g) == 0) {
             initGrp[g] = {1, u};
-        }
-        else
-        {
+        } else {
             initGrp[g].first++;
             initGrp[g].second = std::min(u, initGrp[g].second);
         }
     }
-
+    // nodeCount == 1, remove all nodes in the corresponding cc
     int lastMinus = 0;
     int ans = nodeCount;
-    for(const auto& it: initGrp)
-    {
+    for (const auto& it: initGrp) {
         int minus = it.second.first == 1 ? groupCountMap[it.first] : 0;
-        if(minus > lastMinus)
-        {
+        if (minus > lastMinus) {
             lastMinus = minus;
             ans = it.second.second;
-        }
-        else if(minus == lastMinus)
-        {
+        } else if (minus == lastMinus) {
             ans = std::min(ans, it.second.second);
         }
     }
     return ans;
 }
 
-int Solution::findTheCity(int N, vector<vector<int>>& edges, int distanceThreshold)
-{
+int Solution::findTheCity(int N, vector<vector<int>>& edges, int distanceThreshold) {
     /*
-        There are n cities numbered from 0 to N-1. Given the array edges where edges[i] = [fromi, toi, weighti]
-        represents a *bidirectional* and weighted edge between cities fromi and toi, and given the integer distanceThreshold.
+        There are n cities numbered from 0 to N-1. Given the array edges where edges[i] = [u, v, weighti]
+        represents a *bidirectional* and weighted edge between cities u and v, and distanceThreshold.
 
         Return the city with the smallest number of cities that are reachable through some path and whose distance is 
         at most distanceThreshold, If there are multiple such cities, return the city with the greatest number.
@@ -204,22 +195,18 @@ int Solution::findTheCity(int N, vector<vector<int>>& edges, int distanceThresho
     */
 
     vector<vector<int>> distanceTable(N, vector<int>(N, INT32_MAX));
-    for(int i=0; i<N; ++i) distanceTable[i][i] = 0;
-
-    for(const auto& e: edges)
-    {
+    for (int i=0; i<N; ++i) {
+        distanceTable[i][i] = 0;
+    }
+    for (const auto& e: edges) {
         distanceTable[e[0]][e[1]] = e[2];
         distanceTable[e[1]][e[0]] = e[2];
     }
 
-    for(int k=0; k<N; ++k)
-    {
-        for(int i=0; i<N; ++i)
-        {
-            for(int j=0; j<N; ++j)
-            {
-                if(distanceTable[i][k] != INT32_MAX && distanceTable[k][j] != INT32_MAX)
-                {
+    for (int k=0; k<N; ++k) {
+        for (int i=0; i<N; ++i) {
+            for (int j=0; j<N; ++j) {
+                if (distanceTable[i][k] != INT32_MAX && distanceTable[k][j] != INT32_MAX) {
                     distanceTable[i][j] = std::min(distanceTable[i][j], distanceTable[i][k]+distanceTable[k][j]);
                 }
             }
@@ -227,20 +214,17 @@ int Solution::findTheCity(int N, vector<vector<int>>& edges, int distanceThresho
     }
 
     // for debug
-    // for(const auto& r: distanceTable)
-    // {
+    // for (const auto& r: distanceTable) {
     //     cout << numberVectorToString(r) << endl;
     // }
 
     int ans = N;
     int reachableCities = N;
-    for(int r=0; r<N; ++r)
-    {
+    for (int r=0; r<N; ++r) {
         int cur = std::accumulate(distanceTable[r].begin(), distanceTable[r].end(), 0, 
                                     [&](int s, int d) { return d<=distanceThreshold ? s+1 : s;});
         
-        if(cur <= reachableCities)
-        {
+        if (cur <= reachableCities) {
             ans = r;
             reachableCities = cur;
         }
@@ -248,33 +232,25 @@ int Solution::findTheCity(int N, vector<vector<int>>& edges, int distanceThresho
     return ans;
 }
 
-void networkDelayTime_scaffold(string input, int N, int K, int expectedResult)
-{
+void networkDelayTime_scaffold(string input, int N, int K, int expectedResult) {
     Solution ss;
     vector<vector<int>> times = stringTo2DArray<int>(input);
     int actual = ss.networkDelayTime(times, N, K);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << N << ", " << K << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", " << N << ", " << K << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << N << ", " << K << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual: " << actual;
     }
 }
 
-void findCheapestPrice_scaffold(int N, string input, int src, int dst, int K,  int expectedResult)
-{
+void findCheapestPrice_scaffold(int N, string input, int src, int dst, int K,  int expectedResult) {
     Solution ss;
     vector<vector<int>> flights = stringTo2DArray<int>(input);
     int actual = ss.findCheapestPrice(N, flights, src, dst, K);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << N << ", " << K << ", " << src << ", " << dst << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", " << N << ", " << K << ", " << src << ", " << dst << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << N << ", " << K << ", " << src << ", " << dst << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual: " << actual;
     }
@@ -296,46 +272,39 @@ void reachableNodes_scaffold(string input, int M, int N, int expectedResult)
     }
 }
 
-void minMalwareSpread_scaffold(string input1, string input2, int expectedResult)
-{
+void minMalwareSpread_scaffold(string input1, string input2, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input1);
     vector<int> initial = stringTo1DArray<int>(input2);
     int actual = ss.minMalwareSpread(graph, initial);
-    if (actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual: " << actual;
     }
 }
 
-void findTheCity_scaffold(string input, int N, int distanceThreshold, int expectedResult)
-{
+void findTheCity_scaffold(string input, int N, int distanceThreshold, int expectedResult) {
     Solution ss;
     vector<vector<int>> edges = stringTo2DArray<int>(input);
     int actual = ss.findTheCity(N, edges, distanceThreshold);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << ", " << N << ", " << distanceThreshold << ", expectedResult: " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", " << N << ", " << distanceThreshold << ", expectedResult: " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << ", " << N << ", " << distanceThreshold << ", expectedResult: " << expectedResult << ") failed";
         util::Log(logERROR) << "Actual: " << actual;
     }
 }
 
-int main()
-{
+int main() {
     util::LogPolicy::GetInstance().Unmute();
 
     util::Log(logESSENTIAL) << "Running networkDelayTime tests:";
     TIMER_START(networkDelayTime);
     networkDelayTime_scaffold("[[2,1,1],[2,3,1],[3,4,1]]", 4, 2, 2);
+    networkDelayTime_scaffold("[[1,2,1],[2,3,2],[1,3,4]]", 3, 1, 3);
+    networkDelayTime_scaffold("[[1,2,1]]", 2, 2, 1);
     TIMER_STOP(networkDelayTime);
     util::Log(logESSENTIAL) << "networkDelayTime using " << TIMER_MSEC(networkDelayTime) << " milliseconds";
 

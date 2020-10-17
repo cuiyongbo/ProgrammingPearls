@@ -5,18 +5,16 @@ using namespace osrm;
 
 /* leetcode exercises: 684, 685, 1319 */
 
-class Solution
-{
+class Solution {
 public:
     vector<int> findRedundantConnection(vector<vector<int>>& edges);
     vector<int> findRedundantDirectedConnection(vector<vector<int>>& edges);
     int makeConnected(int n, vector<vector<int>>& connections);
 };
 
-vector<int> Solution::findRedundantConnection(vector<vector<int>>& edges)
-{
+vector<int> Solution::findRedundantConnection(vector<vector<int>>& edges) {
     /*
-        In this problem, a tree is an undirected graph that is connected and has no cycles.
+        In this problem, ``a tree is an undirected graph that is connected and has no cycles.``
         The given input is a graph that started as a tree with N nodes (with distinct values 1, 2, ..., N),
         with one additional edge added. The added edge has two different vertices chosen from 1 to N,
         and was not an edge that already existed.
@@ -30,16 +28,15 @@ vector<int> Solution::findRedundantConnection(vector<vector<int>>& edges)
     */
 
     DisjointSet s(edges.size());
-    for(const auto& e: edges)
-    {
-        if(!s.unionFunc(e[0], e[1]))
+    for (const auto& e: edges) {
+        if(!s.unionFunc(e[0], e[1])) {
             return e;
+        }
     }
     return {};
 }
 
-vector<int> Solution::findRedundantDirectedConnection(vector<vector<int>>& edges)
-{
+vector<int> Solution::findRedundantDirectedConnection(vector<vector<int>>& edges) {
     /*
         In this problem, a rooted tree is a directed graph such that,
         there is exactly one node (the root) for which all other nodes are descendants of this node,
@@ -56,22 +53,20 @@ vector<int> Solution::findRedundantDirectedConnection(vector<vector<int>>& edges
         If there are multiple answers, return the answer that occurs last in the given 2D-array.
     */
 
-    // case 1: no duplicate parents, revert to findRedundantConnection
-    // case 2: no cycle, a node has duplicate parents [u1, u2], return the latter
+    // case 1: no multi-parents, revert to findRedundantConnection
+    // case 2: no cycle, a node has multi-parents [u1, u2], return the latter
     // case 3: both, return [u1, v] or [u2, v] that creates the loop
 
     int nodeCount = edges.size();
-    vector<vector<int>> graph(nodeCount+1, vector<int>());
+    vector<vector<int>> graph(nodeCount+1);
 
     int v = 0;
-    bool duplicateParentFound = false;
-    for(const auto& e: edges)
-    {
+    bool multiParentsFound = false;
+    for (const auto& e: edges) {
         graph[e[1]].push_back(e[0]);
-        if(graph[e[1]].size() > 1)
-        {
+        if (graph[e[1]].size() > 1) {
             v = e[1];
-            duplicateParentFound = true;
+            multiParentsFound = true;
             break;
         }
     }
@@ -79,43 +74,33 @@ vector<int> Solution::findRedundantDirectedConnection(vector<vector<int>>& edges
     vector<int> cycleEdge;
     bool cycleFound = false;
     DisjointSet dsu(nodeCount);
-    for(const auto& e: edges)
-    {
-        if(e[1] != v && !dsu.unionFunc(e[0], e[1]))
-        {
+    for (const auto& e: edges) {
+        if (e[1] != v && !dsu.unionFunc(e[0], e[1])) {
             cycleFound = true;
             cycleEdge = e;
             break;
         }
     }
 
-    if(cycleFound)
-    {
+    if (cycleFound) {
         return cycleEdge;
-    }
-    else if(duplicateParentFound)
-    {
+    } else if (multiParentsFound) {
         vector<int> ans;
-        for(const auto& u: graph[v])
-        {
-            if(!dsu.unionFunc(u, v))
-            {
+        for(const auto& u: graph[v]) {
+            if (!dsu.unionFunc(u, v)) {
                 ans.push_back(u);
                 ans.push_back(v);
             }
         }
         return ans;
-    }
-    else
-    {
+    } else {
         return {};
     }
 }
 
-int Solution::makeConnected(int nodeCount, vector<vector<int>>& connections)
-{
+int Solution::makeConnected(int nodeCount, vector<vector<int>>& connections) {
     /*
-        There are n computers numbered from 0 to n-1 connected by ethernet cables connections 
+        There are n computers numbered from 0 to n-1 connected by ethernet cables 
         forming a network where connections[i] = [a, b] represents a connection between computers a and b (undirected). 
         Any computer can reach any other computer directly or indirectly through the network.
 
@@ -123,79 +108,65 @@ int Solution::makeConnected(int nodeCount, vector<vector<int>>& connections)
         connected computers, and place them between any pair of disconnected computers to make them directly connected. 
         Return the minimum number of times you need to do this in order to make all the computers connected. 
         If it’s not possible, return -1. 
+
+        Hint: use disjoint set to find the number of connected components.
     */
 
     int connectionCount = connections.size();
-    if(connectionCount < nodeCount-1)
+    if (connectionCount < nodeCount-1) {
         return -1;
-
+    }
     DisjointSet dsu(nodeCount);
-    for(const auto& e: connections)
-    {
+    for (const auto& e: connections) {
         dsu.unionFunc(e[0], e[1]);
-    }  
-
+    }
+    // work out the number of connected components
     set<int> groups;
-    for(int i=0; i<nodeCount; ++i)
-    {
+    for(int i=0; i<nodeCount; ++i) {
         groups.emplace(dsu.find(i));
     }
-
     return (int)groups.size() - 1;
 }
 
-void findRedundantConnection_scaffold(string input, string expectedResult)
-{
+void findRedundantConnection_scaffold(string input, string expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     vector<int> actual = ss.findRedundantConnection(graph);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << "," << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input << "," << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << "," << expectedResult << ") failed";
         util::Log(logERROR) << "Expected: " << expectedResult << ", acutal: " << numberVectorToString(actual);
     }
 }
 
-void findRedundantDirectedConnection_scaffold(string input, string expectedResult)
-{
+void findRedundantDirectedConnection_scaffold(string input, string expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     vector<int> actual = ss.findRedundantDirectedConnection(graph);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
-    if(actual == expected)
-    {
-        util::Log(logESSENTIAL) << "Case(" << input << "," << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input << "," << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << input << "," << expectedResult << ") failed";
         util::Log(logERROR) << "Expected: " << expectedResult << ", acutal: " << numberVectorToString(actual);
     }
 }
 
-void makeConnected_scaffold(int n, string input, int expectedResult)
-{
+void makeConnected_scaffold(int n, string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.makeConnected(n, graph);
-    if(actual == expectedResult)
-    {
-        util::Log(logESSENTIAL) << "Case(" << n << ", " << input << ", " << expectedResult << ") passed";
-    }
-    else
-    {
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << n << ", " << input << ", " << expectedResult << ") passed";
+    } else {
         util::Log(logERROR) << "Case(" << n << ", " << input << ", " << expectedResult << ") failed";
         util::Log(logERROR) << "Expected: " << expectedResult << ", acutal: " << actual;
     }
 }
 
-int main()
-{
+int main() {
     util::LogPolicy::GetInstance().Unmute();
 
     util::Log(logESSENTIAL) << "Running findRedundantConnection tests:";
