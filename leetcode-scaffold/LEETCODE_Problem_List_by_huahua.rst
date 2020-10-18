@@ -160,6 +160,7 @@ Advanced topics
 ===============
 
 146 LRU Cache
+460 LFU Cache
 
 
 .. rubric:: Footnotes

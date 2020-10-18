@@ -203,6 +203,10 @@ add_executable(lru_cache lru_cache.cpp ${PUB_UTIL_FILES})
 target_compile_features(lru_cache PUBLIC cxx_auto_type)
 target_link_libraries(lru_cache)
 
+add_executable(lfu_cache lfu_cache.cpp ${PUB_UTIL_FILES})
+target_compile_features(lfu_cache PUBLIC cxx_auto_type)
+target_link_libraries(lfu_cache)
+
 # TWO POINTERS
 
 add_executable(two_pointers_assign_cookies two_pointers_assign_cookies.cpp ${PUB_UTIL_FILES})

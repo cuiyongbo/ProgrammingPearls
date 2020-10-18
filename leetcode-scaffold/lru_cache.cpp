@@ -65,8 +65,16 @@ public:
         auto it = m_nodeMap.find(key);
         if (it == m_nodeMap.end()) {
             return -1;
+        } else {
+            auto node = it->second;
+            node->prev->next = node->next;
+            node->next->prev = node->prev; 
+            node->prev = &m_head;
+            node->next = m_head.next;
+            m_head.next->prev = node;
+            m_head.next = node; 
+            return node->val;
         }
-        return it->second->val;
     }
     
     void put(int key, int value) {
