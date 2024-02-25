@@ -1,0 +1,265 @@
+#include "leetcode.h"
+
+using namespace std;
+using namespace osrm;
+
+/*leetcode: 508, 968, 337, 979*/
+
+class Solution {
+public:
+    std::vector<int> findFrequentTreeSum(TreeNode* root);
+    int minCameraCover(TreeNode* root);
+    int rob(TreeNode* root);
+    int distributeCoins(TreeNode* root);
+};
+
+std::vector<int> Solution::findFrequentTreeSum(TreeNode* root) {
+/*
+    Given the root of a tree, you are asked to find the most frequent subtree sum. 
+    The subtree sum of a node is defined as the sum of all the node values formed by
+    the subtree rooted at that node (including the node itself). 
+    So what is the most frequent subtree sum value? 
+    If there is a tie, return all the values with the highest frequency in any order.
+    Examples 1
+        Input:
+         5
+        /  \
+        2   -3
+        return [2, -3, 4], since all the values happen only once, return all of them in any order.
+    Examples 2
+        Input:
+        5
+        /  \
+        2   -5
+        return [2], since 2 happens twice, however -5 only occur once.
+*/
+
+    std::vector<int> ans;
+    if (root == nullptr) {
+        return ans;
+    }
+    int frequency = 0;
+    std::map<int, int> mp; // value, frequency
+    // return the sum of subtree rooted at node, postorder traversal
+    std::function<int(TreeNode*)> dfs = [&] (TreeNode* node) {
+        int s = node->val;
+        if (node->left != nullptr) {
+            s+= dfs(node->left);
+        }
+        if (node->right != nullptr) {
+            s+= dfs(node->right);
+        }
+        mp[s]++;
+        frequency = std::max(frequency, mp[s]);
+        return s;
+    };
+    dfs(root);
+    for (auto it: mp) {
+        if (it.second == frequency) {
+            ans.push_back(it.first);
+        }
+    }
+    return ans;
+}
+
+
+int Solution::minCameraCover(TreeNode* root) {
+/*
+    Given a binary tree, we install cameras on the nodes of the tree.
+    Each camera at a node can monitor its parent, itself, and its immediate children.
+    Calculate the minimum number of cameras needed to monitor all nodes of the tree.
+    Example1:
+        Input: [0,0,null,0,0]
+        Output: 1
+        Explanation: One camera is enough to monitor all nodes if placed as shown.
+    Example2:
+        Input: [0,0,null,0,null,0,null,null,0]
+        Output: 2
+        Explanation: At least two cameras are needed to monitor all nodes of the tree.
+*/
+
+    enum State {
+        None,  // undefined status
+        Camera, // a camera will be installed in node
+        Covered // either left or right child has a camera installed
+    };
+    int ans = 0;
+    // return the state of node, performing postorder traversal
+    std::function<State(TreeNode*)> dfs = [&] (TreeNode* node) {
+        if (node == nullptr) { // null node will always be covered
+            return Covered;
+        }
+        auto l = dfs(node->left);
+        auto r = dfs(node->right);
+        if (l == Camera || r == Camera) {
+            return Covered;
+        } else if (l == None || r == None) {
+            ans++;
+            return Camera;
+        } else {
+            return None;
+        }
+    };
+    if (dfs(root) == None) { // for case [0]
+        ans++;
+    }
+    return ans;
+}
+
+
+int Solution::rob(TreeNode* root) {
+/*
+    The thief has found himself a new place for his thievery again. There is only one entrance to this area, called the “root.” Besides the root, each house has one and only one parent house. 
+    After a tour, the smart thief realized that “all houses in this place forms a binary tree”. It will automatically contact the police if two directly-linked houses were broken into on the same night.
+    Determine the maximum amount of money the thief can rob tonight without alerting the police.
+
+    Example 1: Maximum amount of money the thief can rob = 3 + 3 + 1 = 7.
+         3
+        / \
+        2   3
+        \   \ 
+        3   1
+*/
+    // optimization: add memoization
+
+    if (root == nullptr) { // trivial case
+        return 0;
+    }
+    int p1 = root->val;
+    if (root->left != nullptr) {
+        p1 += rob(root->left->left);
+        p1 += rob(root->left->right);
+    }
+    if (root->right != nullptr) {
+        p1 += rob(root->right->left);
+        p1 += rob(root->right->right);
+    }
+    int p2 = rob(root->left) + rob(root->right);
+    return std::max(p1, // money the thieft can get if he has robbed at root
+                p2); // money the thieft can get if he has not
+}
+
+int Solution::distributeCoins(TreeNode* root) {
+/*
+    You are given the root of a binary tree with n nodes where each node in the tree has `node.val` coins and there are `n` coins total.
+    In one move, we may choose two adjacent nodes and move one coin from one node to another. (A move may be from parent to child, or from child to parent.)
+    Return the number of moves required to make every node have exactly one coin.
+
+    Constraints:
+        The number of nodes in the tree is n.
+        0 <= Node.val <= n
+        The sum of Node.val is n
+
+    Input: root = [3,0,0]
+    Output: 2
+    Explanation: From the root of the tree, we move one coin to its left child, and one coin to its right child.
+
+    Input: root = [0,3,0]
+    Output: 3
+    Explanation: From the left child of the root, we move two coins to the root [taking two moves]. Then, we move one coin from the root of the tree to the right child.
+
+    Compute the balance of left/right subtree, ans += abs(balance(left)) + abs(balance(right))
+*/
+
+    int ans = 0;
+    typedef std::pair<int, int> result_type; // number of nodes of the subtree, number of coins of the subtree
+    // return number of nodes and coins of the subtree rooted at node with postorder traversal
+    std::function<result_type(TreeNode*)> dfs = [&] (TreeNode* node) {
+        if (node == nullptr) {
+            return result_type{0, 0};
+        }
+        auto l = dfs(node->left);
+        auto r = dfs(node->right);
+        ans += (std::abs(l.first-l.second) + std::abs(r.first-r.second));
+        return result_type{l.first+r.first+1, l.second+r.second+node->val};
+    };
+    dfs(root);
+    return ans;
+}
+
+
+void findFrequentTreeSum_scaffold(std::string input, std::string expected) {
+    Solution ss;
+    TreeNode* root = stringToTreeNode(input);
+    std::vector<int> actual = ss.findFrequentTreeSum(root);
+    std::vector<int> expectedResult = stringTo1DArray<int>(expected);
+    std::sort(actual.begin(), actual.end());
+    std::sort(expectedResult.begin(), expectedResult.end());
+    if (actual == expectedResult) {
+        util::Log(logINFO) << "Case(" << input << ", " << expected << ") passed";
+    } else {
+        util::Log(logERROR) << "Case(" << input << ", " << expected << ") failed, actual: " << numberVectorToString(actual);
+    }
+}
+
+void minCameraCover_scaffold(std::string input, int expected) {
+    Solution ss;
+    TreeNode* root = stringToTreeNode(input);
+    int actual = ss.minCameraCover(root);
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input << ", " << expected << ") passed";
+    } else {
+        util::Log(logERROR) << "Case(" << input << ", " << expected << ") failed, actual: " << actual;
+    }
+}
+
+void rob_scaffold(std::string input, int expected) {
+    Solution ss;
+    TreeNode* root = stringToTreeNode(input);
+    int actual = ss.rob(root);
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input << ", " << expected << ") passed";
+    } else {
+        util::Log(logERROR) << "Case(" << input << ", " << expected << ") failed, actual: " << actual;
+    }
+}
+
+void distributeCoins_scaffold(std::string input, int expected) {
+    Solution ss;
+    TreeNode* root = stringToTreeNode(input);
+    int actual = ss.distributeCoins(root);
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input << ", " << expected << ") passed";
+    } else {
+        util::Log(logERROR) << "Case(" << input << ", " << expected << ") failed, actual: " << actual;
+    }
+}
+
+int main() {
+    util::LogPolicy::GetInstance().Unmute();
+
+    util::Log(logESSENTIAL) << "Running findFrequentTreeSum tests:";
+    TIMER_START(findFrequentTreeSum);
+    findFrequentTreeSum_scaffold("[5,2,-3]", "[4,2,-3]");
+    findFrequentTreeSum_scaffold("[5,2,-5]", "[2]");
+    TIMER_STOP(findFrequentTreeSum);
+    util::Log(logESSENTIAL) << "findFrequentTreeSum tests use " << TIMER_MSEC(findFrequentTreeSum) << "ms";
+
+    util::Log(logESSENTIAL) << "Running minCameraCover tests:";
+    TIMER_START(minCameraCover);
+    minCameraCover_scaffold("[0,0,null,0,0]", 1);
+    minCameraCover_scaffold("[0,0,null,0,null,0,null,null,0]", 2);
+    minCameraCover_scaffold("[0]", 1);
+    TIMER_STOP(minCameraCover);
+    util::Log(logESSENTIAL) << "minCameraCover tests use " << TIMER_MSEC(minCameraCover) << "ms";
+
+    util::Log(logESSENTIAL) << "Running rob tests:";
+    TIMER_START(rob);
+    rob_scaffold("[0,0,null,0,0]", 0);
+    rob_scaffold("[0,0,null,0,null,0,null,null,0]", 0);
+    rob_scaffold("[3,2,3,null,null,1]", 5);
+    rob_scaffold("[3,2,3,null,3, null,1]", 7);
+    rob_scaffold("[3,4,5,1,3,null,1]", 9);
+    TIMER_STOP(rob);
+    util::Log(logESSENTIAL) << "rob tests use " << TIMER_MSEC(rob) << "ms";
+
+    util::Log(logESSENTIAL) << "Running distributeCoins tests:";
+    TIMER_START(distributeCoins);
+    distributeCoins_scaffold("[3,0,0]", 2);
+    distributeCoins_scaffold("[0,3,0]", 3);
+    distributeCoins_scaffold("[1,0,2]", 2);
+    distributeCoins_scaffold("[1,0,0,null,3]", 4);
+    TIMER_STOP(distributeCoins);
+    util::Log(logESSENTIAL) << "distributeCoins tests use " << TIMER_MSEC(distributeCoins) << "ms";
+    
+}

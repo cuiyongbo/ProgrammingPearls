@@ -1,0 +1,62 @@
+syntax = "proto3";
+package scaffold;
+
+message MyMessage1
+{
+    enum EnumAllowingAlias
+    {
+        option allow_alias = true;
+        UNKNOWN = 0;
+        STARTED = 1;
+        RUNNING = 1;
+    }
+
+/*
+message MyMessage2
+{
+    enum EnumNotAllowingAlias
+    {
+        UNKNOWN = 0;
+        STARTED = 1;
+        RUNNING = 1;
+    }
+}*/
+
+}
+
+message SearchResponse
+{
+    message Result
+    {
+        string url = 1;
+        string titile = 2;
+        repeated string snippets = 3;
+    }
+    repeated Result results = 1;
+}
+
+message SomeOtherMessage
+{
+    SearchResponse.Result result = 1;
+}
+
+message Outer
+{
+    message MiddleAA
+    {
+        message Inner
+        {
+            int64 ival = 1;
+            bool booy = 2;
+        }
+    }
+
+    message MiddleBB
+    {
+        message Inner
+        {
+            int32 ival = 1;
+            bool booly = 2;
+        }
+    }
+}

@@ -1,0 +1,38 @@
+// compile with: protoc -I=$SRC_DIR --cpp_out=$DST_DIR $SRC_DIR/addressbook.proto
+
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+// namespace 
+// nested namespace: package tutorial.stray_dog;
+package tutorial;
+
+message Person {
+    string name = 1;
+    int32 id = 2;
+    string email = 3;
+
+    enum PhoneType {
+        MOBILE = 0; // value of the first enumerator has to be 0
+        HOME = 1;
+        WORK = 2;
+    }
+    message PhoneNumber {
+        string number = 1;
+        PhoneType type = 2;
+    }
+    repeated PhoneNumber phones = 4;
+
+    message Nationality {
+        string country = 1;
+        string province = 2;
+        string city = 3;
+    }
+    Nationality nation = 5;
+    google.protobuf.Timestamp last_updated = 6;
+}
+
+message AddressBook {
+    repeated Person people = 1;
+}

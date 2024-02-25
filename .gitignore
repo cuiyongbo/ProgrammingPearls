@@ -1,0 +1,45 @@
+~\$*.docx
+*.tmp
+*.swp
+.DS_Store
+*.pyc
+*.out
+*.dSYM
+*.a
+*.o
+*.s
+*.so
+*.dylib
+/test.c
+/Git Tutorial.pdf
+/Introduction_to_Algorithms_3rd_Edition.pdf
+/More programming Pearls.pdf
+/Programming.Pearls.pdf
+/Pro Git.pdf
+scaffold/
+path_finding_alg/_build/
+*.opensdf
+*.sdf
+*.sln
+*.suo
+*.user
+*.filters
+*.vcxproj
+test.cpp
+test.c
+.vscode
+leetcode-scaffold/build
+leetcode-scaffold/_build
+build
+_build
+leetcode-scaffold/scaffold.cpp
+leetcode-scaffold/scaffold.c
+*.gch
+GdbTutorial
+memcached-scaffold/build
+memcached-scaffold/_build
+libtbb-scaffold/build
+libtbb-scaffold/_build
+std-cpp/static-extern-scaffold/build
+std-cpp/static-extern-scaffold/_build
+path_finding_alg/

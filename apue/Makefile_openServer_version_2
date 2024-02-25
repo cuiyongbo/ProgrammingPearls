@@ -1,0 +1,55 @@
+.PHONY: all clean client server
+
+CFLAGS=-g -Wall -pedantic
+
+all: open opend
+
+client: open
+server: opend 
+
+clean:
+	@rm -rf *.o *.gch *.dSYM a.out open opend
+
+cli_conn.o: fig_17_10.c
+	$(CC) $(CFLAGS) -c $< -o $@
+cli_operation.o: fig_17_27.c
+	$(CC) $(CFLAGS) -c $< -o $@
+send_err.o: fig_17_12.c
+	$(CC) $(CFLAGS) -c $< -o $@
+send_fd.o: fig_17_13.c
+	$(CC) $(CFLAGS) -c $< -o $@
+recv_fd.o: fig_17_14.c
+	$(CC) $(CFLAGS) -c $< -o $@
+fd_pipe.o: fig_17_02.c
+	$(CC) $(CFLAGS) -c $< -o $@
+buf_args.o: fig_17_23.c
+	$(CC) $(CFLAGS) -c $< -o $@
+cli_args.o: fig_17_24.c
+	$(CC) $(CFLAGS) -c $< -o $@
+csopen.o: fig_17_25.c
+	$(CC) $(CFLAGS) -c $< -o $@
+handle_request_02.o: fig_17_31.c
+	$(CC) $(CFLAGS) -c $< -o $@
+daemonize.o: fig_13_01.c
+	$(CC) $(CFLAGS) -c $< -o $@
+serv_listen.o: fig_17_08.c
+	$(CC) $(CFLAGS) -c $< -o $@
+serv_accept.o: fig_17_09.c
+	$(CC) $(CFLAGS) -c $< -o $@
+loop_select.o: fig_17_29.c
+	$(CC) $(CFLAGS) -c $< -o $@
+loop_poll.o: fig_17_30.c
+	$(CC) $(CFLAGS) -c $< -o $@
+server.o: fig_17_28.c
+	$(CC) $(CFLAGS) -c $< -o $@
+client.o: fig_17_18.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+open: client.o csopen.o cli_conn.o recv_fd.o fd_pipe.o
+	$(CC) $(CFLAGS) $^ -o $@
+
+opend: server.o daemonize.o loop_poll.o cli_operation.o \
+		handle_request_02.o send_err.o send_fd.o buf_args.o cli_args.o \
+		serv_listen.o serv_accept.o
+	$(CC) $(CFLAGS) $^ -o $@
+

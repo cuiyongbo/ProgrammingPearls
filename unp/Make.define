@@ -1,0 +1,15 @@
+CC = gcc
+CFLAGS = -I../include -g -O2 -D_REENTRANT -Wall
+CPPFLAGS = -DHAVE_MSGHDR_MSG_CONTROL -DHAVE_MKSTEMP
+LIBS = ../libunp.a -lpthread
+RANLIB = ranlib
+
+LIBUNP_NAME = ../libunp.a
+
+LIB_OBJS =  connect_nonb.o daemon_helpers.o dg_cli.o dg_echo.o error.o gf_time.o \
+host_serv.o read_fd.o read_line.o readn.o readable_timeo.o signal.o sig_child_waitpid.o \
+sock_wrapper.o sock_ntop_host.o stdio_wrapper.o str_cli.o str_echo.o tcp_helpers.o \
+pthread_wrapper.o unix_api_wrapper.o write_fd.o write_wrapper.o
+
+CLEANFILES = core core.* *.core *.o temp.* *.out typescript* \
+        *.lc *.lh *.bsdi *.sparc *.uw
