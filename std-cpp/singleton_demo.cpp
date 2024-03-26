@@ -3,11 +3,9 @@
 using namespace std;
 
 // https://stackoverflow.com/questions/1008019/c-singleton-design-pattern
-class Singleton
-{
+class Singleton {
 public:
-    static Singleton& getInstance()
-    {
+    static Singleton& getInstance() {
         // thread-safe in c++11
         static Singleton instance;
         return instance;
@@ -20,8 +18,7 @@ private:
     Singleton() {}
 };
 
-int main()
-{
+int main() {
     Singleton& s1 = Singleton::getInstance();
     Singleton& s2 = Singleton::getInstance();
     cout << "s1: " << &s1 << "\n";
