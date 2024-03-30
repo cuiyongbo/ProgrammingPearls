@@ -20,6 +20,16 @@ public:
     ListNode* removeNthFromEnd(ListNode* head, int n);
 };
 
+ListNode* Solution::reverseList(ListNode* head) {
+    ListNode dummy;
+    ListNode* p = &dummy;
+    while (head != nullptr) {
+        ListNode* tmp = head->next; head->next = nullptr;
+        head->next = p->next; p->next = head; // push_front
+        head = tmp;
+    }
+    return dummy.next;
+}
 
 ListNode* Solution::reverseKGroup(ListNode* head, int k) {
 /*
@@ -33,7 +43,6 @@ Examples:
     Input: head = [1,2,3,4,5], k = 3
     Output: [3,2,1,4,5]
 */
-
     ListNode dummy;
     ListNode* p = &dummy;
     std::stack<ListNode*> st;
@@ -44,6 +53,7 @@ Examples:
                 p->next = t; p = p->next; // push_back
             }
         }
+        // 别想太多, 这里就得把 header 先给孤立掉
         ListNode* tmp = head->next; head->next = nullptr;
         st.push(head);
         head = tmp;
@@ -56,12 +66,19 @@ Examples:
     } else { // keep the original order when there are less nodes than k 
         while (!st.empty()) {
             auto t = st.top(); st.pop();
-            t->next = p->next; p->next = t; // pusth_front
+            t->next = p->next; p->next = t; // push_front
         }
     }
     return dummy.next;
 }
 
+ListNode* Solution::swapPairs(ListNode* head) {
+/*
+    Given a linked list, swap every two adjacent nodes and return its head.
+    You may not modify the values in the list's nodes, only nodes itself may be changed.
+*/
+    return reverseKGroup(head, 2);
+}
 
 ListNode* Solution::removeNthFromEnd(ListNode* head, int n) {
 /*
@@ -89,11 +106,10 @@ Examples:
         if (index++ == n) {
             continue;
         }
-        t->next = p->next; p->next = t;
+        t->next = p->next; p->next = t; // push_front
     }
     return dummy.next;
 }
-
 
 ListNode* Solution::partition(ListNode* head, int x) {
 /*
@@ -111,16 +127,15 @@ Examples:
     while (head != nullptr) {
         ListNode* tmp = head->next; head->next = nullptr;
         if (head->val < x) {
-            p1->next = head; p1 = p1->next;
+            p1->next = head; p1 = p1->next; // push_back
         } else {
-            p2->next = head; p2 = p2->next;
+            p2->next = head; p2 = p2->next; // push_back
         }
         head = tmp;
     }
     p1->next = dummy2.next;
     return dummy1.next;
 }
-
 
 ListNode* Solution::deleteDuplicates_082(ListNode* head) {
 /*
@@ -135,32 +150,26 @@ Examples:
 */
     std::stack<std::pair<ListNode*, int>> st;
     while (head != nullptr) {
-        ListNode* tmp = head->next;
-        head->next = nullptr;
-        if (!st.empty()) {
-            if (st.top().first->val == head->val) {
-                st.top().second++;
-            } else {
-                st.emplace(head, 1);
-            }
+        ListNode* tmp = head->next; head->next = nullptr;
+        if (st.empty()) {
+            st.emplace(head, 1);
+        } else if (st.top().first->val == head->val) {
+            st.top().second++;
         } else {
             st.emplace(head, 1);
         }
         head = tmp;
     }
-
     ListNode dummy;
+    ListNode* p = &dummy;
     while (!st.empty()) {
         auto t = st.top(); st.pop();
         if (t.second == 1) {
-            ListNode* p = &dummy;
-            t.first->next = p->next;
-            p->next = t.first;
+            t.first->next = p->next; p->next = t.first; // push_front
         }
     }
     return dummy.next;
 }
-
 
 ListNode* Solution::deleteDuplicates_083(ListNode* head) {
 /*
@@ -173,31 +182,24 @@ Examples:
 */
     std::stack<std::pair<ListNode*, int>> st;
     while (head != nullptr) {
-        ListNode* tmp = head->next;
-        head->next = nullptr;
-        if (!st.empty()) {
-            if (st.top().first->val == head->val) {
-                st.top().second++;
-            } else {
-                st.emplace(head, 1);
-            }
+        ListNode* tmp = head->next; head->next = nullptr;
+        if (st.empty()) {
+            st.emplace(head, 1);
+        } else if (st.top().first->val == head->val) {
+            st.top().second++;
         } else {
             st.emplace(head, 1);
         }
         head = tmp;
     }
-
     ListNode dummy;
+    ListNode* p = &dummy;
     while (!st.empty()) {
         auto t = st.top(); st.pop();
-        ListNode* p = &dummy;
-        t.first->next = p->next;
-        p->next = t.first;
+        t.first->next = p->next; p->next = t.first; // push_front
     }
     return dummy.next;
-    return nullptr;
 }
-
 
 ListNode* Solution::removeElements(ListNode* head, int val) {
 /*
@@ -212,6 +214,8 @@ Examples:
     Input: head = [7,7,7,7], val = 7
     Output: []
 */
+
+{
     ListNode dummy;
     ListNode* p = &dummy;
     while (head != nullptr) {
@@ -219,14 +223,26 @@ Examples:
             head = head->next;
             continue;
         }
-        ListNode* tmp = head->next;
-        head->next = nullptr;
-        p->next = head; p = p->next;
+        ListNode* tmp = head->next; head->next = nullptr;
+        p->next = head; p = p->next; // push_back
         head = tmp;
     }
     return dummy.next;
 }
 
+    ListNode dummy;
+    ListNode* p = &dummy;
+    while (head != nullptr) {
+        if (head->val == val) {
+            head = head->next;
+            continue;
+        }
+        ListNode* tmp = head->next; head->next = nullptr;
+        p->next = head; p = p->next;
+        head = tmp;
+    }
+    return dummy.next;
+}
 
 ListNode* Solution::addTwoNumbers(ListNode* l1, ListNode* l2) {
 /*
@@ -262,7 +278,6 @@ ListNode* Solution::addTwoNumbers(ListNode* l1, ListNode* l2) {
     return dummy.next;
 }
 
-
 ListNode* Solution::addTwoNumber_445(ListNode* l1, ListNode* l2) {
 /*
     You are given two non-empty linked lists representing two non-negative integers. 
@@ -273,7 +288,6 @@ ListNode* Solution::addTwoNumber_445(ListNode* l1, ListNode* l2) {
         Input: (7 -> 2 -> 4 -> 3) + (5 -> 6 -> 4)
         Output: 7 -> 8 -> 0 -> 7
 */
-
     std::stack<int> s1, s2;
     while (l1 != nullptr || l2 != nullptr) {
         if (l1 != nullptr) {
@@ -304,46 +318,6 @@ ListNode* Solution::addTwoNumber_445(ListNode* l1, ListNode* l2) {
     return dummy.next;
 }
 
-
-ListNode* Solution::reverseList(ListNode* head) {
-    ListNode dummy;
-    while (head != nullptr) {
-        ListNode* p = &dummy;
-        ListNode* tmp = head->next;
-        head->next = p->next; p->next = head; // push_front
-        head = tmp;
-    }
-    return dummy.next;
-}
-
-
-ListNode* Solution::swapPairs(ListNode* head) {
-/*
-    Given a linked list, swap every two adjacent nodes and return its head.
-    You may not modify the values in the list's nodes, only nodes itself may be changed.
-*/
-    std::stack<ListNode*> st;
-    ListNode dummy;
-    ListNode* p = &dummy;
-    while (head != nullptr) {
-        ListNode* tmp = head->next; head->next = nullptr; // cut head out from the list
-        if (st.size() == 2) {
-            while (!st.empty()) {
-                p->next = st.top(); p = p->next; // push_back
-                st.pop();
-            }
-        }
-        st.push(head);
-        head = tmp;
-    }
-    while (!st.empty()) {
-        p->next = st.top(); p = p->next; // push_back
-        st.pop();
-    }
-    return dummy.next;
-}
-
-
 ListNode* Solution::getIntersectionNode(ListNode* l1, ListNode* l2) {
 /*
     Write a program to find the node at which the intersection of two singly linked lists begins.
@@ -351,9 +325,10 @@ ListNode* Solution::getIntersectionNode(ListNode* l1, ListNode* l2) {
         suppose we concatenate two lists together respectively, then we get two virtual lists as followings:
             [3][2,3]
             [2,3][3]
-            loop 1: 3,2 --> null, 3    not equal
-            loop 2: null, 3 --> 2, null  not equal
-            loop 3: 2, null  --> 3, 3   equal,  ok, we got the intersected node
+            loop 1: 3,2 --> not equal --> null, 3 
+            loop 2: null, 3 --> not equal --> 2, null
+            loop 3: 2, null --> not equal --> 3, 3   
+            loop 4: 3, 3 -> equal,  ok, we got the intersected node
         then traverse these two virtual lists step by step, and we will coincide at the intersected node
 
     Examples:
@@ -370,6 +345,17 @@ ListNode* Solution::getIntersectionNode(ListNode* l1, ListNode* l2) {
                             ^
                             |
     5+------->0+-------->1+--
+
+    1: 4, 5 -> x -> 1, 0
+    2: 1, 0 -> x -> 8, 1
+    3: 8, 1 -> x -> 4, 8
+    4: 4, 8 -> x -> 5, 4
+    5: 5, 4 -> x -> null, 5
+    6: null, 5 -> x -> 5, null
+    6: 5, null -> x -> 0, 4
+    7: 0, 4 -> x -> 1, 1
+    8: 1, 1 -> x -> 8, 8
+    9: 8, 8 -> o -> return
 
     Input: intersectVal = 2, listA = [1,9,1,2,4], listB = [3,2,4], skipA = 3, skipB = 1
     Output: Intersected at '2'
@@ -445,7 +431,6 @@ void swapPairs_scaffold(std::string input1, std::string expectedResult) {
     }
 }
 
-
 void removeElements_scaffold(std::string input1, int val, std::string expectedResult) {
     ListNode* l1 = stringToListNode(input1);
     ListNode* l3 = stringToListNode(expectedResult);
@@ -453,12 +438,11 @@ void removeElements_scaffold(std::string input1, int val, std::string expectedRe
     Solution ss;
     ListNode* ans = ss.removeElements(l1, val);
     if (list_equal(ans, l3)) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << expectedResult << ") passed";
+        util::Log(logINFO) << "Case(" << input1 << ", val: " << val << ", " << expectedResult << ") passed";
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << expectedResult << ") failed";
+        util::Log(logERROR) << "Case(" << input1 << ", val: " << val << ", " << expectedResult << ") failed";
     }
 }
-
 
 void deleteDuplicates_scaffold(std::string input1, std::string input2, int func_no) {
     ListNode* l1 = stringToListNode(input1);
@@ -565,6 +549,7 @@ int main() {
     TIMER_START(removeElements);
     removeElements_scaffold("[1,2,6,3,4,5,6]", 6, "[1,2,3,4,5]");
     removeElements_scaffold("[1,2,6,3,4,5,6]", 1, "[2,6,3,4,5,6]");
+    removeElements_scaffold("[1,2,6,3,4,5,6]", 8, "[1,2,6,3,4,5,6]");
     removeElements_scaffold("[]", 6, "[]");
     removeElements_scaffold("[6,6,6,6]", 6, "[]");
     TIMER_STOP(swapPairs);
@@ -602,9 +587,9 @@ int main() {
     removeNthFromEnd_scaffold("[1]", "[]", 1);
     removeNthFromEnd_scaffold("[1,2]", "[1]", 1);
     removeNthFromEnd_scaffold("[1,2]", "[2]", 2);
+    removeNthFromEnd_scaffold("[1,2,3]", "[1,2,3]", 4);
     TIMER_STOP(removeNthFromEnd);
     util::Log(logESSENTIAL) << "Running removeNthFromEnd tests uses " << TIMER_MSEC(removeNthFromEnd) << "ms.";
-
 
     util::Log(logESSENTIAL) << "Running reverseKGroup tests:";
     TIMER_START(reverseKGroup);

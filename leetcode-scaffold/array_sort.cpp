@@ -81,7 +81,7 @@ void Solution::sortArray(vector<int>& nums, AlgorithmType type) {
 
 // O(nlogn) on average case
 void Solution::quickSort(vector<int>& nums) {
-    auto partitioner = [&] (int l, int r) {
+    auto naive_partitioner = [&] (int l, int r) {
         int i = l-1;
         int pivot = nums[r];
         for (int k=l; k<r; ++k) {
@@ -97,7 +97,7 @@ void Solution::quickSort(vector<int>& nums) {
         if (l >= r) { // trivial case
             return;
         }
-        int m = partitioner(l, r);
+        int m = naive_partitioner(l, r);
         dac(l, m-1);
         dac(m+1, r);
     };
@@ -288,19 +288,19 @@ void sortArray_scaffold(string input, AlgorithmType type) {
     }
 }
 
-void batch_test_scaffold(int test_array_scale, AlgorithmType type) {
+void batch_test_scaffold(int array_size, AlgorithmType type) {
     util::Log(logINFO) << "Running " << AlgorithmType_toString(type) << " tests";
     Solution ss;
-    vector<int> vi; vi.reserve(test_array_scale);
+    vector<int> vi; vi.reserve(array_size);
     for (int i=0; i<100; ++i) {
         vi.clear();
-        int n = rand() % test_array_scale;
+        int n = rand() % array_size;
         for (int j=0; j<n; ++j) {
             vi.push_back(rand());
         }
         ss.sortArray(vi, type);
         if(!std::is_sorted(vi.begin(), vi.end())) {
-            util::Log(logERROR) << "Case(test_array_scale<" << test_array_scale 
+            util::Log(logERROR) << "Case(array_size<" << array_size 
                 << ">, array_size<" << n << ">, "  << AlgorithmType_toString(type) << ") failed";
         }
     }
@@ -345,24 +345,25 @@ void basic_test() {
 int main(int argc, char* argv[]) {
     util::LogPolicy::GetInstance().Unmute();
 
-    basic_test();
+    //basic_test();
 
-    int test_array_scale = 100;
+    int array_size = 100;
     if (argc > 1) {
-        test_array_scale = std::atoi(argv[1]);
-        if (test_array_scale <= 0) {
-            cout << "test_array_scale must be positive, default to 100 if unspecified" << endl;
+        array_size = std::atoi(argv[1]);
+        if (array_size <= 0) {
+            printf("Usage: %s [arrary_size]\n", argv[0]);
+            printf("\tarrary_size must be positive, default to 100 if unspecified\n");
             return -1;
         }
     }
 
-    util::Log(logESSENTIAL) << "Running batch tests(test_array_scale=" << test_array_scale << "):";
+    util::Log(logESSENTIAL) << "Running batch tests(array_size=" << array_size << "):";
     TIMER_START(sortArray_batch_test);
-    batch_test_scaffold(test_array_scale, AlgorithmType::AlgorithmType_mergeSort);
-    batch_test_scaffold(test_array_scale, AlgorithmType::AlgorithmType_quickSort);
-    batch_test_scaffold(test_array_scale, AlgorithmType::AlgorithmType_heapSort);
-    batch_test_scaffold(test_array_scale, AlgorithmType::AlgorithmType_insertionSort);
-    //batch_test_scaffold(test_array_scale, AlgorithmType::AlgorithmType_countingSort);
+    batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_mergeSort);
+    batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_quickSort);
+    batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_heapSort);
+    batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_insertionSort);
+    //batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_countingSort);
     TIMER_STOP(sortArray_batch_test);
     util::Log(logESSENTIAL) << "batch tests using " << TIMER_MSEC(sortArray_batch_test) << " milliseconds";
 }

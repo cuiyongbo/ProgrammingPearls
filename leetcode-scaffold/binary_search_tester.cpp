@@ -64,132 +64,94 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void binarySearchTester(int arraySize)
-{
+void binarySearchTester(int arraySize) {
     vector<int> input;
-
-    auto binary_search_homebrew = [&] (int key)
-    {
+    auto binary_search_homebrew = [&] (int key) {
         bool found = false;
         int l = 0;
-        int r = arraySize-1;
-        while(l <= r)
-        {
-            int m = (r-l)/2 + l;
-            if(input[m] == key)
-            {
+        int r = arraySize - 1;
+        while (l <= r) {
+            int m = (l+r)/2;
+            if (input[m] == key) {
                 found = true;
                 break;
-            }
-            else if(input[m] < key)
-            {
+            } else if (input[m] < key) {
                 l = m+1;
-            }
-            else
-            {
+            } else {
                 r = m-1;
             }
         }
         bool stdFound = binary_search(input.begin(), input.end(), key);
-        if(found != stdFound)
-        {
+        if(found != stdFound) {
             cout << "binarySearchTester failed, array size: " << arraySize << endl;
         }
     };
 
-    generateTestArray(input, arraySize, false);
-
-    binary_search_homebrew(input[rand() % arraySize]);
-
-    for (int i = 0; i < LOOP_COUNT; ++i)
-    {
+    generateTestArray(input, arraySize, false, true);
+    for (int i = 0; i < LOOP_COUNT; ++i) {
         binary_search_homebrew(rand());
     }
 
-    generateTestArray(input, arraySize, true);
-    binary_search_homebrew(input[0]);
-    binary_search_homebrew(input[0]+1);
-    binary_search_homebrew(input[0]-1);
+    generateTestArray(input, arraySize, true, true);
+    for (int i = 0; i < LOOP_COUNT; ++i) {
+        binary_search_homebrew(rand());
+    }
 }
 
-void lowerBoundSearchTester(int arraySize)
-{
+void lowerBoundSearchTester(int arraySize) {
     vector<int> input;
     auto lower_bound_homebrew = [&](int key) {
         int l = 0;
         int r = arraySize;
-        while(l < r)
-        {
+        while(l < r) {
             int m = (r-l)/2 + l;
-            if(input[m] < key)
-            {
+            if(input[m] < key) {
                 l = m+1;
-            }
-            else /*if(input[m] >= key)*/
-            {
+            } else /*if(input[m] >= key)*/ {
                 r = m;
             }
         }
-
         const auto& it = lower_bound(input.begin(), input.end(), key);
-        if(r != distance(input.begin(), it))
-        {
+        if(r != distance(input.begin(), it)) {
             cout << "lowerBoundSearchTester failed, array size: " << arraySize << endl;
         }
     };
 
-    generateTestArray(input, arraySize, false);
-
-    lower_bound_homebrew(input[rand() % arraySize]);
-
-    for(int i=0; i<LOOP_COUNT; ++i)
-    {
+    generateTestArray(input, arraySize, false, true);
+    for(int i=0; i<LOOP_COUNT; ++i) {
         lower_bound_homebrew(rand());
     }
-
-    generateTestArray(input, arraySize, true);
-    lower_bound_homebrew(input[0]);
-    lower_bound_homebrew(input[0] + 1);
-    lower_bound_homebrew(input[0] - 1);
+    generateTestArray(input, arraySize, true, true);
+    for(int i=0; i<LOOP_COUNT; ++i) {
+        lower_bound_homebrew(rand());
+    }
 }
 
-void upperBoundSearchTester(int arraySize)
-{
+void upperBoundSearchTester(int arraySize) {
     vector<int> input;
     auto upper_bound_homebrew = [&](int key) {
         int l = 0;
         int r = arraySize;
-        while(l < r)
-        {
+        while(l < r) {
             int m = (r-l)/2 + l;
-            if(input[m] <= key)
-            {
+            if(input[m] <= key) {
                 l = m+1;
-            }
-            else /*if(input[m] > key)*/
-            {
+            } else /*if(input[m] > key)*/ {
                 r = m;
             }
         }
-
         const auto& it = upper_bound(input.begin(), input.end(), key);
-        if(r != distance(input.begin(), it))
-        {
+        if(r != distance(input.begin(), it)) {
             cout << "upperBoundSearchTester failed, array size: " << arraySize << endl;
         }
     };
 
-    generateTestArray(input, arraySize, false);
-
-    upper_bound_homebrew(input[rand() % arraySize]);
-
-    for(int i=0; i<LOOP_COUNT; ++i)
-    {
+    generateTestArray(input, arraySize, false, true);
+    for(int i=0; i<LOOP_COUNT; ++i) {
         upper_bound_homebrew(rand());
     }
-
-    generateTestArray(input, arraySize, true);
-    upper_bound_homebrew(input[0]);
-    upper_bound_homebrew(input[0]+1);
-    upper_bound_homebrew(input[0]-1);
+    generateTestArray(input, arraySize, true, true);
+    for(int i=0; i<LOOP_COUNT; ++i) {
+        upper_bound_homebrew(rand());
+    }
 }

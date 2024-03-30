@@ -12,10 +12,12 @@ public:
     }
 
     Singleton(const Singleton&) = delete;
+    Singleton(Singleton&&) = delete;
     Singleton& operator=(const Singleton&) = delete;
 
 private:
     Singleton() {}
+
 };
 
 int main() {
@@ -23,5 +25,6 @@ int main() {
     Singleton& s2 = Singleton::getInstance();
     cout << "s1: " << &s1 << "\n";
     cout << "s2: " << &s2 << "\n";
+    //Singleton  ss;
     return 0;
 }

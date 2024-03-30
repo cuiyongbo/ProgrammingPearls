@@ -1,41 +1,75 @@
 #include <iostream>
 #include <thread>
+#include <stdint.h>
+
+
+/*
+what does ``std::endl`` do?
+
+template <class _Elem, class _Traits>
+basic_ostream<_Elem, _Traits>& __CLRCALL_OR_CDECL endl(
+    basic_ostream<_Elem, _Traits>& _Ostr) { // insert newline and flush stream
+    _Ostr.put(_Ostr.widen('\n'));
+    _Ostr.flush();
+    return _Ostr;
+}
+
+template <class _Elem, class _Traits>
+basic_ostream<_Elem, _Traits>& __CLRCALL_OR_CDECL ends(basic_ostream<_Elem, _Traits>& _Ostr) { // insert null character
+    _Ostr.put(_Elem());
+    return _Ostr;
+}
+
+template <class _Elem, class _Traits>
+basic_ostream<_Elem, _Traits>& __CLRCALL_OR_CDECL flush(basic_ostream<_Elem, _Traits>& _Ostr) { // flush stream
+    _Ostr.flush();
+    return _Ostr;
+}
+*/
 
 thread_local int tt = 0;
+std::mutex cout_mutex;
 
-void threadFunc(int i) {
+void thread_func(int i) {
 	tt = i;
 	tt++;
-	std::cout << "thread: " << std::this_thread::get_id() << ", tt: " <<  tt << "\n";
+	std::lock_guard<std::mutex> guard(cout_mutex);
+	std::cout << "thread: " << std::this_thread::get_id() << ", &tt: " <<  &tt << ", tt: " <<  tt << std::endl;
 }
 
 void naive_test() {
 	tt = 9;
-	std::thread t1(threadFunc, 1);	
-	std::thread t2(threadFunc, 3);	
+	std::thread t1(thread_func, 1);	
+	std::thread t2(thread_func, 3);	
 	t1.join();
 	t2.join();
-	std::cout << "main_thread: " << std::this_thread::get_id() << ", tt: " <<  tt << "\n";
+	{
+		std::lock_guard<std::mutex> guard(cout_mutex);
+		std::cout << "main_thread: " << std::this_thread::get_id() << ", &tt: " <<  &tt << ", tt: " <<  tt << std::endl;
+	}
+
 }
 
 class TeaCup {
 public:
 	TeaCup() {
 		m_counter = rand();
-		std::cout << "thread: " << std::this_thread::get_id() << ", TeaCup(), m_counter=" << m_counter << "\n";
+		std::cout << "thread: " << std::this_thread::get_id() << ", TeaCup(), m_counter=" << m_counter << std::endl;
 
 	}
 	~TeaCup() {
-		std::cout << "thread: " << std::this_thread::get_id() << ", ~TeaCup()" << "\n";
+		std::cout << "thread: " << std::this_thread::get_id() << ", ~TeaCup()" << std::endl;
 	}
 	void nothing() {
 		m_counter++;
-		std::cout << "thread: " << std::this_thread::get_id() << ", nothing(), m_counter=" << m_counter << "\n";
+		std::cout << "thread: " << std::this_thread::get_id() << ", nothing(), m_counter=" << m_counter << std::endl;
 	}
 private:
 	int m_counter;
 };
 
+// for a thread_local variable, it will be constructed as the thread begins and destructed as the thread ends
+// and each thread has its own instance of the object
 thread_local TeaCup tea_cup;
 void cook_tea() {
 	tea_cup.nothing();
@@ -49,7 +83,16 @@ void tea_test() {
 	t2.join();
 }
 
+class Jack {
+private:
+	// thread_local int m_days; // thread-local storage class is not valid hereC/C++(2501)
+	// Note that if you want to declare a class member as thread_local, it must be a static member. since it would be shared
+	// by different class instances in the same thread according to its specification.
+	static thread_local int m_days;
+};
+
 int main() {
 	//naive_test();
 	tea_test();
 
+}

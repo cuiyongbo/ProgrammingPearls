@@ -362,6 +362,10 @@ add_executable(array_sort array_sort.cpp ${PUB_UTIL_FILES})
 target_compile_features(array_sort PUBLIC cxx_auto_type)
 target_link_libraries(array_sort)
 
+add_executable(binary_search_tester binary_search_tester.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_search_tester PUBLIC cxx_auto_type)
+target_link_libraries(binary_search_tester)
+
 add_executable(misc_exercises misc_exercises.cpp ${PUB_UTIL_FILES})
 target_compile_features(misc_exercises PUBLIC cxx_auto_type)
 target_link_libraries(misc_exercises)
