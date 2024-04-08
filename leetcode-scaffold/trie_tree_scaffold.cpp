@@ -10,9 +10,9 @@ A trie (pronounced as "try") or prefix tree is a tree data structure used to eff
 
 Implement the Trie class:
     Trie() Initializes the trie object.
-    void insert(String word) Inserts the string word into the trie.
-    boolean search(String word) Returns true if the string word is in the trie (i.e., was inserted before), and false otherwise.
-    boolean startsWith(String prefix) Returns true if there is a previously inserted string word that has the prefix prefix, and false otherwise.
+    void insert(String word) Inserts the string `word` into the trie.
+    boolean search(String word) Returns true if the string `word` is in the trie (i.e., was inserted before), and false otherwise.
+    boolean startsWith(String prefix) Returns true if there is a previously inserted string word that has the prefix `prefix`, and false otherwise.
 */
 
 namespace naive_version {
@@ -96,9 +96,9 @@ int main() {
     util::Log(logESSENTIAL) << "Running TrieTree tests:";
     TIMER_START(TrieTree);
     TrieTree_scaffold(
-        "[TrieTree,insert,insert,insert,search,search,startsWith]", 
-        "[[],[hello],[heros],[hell],[hello],[hero],[hero]]",
-        "[null,null,null,null,true,false,true]");
+        "[TrieTree,insert,insert,insert,search,search,startsWith,startsWith,startsWith]",
+        "[[],[hello],[heros],[hell],[hello],[hero],[hero],[he],[hr]]",
+        "[null,null,null,null,true,false,true,true,false]");
     TIMER_STOP(TrieTree);
     util::Log(logESSENTIAL) << "TrieTree using " << TIMER_MSEC(TrieTree) << " milliseconds";
 }

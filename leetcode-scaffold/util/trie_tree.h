@@ -7,8 +7,8 @@
 struct TrieNode {
     TrieNode() {
         is_leaf = false;
-        // assume that all inputs are consist of lowercase letters a-z.
-        children.assign(26, nullptr);
+        // assume that all inputs ONLY consist of ASCII characters.
+        children.assign(128, nullptr);
     }
     ~TrieNode() {
         for (auto n: children) {

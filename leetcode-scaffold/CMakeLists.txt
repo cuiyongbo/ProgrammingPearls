@@ -174,7 +174,7 @@ target_compile_features(trie_tree_map_sum_pairs PUBLIC cxx_auto_type)
 target_link_libraries(trie_tree_map_sum_pairs)
 
 add_executable(trie_tree_prefix_and_suffix_search trie_tree_prefix_and_suffix_search.cpp ${PUB_UTIL_FILES})
-target_compile_features(trie_tree_prefix_and_suffix_search PUBLIC cxx_auto_type)
+target_compile_features(trie_tree_prefix_and_suffix_search PUBLIC cxx_std_20)
 target_link_libraries(trie_tree_prefix_and_suffix_search)
 
 add_executable(trie_tree_add_and_search_word trie_tree_add_and_search_word.cpp ${PUB_UTIL_FILES})

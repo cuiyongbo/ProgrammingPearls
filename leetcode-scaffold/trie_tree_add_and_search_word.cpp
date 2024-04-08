@@ -34,8 +34,8 @@ void WordDictionary::addWord(const string& word) {
 }
     
 /** Returns if the word is in the data structure. A word could contain the dot character '.' to represent any one letter. */
-bool WordDictionary::search(const string& word) {
-    function<bool(TrieNode*, int)> backtrace = [&] (TrieNode* node, int u) {
+bool WordDictionary::search(const std::string& word) {
+    std::function<bool(TrieNode*, int)> backtrace = [&] (TrieNode* node, int u) {
         if (node == nullptr) {
             return false;
         }
@@ -50,7 +50,7 @@ bool WordDictionary::search(const string& word) {
             }
             return false;
         } else {
-            return backtrace(node->children[word[u]-'a'], u+1);
+            return backtrace(node->children[word[u]], u+1);
         }
     };
     return backtrace(m_tree.root(), 0);
@@ -83,9 +83,9 @@ int main() {
     util::Log(logESSENTIAL) << "Running WordDictionary tests:";
     TIMER_START(WordDictionary);
     WordFilter_scaffold(
-        "[WordDictionary,addWord,addWord,addWord,search,search,search,search,search]", 
-        "[[],[bad],[dad],[mad],[pad],[bad],[.ad],[b..],[...]]",
-        "[null,null,null,null,false,true,true,true,true]");
+        "[WordDictionary,addWord,addWord,addWord,search,search,search,search,search,search,search]",
+        "[[],[bad],[dad],[mad],[pad],[bad],[.ad],[b..],[...][b.d][.a.]]",
+        "[null,null,null,null,false,true,true,true,true,true,true]");
     TIMER_STOP(WordDictionary);
     util::Log(logESSENTIAL) << "WordDictionary using " << TIMER_MSEC(WordDictionary) << " milliseconds";
 }

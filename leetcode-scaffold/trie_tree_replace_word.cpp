@@ -12,43 +12,42 @@ public:
     string longestWord(vector<string>& words);
 };
 
-
 /*
     In English, we have a concept called root, which can be followed by some other words to form another longer word – let’s call this word successor. 
-    For example, the root an, followed by other, which can form another word another.
+    For example, the root `an`, followed by `other`, which can form another word `another`.
     Now, given a dictionary consisting of many roots and a sentence. You need to replace all the successor in the sentence with the root forming it. 
     If a successor has many roots can form it, replace it with the root with the shortest length. You need to output the sentence after the replacement.
-    You may assume that all the inputs are consist of lowercase letters a-z.
+    You may assume that all the inputs consist of lowercase letters a-z.
 */
 string Solution::replaceWords(vector<string>& dict, string sentence) {
     TrieTree tree;
     for (auto& d: dict) {
         tree.insert(d);
     }
-    auto word_root = [&] (string item) {
+    auto word_root = [&] (string word) -> string {
         TrieNode* p = tree.root();
-        std::string buffer;
-        for (auto c: item) {
-            if (p->is_leaf) {
-                return buffer;
-            }
-            if (p->children[c-'a'] == nullptr) {
+        string root;
+        for (auto c: word) {
+            if (p->children[c] == nullptr) {
                 break;
             }
-            buffer.push_back(c);
-            p = p->children[c-'a'];
+            root.push_back(c);
+            p = p->children[c];
+            if (p->is_leaf) {
+                return root;
+            }
         }
-        return item;
+        return word;
     };
     string ans;
+    // split sentence by whitespace
     std::stringstream ss(sentence);
-    for (string item; std::getline(ss, item, ' ');) {
-        ans.append(word_root(item) + " ");
+    for (std::string word; std::getline(ss, word, ' ');) {
+        ans.append(word_root(word) + " ");
     }
     ans.pop_back();
     return ans;
 }
-
 
 /*
     Given a list of strings words representing an English Dictionary, find the longest word in words that can be built one character at 
@@ -67,12 +66,13 @@ string Solution::longestWord(vector<string>& words) {
         if (ans.size() < buffer.size()) {
             ans = buffer;
         }
-        for (int i=0; i<26; ++i) {
+        for (int i='a'; i<='z'; ++i) {
             auto ch = p->children[i];
+            // we expect a leaf node at every step
             if (ch == nullptr || !ch->is_leaf) {
                 continue;
             }
-            buffer.push_back(i+'a');
+            buffer.push_back(i);
             backtrace(ch);
             buffer.pop_back();
         }
@@ -80,7 +80,6 @@ string Solution::longestWord(vector<string>& words) {
     backtrace(tree.root());
     return ans;
 }
-
 
 void replaceWords_scaffold(string input1, string input2, string expectedResult) {
     Solution ss;

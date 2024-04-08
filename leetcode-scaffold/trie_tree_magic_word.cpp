@@ -36,8 +36,6 @@ void MagicDictionary::buildDict(const vector<string>& dict) {
 }
 
 bool MagicDictionary::search(string word) {
-
-{ // naive method
     for (int i=0; i<word.size(); ++i) {
         for (char c='a'; c<='z'; ++c) {
             if (word[i] == c) {
@@ -52,44 +50,6 @@ bool MagicDictionary::search(string word) {
         }
     }   
     return false;
-}
-
-{
-    string candidate;
-    int word_sz = word.size();
-    auto is_valid = [&] (string input) {
-        if (input.size() != word_sz) {
-            return false;
-        }
-        int diff = 0;
-        for (int i=0; i<word_sz && diff<2; ++i) {
-            if (input[i] != word[i]) {
-                ++diff;
-            }
-        }
-        return diff == 1;
-    };
-    function<bool(TrieNode*)> backtrace = [&] (TrieNode* cur) {
-        if (cur == nullptr || candidate.size() > word_sz) {
-            return false;
-        }
-        if (cur->is_leaf) {
-            if (is_valid(candidate)) {
-                return true;
-            }
-        }
-        for (int i=0; i<cur->children.size(); ++i) {
-            candidate.push_back(i+'a');
-            if (backtrace(cur->children[i])) {
-                return true;
-            }
-            candidate.pop_back();
-        }
-        return false;
-    };
-    return backtrace(m_trieTree.root());
-}
-
 }
 
 void MagicDictionary_scaffold(string operations, string args, string expectedOutputs) {

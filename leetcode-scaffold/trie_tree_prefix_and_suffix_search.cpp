@@ -22,21 +22,20 @@ Note:
 */
 
 class WordFilter {
-struct TrieNode {
-    TrieNode() {
+struct FilterNode {
+    FilterNode() {
         val = -1;
         is_leaf = false;
-        // assume that all inputs are consist of lowercase letters a-z.
-        children.assign(26, NULL);
+        children.assign(128, nullptr);
     }
-    ~TrieNode() {
+    ~FilterNode() {
         for (auto n: children){
             delete n;
         }
     }
     int val;
     bool is_leaf;
-    std::vector<TrieNode*> children;
+    std::vector<FilterNode*> children;
 };
 public:
     void buildDict(const vector<string>& dict);
@@ -44,7 +43,7 @@ public:
 private:
     void insert(const string& key, int val);
 private:
-    TrieNode m_root;
+    FilterNode m_root;
 };
 
 void WordFilter::buildDict(const vector<string>& dict) {
@@ -54,44 +53,50 @@ void WordFilter::buildDict(const vector<string>& dict) {
 }
 
 void WordFilter::insert(const string& key, int val){
-    TrieNode* cur = &m_root;
+    FilterNode* cur = &m_root;
     for (auto c: key) {
-        if (cur->children[c-'a'] == nullptr) {
-            cur->children[c-'a'] = new TrieNode;
+        if (cur->children[c] == nullptr) {
+            cur->children[c] = new FilterNode;
         }
-        cur = cur->children[c-'a'];
+        cur = cur->children[c];
     }
     cur->val = val;
     cur->is_leaf = true;
 }
 
 int WordFilter::filter(const string& prefix, const string& suffix) {
-    TrieNode* p = &m_root;
+    // find the enter point with prefix
+    FilterNode* p = &m_root;
     for (auto c: prefix) {
-        if (p->children[c-'a'] == nullptr) {
+        if (p->children[c] == nullptr) {
             return -1;
         }
-        p = p->children[c-'a'];
+        p = p->children[c];
     }
-    int ans = INT32_MIN;
-    string buffer = prefix;
-    function<void(TrieNode*)> backtrace = [&] (TrieNode* p) {
-        if (p == nullptr) {
+    // traverse from the enter pointer, finding the candidate with maximum weight
+    FilterNode* ans = nullptr;
+    std::string buffer = prefix;
+    function<void(FilterNode*)> backtrace = [&] (FilterNode* node) {
+        if (node == nullptr) {
             return;
         }
-        if (p->is_leaf) {
-            if (buffer.rfind(suffix, buffer.size()-suffix.size()) != std::string::npos) {
-                ans = std::max(ans, p->val);
+        if (node->is_leaf) {
+            if (buffer.ends_with(suffix)) {
+                if (ans == nullptr) {
+                    ans = node;
+                } else if (node->val > ans->val) {
+                    ans = node;
+                }
             }
         }
-        for (int i=0; i<26; ++i) {
-            buffer.push_back(i+'a');
-            backtrace(p->children[i]);
+        for (char c='a'; c<='z'; ++c) {
+            buffer.push_back(c);
+            backtrace(node->children[c]);
             buffer.pop_back();
         }
     };
     backtrace(p);
-    return ans==INT32_MIN ? -1 : ans;
+    return ans->val;
 }
 
 void WordFilter_scaffold(string operations, string args, string expectedOutputs) {
@@ -120,9 +125,9 @@ int main() {
     util::Log(logESSENTIAL) << "Running WordFilter tests:";
     TIMER_START(WordFilter);
     WordFilter_scaffold(
-        "[WordFilter,buildDict,filter,filter,filter]", 
-        "[[],[apple,abyss],[a,e],[b,],[a,]]",
-        "[null,null,0,-1,1]");
+        "[WordFilter,buildDict,filter,filter,filter,filter]", 
+        "[[],[apple,abyss,hello,hero],[a,e],[b,],[a,],[h,o]]",
+        "[nullptr,nullptr,0,-1,1,3]");
     TIMER_STOP(WordFilter);
     util::Log(logESSENTIAL) << "WordFilter using " << TIMER_MSEC(WordFilter) << " milliseconds";
 }

@@ -4,14 +4,14 @@ using namespace std;
 using namespace osrm;
 
 /*
-leetcode: 677 
+leetcode: 677
 
 Implement a MapSum class with insert, and sum methods.
 
 For the method insert, you'll be given a pair of (string, integer). The string represents the key and the integer represents the value.
 If the key already existed, then the original key-value pair will be overridden to the new one.
 For the method sum, you'll be given a string representing the prefix, and you need to return the sum of all the pairs' value whose key starts with the prefix.
-you may assume that key and prefix consist of only lowercase English letters.
+you may assume that key and prefix consist of only lowercase English letters a-z.
 
 Example 1:
     Input: insert("apple", 3), Output: Null
@@ -20,23 +20,20 @@ Example 1:
     Input: sum("ap"), Output: 5
 */
 
-struct TrieNode {
-    TrieNode() {
-        val = 0;
-        is_leaf = false;
-        // assume that all inputs are consist of lowercase letters a-z.
-        children.assign(26, nullptr);
+struct MapNode {
+    int val;
+    bool is_leaf;
+    std::vector<MapNode*> children;
+    MapNode(int n=0):
+        val(n),
+        is_leaf(false) {
+        children.resize(128, nullptr);
     }
-
-    ~TrieNode() {
+    ~MapNode() {
         for (auto n: children) {
             delete n;
         }
     }
-
-    int val;
-    bool is_leaf;
-    std::vector<TrieNode*> children;
 };
 
 class MapSum {
@@ -44,30 +41,35 @@ public:
     void insert(const string& key, int val);
     int sum(const string& prefix);
 private:
-    TrieNode m_root;
+    MapNode m_root;
 };
 
 void MapSum::insert(const string& key, int val) {
-    TrieNode* cur = &m_root;
+    MapNode* p = &m_root;
     for (auto c: key) {
-        if (cur->children[c-'a'] == nullptr) {
-            cur->children[c-'a'] = new TrieNode;
+        if (p->children[c] == nullptr) {
+            p->children[c] = new MapNode;
         }
-        cur = cur->children[c-'a'];
+        p = p->children[c];
     }
-    cur->val = val;
-    cur->is_leaf = true;
+    p->is_leaf = true;
+    p->val = val;
 }
 
 int MapSum::sum(const string& prefix) {
-    TrieNode* cur = &m_root;
+    if (prefix.empty()) {
+        return 0;
+    }
+    // find the enter point
+    MapNode* p = &m_root;
     for (auto c: prefix) {
-        cur = cur->children[c-'a'];
-        if (cur == nullptr) {
-            break;
+        p = p->children[c];
+        if (p == nullptr) {
+            return 0;
         }
     }
-    function<int(TrieNode*)> dfs = [&] (TrieNode* node) {
+    // traverse from the enter pointer, and sum values of all leaf nodes
+    function<int(MapNode*)> dfs = [&] (MapNode* node) {
         if (node == nullptr) {
             return 0;
         }
@@ -80,7 +82,7 @@ int MapSum::sum(const string& prefix) {
         }
         return ans;
     };
-    return dfs(cur);
+    return dfs(p);
 }
 
 void MapSum_scaffold(string operations, string args, string expectedOutputs) {
@@ -109,9 +111,9 @@ int main() {
     util::Log(logESSENTIAL) << "Running MapSum tests:";
     TIMER_START(MapSum);
     MapSum_scaffold(
-        "[MapSum,insert,sum,insert,sum,insert,sum,sum]",
-        "[[],[apple,3],[ap],[apm,2],[ap],[approve,7],[ap],[app]]",
-        "[null,null,3,null,5,null,12,10]");
+        "[MapSum,insert,sum,insert,sum,insert,sum,sum,sum]",
+        "[[],[apple,3],[ap],[apm,2],[ap],[approve,7],[ap],[app],[bo]]",
+        "[null,null,3,null,5,null,12,10,0]");
     TIMER_STOP(MapSum);
     util::Log(logESSENTIAL) << "MapSum using " << TIMER_MSEC(MapSum) << " milliseconds";
 }
