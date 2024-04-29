@@ -1,17 +1,20 @@
 #include <iostream>
 #include <map>
+#include <unordered_map>
+#include <list>
 #include <cassert>
+#include <shared_mutex>
 
 using namespace std;
 
 /*
 Leetcode 146:
 
-Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.
+Design a data structure that follows the constraints of a Least Recently Used (LRUCache) cache.
 
 Implement the LRUCache class:
 
-`LRUCache(int capacity)` Initialize the LRU cache with positive size capacity.
+`LRUCache(int capacity)` Initialize the LRUCache cache with positive size capacity.
 
 `int get(int key)` Return the value of the key if the key exists, otherwise return -1.
 
@@ -34,119 +37,128 @@ Explanation
     lRUCache.put(1, 1); // cache is {1=1}
     lRUCache.put(2, 2); // cache is {1=1, 2=2}
     lRUCache.get(1);    // return 1
-    lRUCache.put(3, 3); // LRU key was 2, evicts key 2, cache is {1=1, 3=3}
+    lRUCache.put(3, 3); // LRUCache key was 2, evicts key 2, cache is {1=1, 3=3}
     lRUCache.get(2);    // returns -1 (not found)
-    lRUCache.put(4, 4); // LRU key was 1, evicts key 1, cache is {4=4, 3=3}
+    lRUCache.put(4, 4); // LRUCache key was 1, evicts key 1, cache is {4=4, 3=3}
     lRUCache.get(1);    // return -1 (not found)
     lRUCache.get(3);    // return 3
     lRUCache.get(4);    // return 4
 */
 
+namespace std_implementation {
+
 class LRUCache {
 public:
-    LRUCache(int capacity):
-        m_capacity(capacity) {
-        assert(capacity > 0);
-        m_head.next = &m_tail;
-        m_tail.prev = &m_head;
+    LRUCache(int cap) {
+        m_capacity = cap;
     }
 
-    ~LRUCache() {
-        m_nodeMap.clear();
-        auto p = m_head.next;
-        while (p != &m_tail) {
-            auto q = p->next;
-            delete p;
-            p = q;
-        }
-    }
-    
     int get(int key) {
-        auto it = m_nodeMap.find(key);
-        if (it == m_nodeMap.end()) {
+        if (m_node_map.count(key) == 0) {
             return -1;
-        } else {
-            auto node = it->second;
-            node->prev->next = node->next;
-            node->next->prev = node->prev; 
-            node->prev = &m_head;
-            node->next = m_head.next;
-            m_head.next->prev = node;
-            m_head.next = node; 
-            return node->val;
         }
+        int val = m_node_map[key]->second;
+        put(key, val);
+        return val;
     }
-    
-    void put(int key, int value) {
-        CacheNode* node = nullptr;
-        auto it = m_nodeMap.find(key);
-        if (it == m_nodeMap.end()) {
-            node = new CacheNode(key, value);
-            if (m_nodeMap.size() == m_capacity) {
-                auto node_to_evict = m_tail.prev;
-                node_to_evict->prev->next = node_to_evict->next;
-                node_to_evict->next->prev = node_to_evict->prev;
-                m_nodeMap.erase(node_to_evict->key);
-                delete node_to_evict;
-            }
-            m_nodeMap[key] = node;
-        } else {
-            node = it->second;
-            node->val = value;
-            node->prev->next = node->next;
-            node->next->prev = node->prev;    
-        }
 
-        // the execution order matters
-        node->prev = &m_head;
-        node->next = m_head.next;
-        m_head.next->prev = node;
-        m_head.next = node;
+    void put(int key, int value) {
+        if (m_node_map.count(key)) {
+            m_nodes.erase(m_node_map[key]);
+        } else {
+            if (m_capacity == m_nodes.size()) {
+                m_node_map.erase(m_nodes.back().first);
+                m_nodes.pop_back();
+            }
+        }
+        m_nodes.push_front(std::make_pair(key, value));
+        m_node_map[key] = m_nodes.begin();
     }
 
     void display() {
-        cout << "Capacity: " << m_capacity << endl;
-        cout << "Value: ";
-        auto p = m_head.next;
-        while (p != &m_tail) {
-            cout << "(" << p->key << ", " << p->val << ")";
-            p = p->next;
+        for (auto it: m_nodes) {
+            printf("(%d,%d)", it.first, it.second);
         }
-        cout << endl;
+        printf("\n");
     }
+
 private:
-    struct CacheNode {
-        int key;
-        int val;
-        CacheNode* prev;
-        CacheNode* next;
-        CacheNode(int k=-1, int v=-1):
-            key(k), val(v),
-            prev(nullptr),
-            next(nullptr) {
-        }
-    };
+    unordered_map<int, list<pair<int, int>>::iterator> m_node_map;
+    list<pair<int, int>> m_nodes;
     int m_capacity;
-    CacheNode m_head;
-    CacheNode m_tail;
-    map<int, CacheNode*> m_nodeMap;
 };
+}
+
+namespace thread_safe_implementation {
+class LRUCache {
+public:
+    LRUCache(int cap) {
+        m_capacity = cap;
+    }
+
+    int get(int key) {
+        std::shared_lock lock(m_mutex);
+        auto it = m_node_map.find(key);
+        if (it == m_node_map.end()) {
+            return -1;
+        } else {
+            m_nodes.splice(m_nodes.begin(), m_nodes, it->second);
+            return it->second->second;
+        }
+    }
+
+    void put(int key, int value) {
+        std::unique_lock lock(m_mutex);
+        auto it = m_node_map.find(key);
+        if (it != m_node_map.end()) {
+            m_nodes.erase(it->second);
+            m_node_map.erase(it);
+        }
+        m_nodes.push_front(std::make_pair(key, value));
+        m_node_map[key] = m_nodes.begin();
+
+        do_inviction_if_need();
+    }
+
+    void do_inviction_if_need() {
+        while (m_nodes.size() > m_capacity) {
+            m_node_map.erase(m_nodes.back().first);
+            m_nodes.pop_back();
+        }
+    }
+
+    void display() {
+        std::shared_lock lock(m_mutex);
+        for (auto it: m_nodes) {
+            printf("(%d,%d)", it.first, it.second);
+        }
+        printf("\n");
+    }
+
+private:
+    unordered_map<int, list<pair<int, int>>::iterator> m_node_map;
+    list<pair<int, int>> m_nodes;
+    int m_capacity;
+    std::shared_mutex m_mutex;
+};
+}
 
 int main() {
-    LRUCache* lru = new LRUCache(3);
-    int p = lru->get(1);
+    //using std_implementation::LRUCache;
+    using thread_safe_implementation::LRUCache;
+    LRUCache lru(3);
+    int p = lru.get(1);
     assert(p == -1);
-    lru->put(1, 10);
-    lru->put(2, 20);
-    p = lru->get(1);
+    lru.put(1, 10);
+    lru.put(2, 20);
+    p = lru.get(1);
     assert(p == 10);
-    lru->display();
-    lru->put(3, 30);
-    lru->put(4, 40);
-    lru->display();
-    lru->put(2, 22);
-    lru->display();
-    p = lru->get(2);
+    lru.display();
+    lru.put(3, 30);
+    lru.put(4, 40);
+    lru.display();
+    lru.put(2, 22);
+    lru.display();
+    p = lru.get(2);
     assert(p == 22);
-    delete lru;
 }

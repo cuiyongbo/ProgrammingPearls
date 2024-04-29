@@ -3,7 +3,7 @@
 using namespace std;
 using namespace osrm;
 
-/* leetcode: 150,224,227,772, 3, 223, 836, 189 */
+/* leetcode: 150,224,227,772, 3, 223, 836, 189, 56 */
 class Solution {
 public:
     int evalRPN(vector<string>& tokens);
@@ -14,6 +14,7 @@ public:
     int computeArea(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2);
     bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2);
     void rotate(vector<int>& nums, int k);
+    vector<vector<int>> merge(vector<vector<int>>& intervals);
 
 private:
     int calculate_227_infix2postfix(string s);
@@ -43,6 +44,73 @@ private:
         {"(", INT32_MAX}, {")", INT32_MAX},
     };
 };
+
+
+vector<vector<int>> Solution::merge(vector<vector<int>>& intervals) {
+/*
+Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.
+
+Example 1:
+    Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
+    Output: [[1,6],[8,10],[15,18]]
+    Explanation: Since intervals [1,3] and [2,6] overlap, merge them into [1,6].
+
+Example 2:
+    Input: intervals = [[1,4],[4,5]]
+    Output: [[1,5]]
+    Explanation: Intervals [1,4] and [4,5] are considered overlapping.
+*/
+    auto cmp = [](const vector<int>& a, const vector<int>& b) {
+        if (a[0] < b[0]) {
+            return true;
+        } else if (a[0] == b[0]) {
+            return a[1] < b[1];
+        } else {
+            return false;
+        }
+    };
+    auto is_overlap = [] (const vector<int>& a, const vector<int>& b) {
+        if (b[0] <= a[1] && a[1] <= b[1]) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    // sort intervals by left boundary in ascending order
+    std::sort(intervals.begin(), intervals.end(), cmp);
+
+    vector<vector<int>> ans;
+    ans.reserve(intervals.size());
+    vector<int> tmp = intervals[0];
+    for (int i=1; i<intervals.size(); i++) {
+        if (is_overlap(tmp, intervals[i])) {
+            tmp[1] = std::max(tmp[1], intervals[i][1]);
+        } else {
+            ans.push_back(tmp);
+            tmp = intervals[i];
+        }
+    }
+    ans.push_back(tmp);
+    return ans;
+}
+
+void merge_scaffold(string input, string expectedResult) {
+    Solution ss;
+    vector<vector<int>> intervals = stringTo2DArray<int>(input);
+    vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
+    vector<vector<int>> actual = ss.merge(intervals);
+    if (actual == expected) {
+        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    } else {
+        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
+        util::Log(logERROR) << "Actual: ";
+        for (const auto& row: actual) {
+            util::Log(logERROR) << numberVectorToString<int>(row);
+        }
+    }
+}
+
 
 void Solution::rotate(vector<int>& nums, int k) {
 /*
@@ -620,6 +688,21 @@ void isRectangleOverlap_scaffold(string input1, string input2, int expectedResul
     }
 }
 
+// 快速幂: https://zhuanlan.zhihu.com/p/95902286
+int qpow2(int a, int n) {
+    int ans = 1;
+    while (n != 0) {
+        if (n&1) {
+            ans *= a;
+        }
+        a *= a;
+        n >>= 1;
+    }
+    return ans;
+}
+
+// 区间合并: 给出
+
 int main() {
     util::LogPolicy::GetInstance().Unmute();
 
@@ -713,4 +796,12 @@ int main() {
     rotate_scaffold("[-1,-100,3,99]", 2, "[3,99,-1,-100]");
     TIMER_STOP(rotate);
     util::Log(logESSENTIAL) << "rotate using " << TIMER_MSEC(rotate) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running merge tests:";
+    TIMER_START(merge);
+    merge_scaffold("[[1,3],[2,6],[8,10],[15,18]]", "[[1,6],[8,10],[15,18]]");
+    merge_scaffold("[[1,4],[4,5]]", "[[1,5]]");
+    TIMER_STOP(merge);
+    util::Log(logESSENTIAL) << "merge using " << TIMER_MSEC(merge) << " milliseconds";
+
 }

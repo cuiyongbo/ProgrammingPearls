@@ -9,8 +9,7 @@ struct Box {
     std::mutex m;
 };
  
-void transfer(Box &from, Box &to, int num)
-{
+void transfer(Box &from, Box &to, int num) {
     // don't actually take the locks yet
     std::unique_lock<std::mutex> lock1(from.m, std::defer_lock);
     std::unique_lock<std::mutex> lock2(to.m, std::defer_lock);
@@ -24,8 +23,7 @@ void transfer(Box &from, Box &to, int num)
     // 'from.m' and 'to.m' mutexes unlocked in 'unique_lock' dtors
 }
  
-int main()
-{
+int main() {
     Box acc1(100);
     Box acc2(50);
  

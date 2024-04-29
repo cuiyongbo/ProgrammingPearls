@@ -186,7 +186,7 @@ target_compile_features(advanced_topics_range_sum_query PUBLIC cxx_auto_type)
 target_link_libraries(advanced_topics_range_sum_query)
 
 add_executable(lru_cache lru_cache.cpp ${PUB_UTIL_FILES})
-target_compile_features(lru_cache PUBLIC cxx_auto_type)
+target_compile_features(lru_cache PUBLIC cxx_std_20)
 target_link_libraries(lru_cache)
 
 add_executable(lfu_cache lfu_cache.cpp ${PUB_UTIL_FILES})
