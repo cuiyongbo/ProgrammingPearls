@@ -2,31 +2,6 @@
 #include <thread>
 #include <stdint.h>
 
-
-/*
-what does ``std::endl`` do?
-
-template <class _Elem, class _Traits>
-basic_ostream<_Elem, _Traits>& __CLRCALL_OR_CDECL endl(
-    basic_ostream<_Elem, _Traits>& _Ostr) { // insert newline and flush stream
-    _Ostr.put(_Ostr.widen('\n'));
-    _Ostr.flush();
-    return _Ostr;
-}
-
-template <class _Elem, class _Traits>
-basic_ostream<_Elem, _Traits>& __CLRCALL_OR_CDECL ends(basic_ostream<_Elem, _Traits>& _Ostr) { // insert null character
-    _Ostr.put(_Elem());
-    return _Ostr;
-}
-
-template <class _Elem, class _Traits>
-basic_ostream<_Elem, _Traits>& __CLRCALL_OR_CDECL flush(basic_ostream<_Elem, _Traits>& _Ostr) { // flush stream
-    _Ostr.flush();
-    return _Ostr;
-}
-*/
-
 thread_local int tt = 0;
 std::mutex cout_mutex;
 
@@ -85,14 +60,14 @@ void tea_test() {
 
 class Jack {
 private:
-	// thread_local int m_days; // thread-local storage class is not valid hereC/C++(2501)
+	// thread_local int m_days; // thread-local storage class is not valid here
 	// Note that if you want to declare a class member as thread_local, it must be a static member. since it would be shared
 	// by different class instances in the same thread according to its specification.
 	static thread_local int m_days;
 };
 
 int main() {
-	//naive_test();
-	tea_test();
+	naive_test();
+	//tea_test();
 
 }

@@ -90,6 +90,56 @@ void TrieTree_scaffold(string operations, string args, string expectedOutputs) {
     }
 }
 
+/*
+leetcode: 386 
+Given an integer n, return all the numbers in the range [1, n] sorted in lexicographical order.
+You must write an algorithm that runs in O(n) time and uses O(1) extra space. 
+
+Example 1:
+
+Input: n = 13
+Output: [1,10,11,12,13,2,3,4,5,6,7,8,9]
+Example 2:
+
+Input: n = 2
+Output: [1,2]
+
+*/
+
+class Solution {
+public:
+    vector<int> lexicalOrder(int n) {
+        vector<int> ans;
+        ans.reserve(n);
+        std::function<void(int)> dfs = [&] (int cur) {
+            if (cur > n) {
+                return;
+            }
+            ans.push_back(cur);
+            for (int i=0; i<10; i++) {
+                dfs(cur*10 + i);
+            }
+        };
+        // 最高位不能为0
+        for (int i=1; i<10; i++) {
+            dfs(i);
+        }
+        return ans;
+    }
+};
+
+void lexicalOrder_scaffold(int n, const string& expected) {
+    Solution s;
+    // initial value of reference to non-const must be an lvalueC/C++(461)
+    const vector<int>& actual = s.lexicalOrder(n);
+    const vector<int>& ans = stringTo1DArray<int>(expected);
+    if (actual != ans) {
+        util::Log(logERROR) <<  "lexicalOrder(" << n << ") failed. Expected: " << expected << ", actual: " << numberVectorToString(actual);
+    } else {
+        util::Log(logINFO) <<  "lexicalOrder(" << n << ") passed";
+    }
+}
+
 int main() {
     util::LogPolicy::GetInstance().Unmute();
 
@@ -101,4 +151,11 @@ int main() {
         "[null,null,null,null,true,false,true,true,false]");
     TIMER_STOP(TrieTree);
     util::Log(logESSENTIAL) << "TrieTree using " << TIMER_MSEC(TrieTree) << " milliseconds";
+
+    util::Log(logESSENTIAL) << "Running lexicalOrder tests:";
+    TIMER_START(lexicalOrder);
+    lexicalOrder_scaffold(13, "[1,10,11,12,13,2,3,4,5,6,7,8,9]");
+    lexicalOrder_scaffold(2, "[1,2]");
+    TIMER_STOP(lexicalOrder);
+    util::Log(logESSENTIAL) << "lexicalOrder using " << TIMER_MSEC(lexicalOrder) << " milliseconds";
 }

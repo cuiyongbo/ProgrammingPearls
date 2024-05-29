@@ -3,8 +3,7 @@
 #include <thread>
 #include <chrono>
  
-void f1(int n)
-{
+void f1(int n) {
     for (int i = 0; i < 5; ++i) {
         std::cout << "Thread 1 executing\n";
         ++n;
@@ -12,8 +11,7 @@ void f1(int n)
     }
 }
  
-void f2(int& n)
-{
+void f2(int& n) {
     for (int i = 0; i < 5; ++i) {
         std::cout << "Thread 2 executing\n";
         ++n;
@@ -21,11 +19,9 @@ void f2(int& n)
     }
 }
  
-class foo
-{
+class foo {
 public:
-    void bar()
-    {
+    void bar() {
         for (int i = 0; i < 5; ++i) {
             std::cout << "Thread 3 executing\n";
             ++n;
@@ -35,11 +31,9 @@ public:
     int n = 0;
 };
  
-class baz
-{
+class baz {
 public:
-    void operator()()
-    {
+    void operator()() {
         for (int i = 0; i < 5; ++i) {
             std::cout << "Thread 4 executing\n";
             ++n;
@@ -48,9 +42,20 @@ public:
     }
     int n = 0;
 };
+
+class Servant {
+public:
+    Servant() {
+        // pass static member function
+        std::thread daemon(Servant::weapon);
+        // for non-static member function, it must be preceded by '&'
+        std::thread danger(&Servant::trumpCard, this);
+    }
+    static void weapon() {}
+    void trumpCard() {}
+};
  
-int main()
-{
+int main() {
     int n = 0;
     foo f;
     baz b;

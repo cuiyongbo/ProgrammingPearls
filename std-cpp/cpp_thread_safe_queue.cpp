@@ -330,4 +330,54 @@ The choice between `notify_one` and `notify_all` depends on the specific use cas
 
 In summary, `wait` is called when a thread needs to wait for a condition to be met, and `notify_one`/`notify_all` is called when there is a change in the state that might allow waiting threads to proceed. They work together to synchronize access to the queue and to coordinate between producer and consumer threads.
 
+Q: should I call ``notify_one`` or ``notify_all`` before or after unlocking the lock then?
+
+You can call `notify_one` or `notify_all` either before or after unlocking the mutex. However, there are subtle differences in behavior and performance implications depending on when you issue the notification:
+
+### Calling `notify_one` or `notify_all` before unlocking the mutex:
+
+- **Pros**:
+  - Ensures that the waiting thread(s) will not wake up until the notifying thread has released the lock. This can prevent the woken thread from immediately blocking again when trying to acquire the mutex, which can be more efficient in terms of scheduling and context switching.
+
+- **Cons**:
+  - If the notification causes a context switch to a waiting thread before the current thread has released the lock, the woken thread will immediately try to acquire the lock and will be blocked until the current thread releases it. This can lead to a slight performance cost due to the context switch followed by the lock contention.
+
+### Calling `notify_one` or `notify_all` after unlocking the mutex:
+
+- **Pros**:
+  - Can potentially reduce the time the mutex is held, as the notification is done after the mutex is released. This can be beneficial if the notification process is time-consuming for some reason.
+  - May reduce unnecessary context switches if the operating system's scheduler decides to wake up a waiting thread only after the current thread has finished its critical section.
+
+- **Cons**:
+  - There is a risk of a missed wake-up if a waiting thread checks the condition after the mutex is released but before the notification is sent. This is known as a "lost wake-up" and can result in the waiting thread not being woken up even though the condition it is waiting for has become true.
+
+In practice, the difference is often negligible, and either approach can be used. However, to avoid the potential for a lost wake-up, many developers prefer to call `notify_one` or `notify_all` while still holding the lock, especially if the condition being waited on is only changed in one place and the notification overhead is low.
+
+Here's an example of calling `notify_one` before unlocking the mutex:
+
+```cpp
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    // Modify the shared data
+    shared_data.modify();
+    // Notify one waiting thread
+    cond_var.notify_one();
+} // The lock is automatically released here when the unique_lock goes out of scope
+```
+
+And here's an example of calling `notify_one` after unlocking the mutex:
+
+```cpp
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    // Modify the shared data
+    shared_data.modify();
+} // The lock is automatically released here when the unique_lock goes out of scope
+// Notify one waiting thread
+cond_var.notify_one();
+```
+
+Ultimately, the choice of when to notify depends on the specific requirements of your application and your performance considerations. If you are unsure, a safe default is to notify while holding the lock.
+
+
 */
