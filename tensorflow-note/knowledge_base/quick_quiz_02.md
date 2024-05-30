@@ -92,4 +92,33 @@ TensorFlow 1.x and TensorFlow 2.x are two major versions of the TensorFlow machi
 
 Overall, TensorFlow 2.x represents a significant shift towards a more user-friendly and Pythonic approach to deep learning, with a focus on simplicity, ease of use, and flexibility. It retains the scalability and performance of TensorFlow 1.x while making it more accessible to a broader audience of developers and researchers.
 
+
+Q: what is the difference between ``torch.sum(a, 0)`` and ``torch.sum(a, 1)``?
+
+```py
+>>> a = torch.tril(torch.ones(3,3))
+>>> a
+tensor([[1., 0., 0.],
+        [1., 1., 0.],
+        [1., 1., 1.]])
+
+>>> a0 = torch.sum(a, 0, keepdim=True)
+>>> a0.shape
+torch.Size([1, 3])
+>>> a0
+tensor([[3., 2., 1.]])
+>>> a1 = torch.sum(a, 1, keepdim=True)
+>>> a1.shape
+torch.Size([3, 1])
+>>> a1
+tensor([[1.],
+        [2.],
+        [3.]])
+>>> help(torch.sum)
+    If :attr:`keepdim` is ``True``, the output tensor is of the same size
+    as :attr:`input` except in the dimension(s) :attr:`dim` where it is of size 1.
+    Otherwise, :attr:`dim` is squeezed (see :func:`torch.squeeze`), resulting in the
+    output tensor having 1 (or ``len(dim)``) fewer dimension(s).
+```
+
 ```
