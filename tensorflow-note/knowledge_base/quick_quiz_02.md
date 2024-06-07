@@ -121,4 +121,134 @@ tensor([[1.],
     output tensor having 1 (or ``len(dim)``) fewer dimension(s).
 ```
 
+Q: in tensorflow, what are broadcast, tile? what are they for?
+
+In TensorFlow, both **broadcasting** and the `tf.tile` function serve the purpose of working with tensors of varying shapes, especially during operations that involve multiple tensors. Each provides a mechanism to facilitate operations between tensors in different but compatible shapes.
+
+### Broadcasting
+
+**Broadcasting** is a concept borrowed from numpy which allows TensorFlow to perform arithmetic operations (like addition, multiplication) between tensors of different shapes. When operating on two tensors, TensorFlow automatically "broadcasts" the smaller tensor across the larger tensor so that they have matching shapes. This is done without actually copying data, which makes broadcasting a memory-efficient operation.
+
+Here’s how broadcasting works:
+- **Compatible Shapes**: Two dimensions are compatible for broadcasting if:
+  - they are equal, or
+  - one of them is 1.
+
+For example, if you have a tensor `A` of shape `(5,1)` and a tensor `B` of shape `(1,6)`, TensorFlow can broadcast both tensors to the shape `(5,6)` to perform element-wise operations.
+
+### Example of Broadcasting
+
+```python
+import tensorflow as tf
+
+# Tensor A with shape (5, 1)
+A = tf.constant([[1],
+                 [2],
+                 [3],
+                 [4],
+                 [5]])
+
+# Tensor B with shape (1, 6)
+B = tf.constant([1, 2, 3, 4, 5, 6])
+
+# Broadcasting A and B to perform element-wise addition
+C = A + B
+print(C)
+```
+
+Output will be a `(5, 6)` tensor as A is broadcast across columns and B is broadcast across rows.
+
+### tf.tile
+
+The `tf.tile` function, on the other hand, explicitly replicates a tensor along specified dimensions. Unlike broadcasting, `tf.tile` actually copies the data of the tensor, which can significantly increase the memory usage if the tensor size is large.
+
+**Usage**: You specify the multiples for each dimension, which tells TensorFlow how many times you want to replicate the tensor along that dimension.
+
+### Example of tf.tile
+
+```python
+import tensorflow as tf
+
+# Create a tensor of shape (1, 3)
+A = tf.constant([[1, 2, 3]])
+
+# Tile this tensor to create a (3, 3) tensor
+tiled_A = tf.tile(A, [3, 1])
+print(tiled_A)
+```
+
+Here, each row of `A` is replicated 3 times vertically (no replication horizontally).
+
+### Conclusion and Use Cases
+
+- **Use of Broadcasting**: Broadcasting is generally used to make tensor shapes compatible for operations without the explicit need to duplicate data. It’s used extensively in functions and operations that apply element-wise calculations.
+- **Use of tf.tile**: `tf.tile` is useful when an actual replication of data is needed, and not just a virtual replication for the sake of alignment in operations. It’s useful when you need to construct a larger tensor from smaller components for subsequent operations.
+
+Both techniques are powerful tools in TensorFlow, facilitating the implementation of complex tensor operations and manipulations required in high-dimensional data processing typical in machine learning and neural networks.
+
+
+Q: in machine learning, what does the term "autoregressive" mean?
+
+In machine learning, the term "autoregressive" refers to a type of model that predicts future values based on past or current values in a sequence. The concept is widely used in time series forecasting, where the goal is to model the next value (or values) in a sequence as a function of the historical values.
+
+### Key Characteristics of Autoregressive Models:
+
+1. **Dependency on Past Values**: In an autoregressive model, the output (future value) depends linearly on the previous outputs. It assumes that past values have a systematic influence on future values. This relationship can be modeled and used to forecast future points in the series.
+
+2. **Modeling Serial Correlation**: These models are particularly useful in cases where there is serial correlation in the data, meaning that successive measurements taken close together in time are correlated with each other.
+
+3. **Order of the Model**: The term "AR(p)" is often used, where "AR" stands for autoregressive and "p" describes the order of the model, i.e., the number of lagged observations included in the model. For example, AR(1) is a first-order autoregressive model, where the next value in the sequence is predicted as a function of the immediately previous value.
+
+### Equation Form:
+The general form of an autoregressive model of order p, AR(p), can be written as:
+\[ X_t = c + \phi_1 X_{t-1} + \phi_2 X_{t-2} + ... + \phi_p X_{t-p} + \epsilon_t \]
+Where:
+- \( X_t \) is the time series at time t.
+- \( c \) is a constant (also known as the intercept).
+- \( \phi_1, \phi_2, ..., \phi_p \) are the parameters of the model.
+- \( \epsilon_t \) is white noise.
+
+### Applications:
+- **Financial Markets**: Forecasting stock prices, economic indicators, etc.
+- **Signal Processing**: Used in signal forecasting and analysis.
+- **Weather Forecasting**: Predicting temperatures, rainfall, and other meteorological variables.
+- **Control Systems**: In engineering disciplines where past data is used to predict future behavior of systems.
+
+### Implementation in Machine Learning:
+In the realm of machine learning, many tools and libraries can model autoregressive processes. Libraries like `statsmodels` in Python offer methods to fit AR models to time-series data. Deep learning approaches also use architectures (like RNN, LSTM, GRU) that inherently model data with autoregressive properties by learning to predict next steps in sequences like text, audio, or video streams.
+
+### Advanced Variants:
+- **Autoregressive Integrated Moving Average (ARIMA)**: Extends the AR model by adding integrated differencing (handling non-stationarity) and moving average components.
+- **Seasonal Autoregressive Integrated Moving-Average (SARIMA)**: Incorporates seasonality into the ARIMA model.
+- **Autoregressive Conditional Heteroskedasticity (ARCH)** and Generalized ARCH (GARCH): Models used for time series data where variance is time-dependent, commonly applied in financial time series to model volatility clustering.
+
+Autoregressive models are a cornerstone in the analysis and forecasting of time series data, providing a foundation upon which more complex models and forecasts can be built.
+
+Q: in LLM, what does the parameter ``top_p`` mean?
+
+In language models, and particularly in the context of generating text, the `top_p` parameter is associated with a sampling strategy known as **nucleus sampling** or **top-p sampling**. This strategy is an alternative to the more straightforward temperature sampling or top-k sampling methods, aiming to improve the diversity and quality of generated text.
+
+### Understanding Top-p Nucleus Sampling:
+
+1. **Selection Based on Cumulative Probability**:
+   - When generating a new token (word or character) in the sequence, top-p sampling considers the smallest set of possible next tokens whose cumulative probability is greater than or equal to the parameter `p` (where `p` is usually a number between 0 and 1, such as 0.9).
+   - This set of tokens, often called the "nucleus," variably adjusts in size. The fundamental difference from top-k sampling is that top-k always considers the top `k` most probable next tokens regardless of their cumulative probability.
+
+2. **Dynamic Candidate Pool**:
+   - Because the size of the nucleus is not fixed, top-p sampling dynamically adjusts the number of candidates based on their probability. If a single token has a high probability that surpasses `p`, it might be the only candidate. Conversely, in cases where probabilities are more uniformly distributed, the nucleus might include many tokens whose cumulative probability meets or exceeds `p`.
+
+3. **Focus on Likely Tokens**:
+   - Top-p sampling effectively filters out the least likely tokens from the sampling space, reducing the tail of improbabilities that often generate less coherent outputs. However, compared to top-k, it is less prone to cutting off plausible but less likely tokens whenever a few tokens have dominating probabilities.
+
+### Example of Top-p Sampling:
+- If you have a list of potential next tokens with respective probabilities, and you set `top_p = 0.9`, you will make a subset of these tokens starting with the highest probability and keep adding until the sum of probabilities in the subset is at least 0.9.
+
+### Benefits of Using `top_p` in Text Generation:
+- **Balance Between Randomness and Relevance**: Top-p allows more diversity in generating text than top-k sampling while still keeping the generation relevant and under control (as opposed to purely random sampling). It adapts better to different contexts in the generated text because it considers probability distribution rather than a fixed number of tokens.
+- **Quality of Generated Content**: Because this method focuses on a high probability mass rather than a fixed count of tokens, it can often produce higher quality and more contextually appropriate text completions, especially in nuanced or complex narrative constructs.
+
+### Usage in Language Models:
+- Many state-of-the-art language models implemented for creative writing, chatbots, or other natural language generation tasks can benefit from the top-p sampling method. It is often used in conjunction with other parameters like temperature to fine-tune the randomness and determinism in generated text outcomes.
+
+Top-p sampling has become a popular choice in practices involving advanced natural language processing models and tools due to its effective approach in managing the balance between creativity and logical coherence in generated text.
 ```
