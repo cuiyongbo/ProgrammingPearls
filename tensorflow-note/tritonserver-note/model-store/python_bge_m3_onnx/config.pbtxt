@@ -1,0 +1,63 @@
+name: "python_bge_m3_onnx"
+backend: "python"
+max_batch_size: 128
+
+input [
+  {
+    name: "input"
+    data_type: TYPE_STRING
+    dims: [1]
+  }
+]
+output [
+  {
+    name: "dense_vecs"
+    data_type: TYPE_FP32
+    dims: [1024]
+  },
+  {
+    name: "token_ids"
+    data_type: TYPE_UINT32
+    dims: [-1]
+  },
+  {
+    name: "token_weights"
+    data_type: TYPE_FP32
+    dims: [-1]
+  },
+  {
+    name: "tokens"
+    data_type: TYPE_STRING
+    dims: [-1]
+  }
+]
+
+# perf_analyzer -m text_recognition -b 16 --shape input.1:1,32,100 --concurrency-range 16
+# perf_analyzer -m python_bge_m3_onnx -b 1 --shape input:1 --string-data="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#instance-groups" --concurrency-range 2 
+
+# https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#instance-groups
+instance_group [
+  {
+    count: 1
+    kind: KIND_GPU
+  }
+]
+
+# https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#response-cache
+response_cache {
+  enable: false
+}
+
+# https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/optimization.html#onnx-with-tensorrt-optimization-ort-trt
+optimization {
+  graph : {
+    level : 1
+  }
+ execution_accelerators {
+    gpu_execution_accelerator : [ {
+      name : "tensorrt",
+      parameters { key: "precision_mode" value: "FP16" },
+      parameters { key: "max_workspace_size_bytes" value: "1073741824" }
+    }]
+  }
+}
