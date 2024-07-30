@@ -32,6 +32,8 @@ docker exec -u root -it cb64ff444240 bash
 cd && rm -rf .cache # remember to backup data
 ln -s  /model-store/data-store/huggingface-cache-dir .cache
 
+pip install jupyterlab
+
 # start jupyter notebook server and keep it running in background
 nohup jupyter notebook --no-browse --allow-root --autoreload --notebook-dir=/model-store &
 
