@@ -1,0 +1,36 @@
+name: "model_b"
+backend: "python"
+
+input [
+  {
+    name: "INPUT0"
+    data_type: TYPE_FP32
+    dims: [ 1 ]
+  }
+]
+
+output [
+  {
+    name: "OUTPUT0"
+    data_type: TYPE_FP32
+    dims: [ 1 ]
+  }
+]
+
+instance_group [
+  {
+    count: 1
+    kind: KIND_GPU
+    gpus: [ 0 ]
+    rate_limiter {
+      resources [
+        {
+          name: "R1"
+          count: 4
+          #global: true
+        }
+      ]
+      priority: 2
+    }
+  }
+]

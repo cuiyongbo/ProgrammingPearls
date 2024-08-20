@@ -1,0 +1,45 @@
+name: "priority_queue"
+backend: "python"
+
+input [
+  {
+    name: "INPUT0"
+    data_type: TYPE_FP32
+    dims: [ 1 ]
+  }
+]
+
+output [
+  {
+    name: "OUTPUT0"
+    data_type: TYPE_FP32
+    dims: [ 1 ]
+  }
+]
+
+instance_group [{ kind: KIND_CPU }]
+
+dynamic_batching {
+  priority_levels: 2
+  default_priority_level: 2
+  priority_queue_policy: [
+    {
+      key: 1
+      value: {
+        timeout_action: 0 # reject
+        max_queue_size: 0 # no limit on queue size
+        default_timeout_microseconds: 50000 # no timeout
+        allow_timeout_override: true # user can override default timeout only with SMALLER value
+      }
+    },
+    {
+      key: 2
+      value: {
+        timeout_action: 1 # delay
+        max_queue_size: 2
+        default_timeout_microseconds: 1000
+        allow_timeout_override: false
+      }
+    }
+  ]
+}

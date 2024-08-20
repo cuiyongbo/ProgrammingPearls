@@ -48,7 +48,7 @@ A:GEMM stands for General Matrix-Matrix multiplication. It is a fundamental oper
 
 GEMM is widely used in various computational tasks, including but not limited to:
 
-1. Machine Learning and Deep Learning: GEMM is a crucial operation in neural network models for tasks like fully connected layers and matrix multiplication-based convolution operations (as in Convolutional Neural Networks- CNNs).
+1. Machine Learning and Deep Learning: GEMM is a crucial operation in neural network models for tasks like fully connected layers and CNN layers.
 
 2. Computer Graphics: GEMM is essential for transformations such as rotation, scaling, and translation in computer graphics and 3D rendering.
 
