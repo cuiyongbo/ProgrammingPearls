@@ -32,7 +32,6 @@ import time
 import json
 import traceback
 import numpy as np
-from collections import defaultdict
 import triton_python_backend_utils as pb_utils
 from transformers import AutoTokenizer
 import onnxruntime as ort
@@ -42,20 +41,20 @@ from onnxruntime import GraphOptimizationLevel, InferenceSession, SessionOptions
 # Debug
 tritonserver --model-repository=/model-store/model-repository --allow-metrics false  --log-verbose 2
 tritonserver --model-repository=/root/code/huggingface-store/model-repository --allow-metrics=true  --log-verbose=2
-tritonserver --model-repository=/root/code/huggingface-store/model-repository --log-file=/tmp/triton_inference_server.log  --cache-config=local,size=536870912
 
 # profiling tritonserver
-nsys launch --cuda-memory-usage=true tritonserver --model-store=/model-store/model-repository --allow-metrics=false --allow-grpc=false --model-control-mode=explicit --load-model=python_bge_m3_onnx --log-file=/tmp/triton_inference_server.log
+nsys launch --cuda-memory-usage=true tritonserver --model-store=/model-store/model-repository --allow-metrics=false --allow-grpc=false --model-control-mode=explicit --load-model=python_bge_large_zh_onnx --log-file=/tmp/triton_inference_server.log
 nsys start
 nsys stop
 nsys shutdown -kill sigkill
 
 
 # 测试
-tritonserver --pinned-memory-pool-byte-size=268435456 --cache-config=local,size=268435456 --allow-metrics=false --http-thread-count=16 --log-file=/tmp/triton_inference_server.log --model-control-mode=explicit --load-model=python_bge_m3_onnx --model-repository=/root/code/huggingface-store/model-repository
+tritonserver --pinned-memory-pool-byte-size=268435456 --cache-config=local,size=268435456 --allow-metrics=false --http-thread-count=16 --log-file=/tmp/triton_inference_server.log --model-control-mode=explicit --load-model=python_bge_large_zh_onnx --model-repository=/root/code/triton-model-store
+tritonserver --pinned-memory-pool-byte-size=268435456 --cache-config=local,size=268435456 --allow-metrics=false --http-thread-count=16 --model-control-mode=explicit --load-model=python_bge_large_zh_onnx --model-repository=/root/code/triton-model-store
 
 # 在线启动命令
-tritonserver --pinned-memory-pool-byte-size=268435456 --cache-config=local,size=268435456 --allow-metrics=false --http-thread-count=16 --log-file=/tmp/triton_inference_server.log --model-control-mode=explicit --load-model=python_bge_m3_onnx --model-repository=/volcvikingdb-model-store/triton-model-repository
+tritonserver --pinned-memory-pool-byte-size=268435456 --cache-config=local,size=268435456 --allow-metrics=false --http-thread-count=16 --log-file=/tmp/triton_inference_server.log --model-control-mode=explicit --load-model=python_bge_large_zh_onnx --model-repository=/volcvikingdb-model-store/triton-model-repository
 
 '''
 
@@ -63,7 +62,7 @@ class TritonPythonModel:
     def initialize(self, args):
         self.logger = pb_utils.Logger
         self.logger.log_info("TritonPythonModel args: {}".format(args))
-        self.model_name = json.loads(args["model_config"]).get("name", "bge-m3")
+        self.model_name = json.loads(args["model_config"]).get("name", "bge-large-zh")
         model_path = "{}/{}".format(args["model_repository"], args["model_version"])
         model_content = os.listdir(model_path)
         if model_content:
@@ -71,6 +70,7 @@ class TritonPythonModel:
         else:
             self.logger.log_error("TritonPythonModel no model found in {}".format(model_path))
             sys.exit(-1)
+        self.max_sequence_len = 512 # BE CAUTIOUS, adjust the configuration before you reuse code 
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.model = self.create_model_for_provider(model_path+"/model.onnx")
         self.device = "{}:{}".format(args["model_instance_kind"].lower(), args["model_instance_device_id"])
@@ -81,6 +81,7 @@ class TritonPythonModel:
         self.counter = 0
 
     def create_model_for_provider(self, model_path: str) -> InferenceSession: 
+        # https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html
         provider = "CUDAExecutionProvider"
         assert provider in get_all_providers(), f"provider {provider} not found, {get_all_providers()}"
         providers = [
@@ -110,30 +111,8 @@ class TritonPythonModel:
             "A minimal model configuration must specify the platform and/or backend properties,the max_batch_size property, and the input and output tensors of the model."
         ]
         for _ in range(10):
-            inputs = self.tokenizer(input_list, padding=True, truncation=True, return_tensors="np")
+            inputs = self.tokenizer(input_list, padding=True, truncation=True, return_tensors="np", max_length=self.max_sequence_len)
             _ = self.model.run(None, input_feed=dict(inputs), run_options=self.session_run_opts)
-
-    # refer to https://github.com/FlagOpen/FlagEmbedding/blob/master/FlagEmbedding/bge_m3.py
-    def _process_token_weights(self, outputs) -> list:
-            unused_tokens = set([self.tokenizer.cls_token_id,
-                                 self.tokenizer.eos_token_id,
-                                 self.tokenizer.pad_token_id,
-                                 self.tokenizer.unk_token_id])
-            result = []
-            token_ids = outputs[1]
-            token_weights = outputs[2]
-            token_array = [self.tokenizer.convert_ids_to_tokens(r) for r in token_ids]
-            for i in range(len(token_array)):
-                sparse_dict = defaultdict(float)
-                for j in range(len(token_array[i])):
-                    w = token_weights[i][j].item()
-                    t_id = token_ids[i][j].item()
-                    t = token_array[i][j]
-                    if t_id in unused_tokens:
-                        continue
-                    sparse_dict[t] = max(sparse_dict[t], w)
-                result.append(json.dumps(sparse_dict))
-            return result
 
     def execute(self, requests):
         responses = []
@@ -144,27 +123,16 @@ class TritonPythonModel:
                 #self.logger.log_info("TritonPythonModel input_tensor.shape", input_tensor.shape())
                 input_list = input_tensor.as_numpy().flatten().tolist()
                 input_list = [s.decode("utf-8") for s in input_list]
-                inputs = self.tokenizer(input_list, padding=True, truncation=True, return_tensors="np")
+                inputs = self.tokenizer(input_list, padding=True, truncation=True, return_tensors="np", max_length=self.max_sequence_len)
                 outputs = self.model.run(None, input_feed=dict(inputs), run_options=self.session_run_opts)
-                token_array = [self.tokenizer.convert_ids_to_tokens(r) for r in outputs[1]]
                 total_tokens = np.sum(inputs["attention_mask"], axis=1, keepdims=True)
-                sparse_vecs = self._process_token_weights(outputs)
                 inference_response = pb_utils.InferenceResponse(
                     output_tensors=[
                         pb_utils.Tensor(
                             "dense_vecs", outputs[0],
                         ),
                         pb_utils.Tensor(
-                            "token_ids", outputs[1],
-                        ),
-                        pb_utils.Tensor(
-                            "token_weights", outputs[2],
-                        ),
-                        pb_utils.Tensor(
-                            "tokens", np.array(token_array, dtype=np.object_),
-                        ),
-                        pb_utils.Tensor(
-                            "sparse_vecs", np.array(sparse_vecs, dtype=np.object_),
+                            "total_tokens", total_tokens,
                         ),
                         pb_utils.Tensor(
                             "token_num", total_tokens,
@@ -176,7 +144,7 @@ class TritonPythonModel:
                 self.logger.log_info("{} batch_size: {}, coarse tokens: {}, inference using {}ms".format(
                                 self.model_name,
                                 len(input_list),
-                                outputs[1].shape[0]*outputs[1].shape[1],
+                                np.sum(total_tokens),
                                 duration_ms)
                     )
                 # for requests with large batch_size, we sleep a tiny millisecond to wait onnxruntime to release GPU memory before returning

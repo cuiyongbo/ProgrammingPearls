@@ -1,0 +1,76 @@
+
+name: "bge_ensemble_model"
+platform: "ensemble"
+max_batch_size: 128
+
+input [
+  {
+    name: "ensemble_input"
+    data_type: TYPE_STRING
+    dims: [1]
+  }
+]
+output [
+  {
+    name: "ensemble_dense_vecs"
+    data_type: TYPE_FP32
+    dims: [1024]
+  },
+  {
+    name: "ensemble_sparse_vecs"
+    data_type: TYPE_STRING
+    dims: [1]
+  },
+  {
+    name: "ensemble_dense_token_num"
+    data_type: TYPE_UINT32
+    dims: [1]
+  },
+  {
+    name: "ensemble_sparse_token_num"
+    data_type: TYPE_UINT32
+    dims: [1]
+  }
+]
+
+ensemble_scheduling {
+  step [
+    {
+      model_name: "python_bge_large_zh_onnx"
+      model_version: -1
+      input_map {
+        key: "input"
+        value: "ensemble_input"
+      },
+      output_map {
+        key: "dense_vecs"
+        value: "ensemble_dense_vecs"
+      },
+      output_map {
+        key: "token_num"
+        value: "ensemble_dense_token_num"
+      }
+    },
+    {
+      model_name: "python_bge_m3_onnx"
+      model_version: -1
+      input_map {
+        key: "input"
+        value: "ensemble_input"
+      },
+      output_map {
+        key: "sparse_vecs"
+        value: "ensemble_sparse_vecs"
+      }
+      output_map {
+        key: "token_num"
+        value: "ensemble_sparse_token_num"
+      },
+    }
+  ]
+}
+
+parameters: {
+  key: "FORCE_CPU_ONLY_INPUT_TENSORS"
+  value:{string_value:"no"}
+}

@@ -24,9 +24,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-name: "python_bge_m3_onnx"
+name: "python_bge_large_zh_onnx"
 backend: "python"
-platform: "onnxruntime_onnx"
 max_batch_size: 128
 
 input [
@@ -43,23 +42,8 @@ output [
     dims: [1024]
   },
   {
-    name: "token_ids"
+    name: "total_tokens"
     data_type: TYPE_UINT32
-    dims: [-1]
-  },
-  {
-    name: "token_weights"
-    data_type: TYPE_FP32
-    dims: [-1]
-  },
-  {
-    name: "tokens"
-    data_type: TYPE_STRING
-    dims: [-1]
-  },
-  {
-    name: "sparse_vecs"
-    data_type: TYPE_STRING
     dims: [1]
   },
   {
@@ -69,9 +53,6 @@ output [
   }
 ]
 
-# perf_analyzer -m text_recognition -b 16 --shape input.1:1,32,100 --concurrency-range 16
-# perf_analyzer -m python_bge_m3_onnx -b 1 --shape input:1 --string-data="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#instance-groups" --concurrency-range 2 
-
 # https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#instance-groups
 instance_group [
   {
@@ -80,20 +61,17 @@ instance_group [
   }
 ]
 
-# https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#response-cache
-response_cache {
-  enable: false
-}
 
 optimization {
-  graph : {
+  graph {
     level : 1
   }
  execution_accelerators {
-    gpu_execution_accelerator : [ {
+    gpu_execution_accelerator [{
       name : "tensorrt",
       parameters { key: "precision_mode" value: "FP16" },
       parameters { key: "max_workspace_size_bytes" value: "1073741824" }
     }]
   }
 }
+
