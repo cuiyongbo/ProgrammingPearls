@@ -1,7 +1,6 @@
 # Tensorflow Quiz - interview-oriented
 
 ```
-
 Q: what are frequently asked questions when I prepare an interview for model inference, especially for tensorflow model?
 
 When preparing for an interview focused on model inference, especially with TensorFlow models, you might encounter a variety of questions that test your understanding of the TensorFlow framework, model deployment, optimization, and general machine learning concepts. Here are some frequently asked questions you might come across:
@@ -34,10 +33,10 @@ When preparing for an interview focused on model inference, especially with Tens
 
 ### General Machine Learning Questions
 21. What are precision and recall, and how do they relate to model inference?
-22. How do you evaluate the performance of a model during inference?
-23. What is overfitting, and how can it affect inference results?
+22. How do you evaluate the performance of a model during inference? latency, throghput, energe consumption
+23. What is overfitting, and how can it affect inference results? 
 24. Can you explain the difference between supervised and unsupervised learning, and how does it impact model inference?
-25. What are some common data preprocessing steps required before performing inference?
+25. What are some common data preprocessing steps required before performing inference? nlp tokenization, image transformation: crop, reshape, normalization, rgb conversion
 
 ### Behavioral Questions
 26. Describe a challenging model deployment you worked on. What was the problem, and how did you solve it?
@@ -47,7 +46,7 @@ When preparing for an interview focused on model inference, especially with Tens
 Remember that the specific questions you'll face can vary depending on the role and the company. It's also important to be prepared to discuss any relevant projects or experiences you have that demonstrate your skills in TensorFlow and model inference.
 
 
-1. What is TensorFlow, and how does it differ from other deep learning frameworks?
+Q: What is TensorFlow, and how does it differ from other deep learning frameworks?
 
 TensorFlow is an open-source machine learning library developed by the Google Brain team. It is widely used for building and deploying machine learning models, particularly deep learning models. TensorFlow provides a comprehensive ecosystem of tools, libraries, and community resources that enable researchers and developers to build and deploy ML-powered applications.
 
@@ -57,7 +56,7 @@ Key features of TensorFlow include:
 - **Eager execution:** TensorFlow 2.x supports eager execution by default, which allows operations to be evaluated immediately without building graphs. This makes the framework more intuitive and easier to debug.
 - **Scalability:** TensorFlow can scale across multiple CPUs and GPUs, making it suitable for a range of devices from mobile phones to large-scale distributed systems.
 - **Flexibility:** TensorFlow supports a wide array of algorithms and can be used for various tasks beyond deep learning, such as reinforcement learning and natural language processing.
-- **TensorFlow Serving:** A system for serving machine learning models that is designed for production environments and supports model versioning for easy rollback and canarying new models.
+- **TensorFlow Serving:** A system for serving machine learning models that is designed for production environments and supports model versioning for easy rollback and canarying new models(A/B testing).
 - **TensorFlow Lite:** A lightweight solution for deploying models on mobile and IoT devices.
 - **TensorFlow.js:** A library for training and deploying models in the browser and on Node.js.
 - **TensorBoard:** A visualization tool for understanding, debugging, and optimizing TensorFlow programs.
@@ -71,7 +70,7 @@ Differences from other deep learning frameworks:
 
 Each framework has its strengths and is chosen by developers and researchers based on specific needs, such as ease of use, performance, scalability, and the specific tools and features they offer. TensorFlow's broad adoption, extensive documentation, and strong community support make it a go-to choice for many machine learning tasks.
 
-2. Can you explain the difference between TensorFlow 1.x and TensorFlow 2.x?
+Q: Can you explain the difference between TensorFlow 1.x and TensorFlow 2.x?
 
 TensorFlow 1.x and TensorFlow 2.x are two major versions of the TensorFlow machine learning library, with significant differences in their design, API, and usability. Here are the key differences between the two:
 

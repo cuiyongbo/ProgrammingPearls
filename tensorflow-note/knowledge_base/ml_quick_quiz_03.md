@@ -1,5 +1,3 @@
-# Model inference Quiz - basic
-
 ```
 Q: what is `triton_python_backend_stub` for in tritonserver's backend directory?
 
