@@ -66,8 +66,8 @@ The JIT compiler analyzes the code as it runs, identifies hotspots or frequently
 
 JIT compilation is used in various contexts, including dynamic programming languages, virtual machines, and runtime environments for optimizing and accelerating code execution.
 
-Q:what is frozen graph in tensorflow?
-A:In TensorFlow, a frozen graph refers to a trained TensorFlow graph where all the variables and parameters have been converted into constants. Freezing a graph eliminates the need for storing the weights and biases as separate variables, resulting in a single file that encapsulates both the graph structure and the learned parameters.
+Q: what is frozen graph in tensorflow?
+A: In TensorFlow, a frozen graph refers to a trained TensorFlow graph where all the variables and parameters have been converted into constants. Freezing a graph eliminates the need for storing the weights and biases as separate variables, resulting in a single file that encapsulates both the graph structure and the learned parameters.
 
 When training a TensorFlow model, the graph typically includes operations for computing gradients, updating variables, and other training-specific operations. However, during inference or deployment, these training-specific operations are unnecessary, and it becomes more efficient to work with a simplified and optimized computational graph.
 

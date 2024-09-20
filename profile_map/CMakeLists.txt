@@ -10,9 +10,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(TBB_DIR "/path/to/oneTBB/")
-
 set(TBB_HEADER_DIR ${TBB_DIR}/include)
 set(TBB_LIB_DIR ${TBB_DIR}/lib)
+
 set(UTIL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../leetcode-scaffold/util")
 
 include_directories (

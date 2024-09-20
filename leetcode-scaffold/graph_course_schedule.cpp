@@ -40,11 +40,10 @@ bool Solution::canFinish(int numCourses, vector<vector<int>>& prerequisites) {
         return true;
     };
     for (int u=0; u<numCourses; ++u) {
-        if (visited[u] != 0) {
-            continue;
-        }
-        if (!dfs(u)) {
-            return false;
+        if (visited[u] == 0) {
+            if (!dfs(u)) {
+                return false;
+            }
         }
     }
     return true;
