@@ -1,0 +1,26 @@
+syntax = "proto3";
+package  algorithm.hnsw;
+option cc_enable_arenas = true;
+
+enum LabelType {
+    LB_UNKNOWN = 0;
+    LB_UINT32 = 1;
+    LB_UINT64 = 2;
+}
+
+enum VecType {
+    VEC_UNKNOWN = 0;
+    VEC_FLOAT32 = 1;
+}
+
+message HnswMeta {
+    LabelType label_type = 1;
+    VecType vec_type = 2;
+
+    int32 vec_dim = 11;
+    int32 m = 12;
+    int32 cef = 13;
+    int32 sef = 14;
+    int32 element_count = 16;
+    string model_info = 17;
+}

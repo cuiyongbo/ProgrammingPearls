@@ -15,6 +15,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cmath>
+#include <random>
 
 #include <type_traits>
 #include <typeinfo>

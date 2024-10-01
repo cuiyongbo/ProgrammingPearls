@@ -1,14 +1,24 @@
-*****************
-Leetcode Schedule
-*****************
+# Leetcode Schedule
 
-Summary
-=======
+<details><summary>Table of Contents</summary><p>
 
-#. stack: First In Last Out
-#. queue: First In First Out
-#. priority_queue: max_heap, min_heap
-#. binary tree
+* [Summary](#summary)
+* [Divide and conquer](#divide-and-conquer)
+* [Backtrace](#backtrace)
+* [Graph](#graph)
+* [Dynamic Programming](#dynamic-programming)
+* [Misc topics](#misc-topics)
+* [Footnotes](#footnotes)
+</p></details>
+
+
+
+## Summary
+
+* stack: First In Last Out
+* queue: First In First Out
+* priority_queue: max_heap, min_heap
+* binary tree
     * traversals in dfs
         * preorder traversal: root --> left --> right
         * inorder traversal: left --> root --> right
@@ -21,7 +31,7 @@ Summary
         * the traversal sequence is in no-decending order when performing inorder traveral
         * search, insertion, deletion
 
-#. list
+* list
     * list traversal
     * reverse a list with **stack**
     * sort a list: insertion sort, merge sort
@@ -31,37 +41,36 @@ Summary
         * push_back and push_front
         * **cut out node from original list**
 
-#. trie tree
+* trie tree
     * prefix search
 
-#. binary search
+* binary search
     * boilerplates
         * binary search
         * lower_bound search
         * upper_bound search
     * problems: matrix search, kth element
 
-#. backtrace
-    * combination: order of element doesn't matter
-    * permutation: order of element does matter
+* backtrace
+    * combination: order of elements doesn't matter
+    * permutation: order of elements does matter
     * partition arrays, string
     * tricks:
         * prune useless branches
         * bfs: find the minimum length from src to dst
         * dfs: enumerate all the possible paths from src to dst
 
-#. graph
+* graph
     * dfs: graph coloring, cycle detection
     * bfs: find the shortest path from A to B
     * disjoint set: connected components
     * graph search algorithm:
-        * bfs: bfs explores equally in all directions and the cost of every edge in the graph is the same
+        * bfs: bfs explores equally in all directions and the cost of every edge is the same
         * dijkstra algorithm: dijkstra algorithm prioritizes edges with lower costs when searching, and the the cost of edges in the graph is different
         * A star algorithm: A star is a modification of dijkstra algorithm that is optimized for a single destination, and it prioritizes edges which lead close to destionation using heuristics
 
 
-Divide and conquer
-==================
+## Divide and conquer
 
 * 169 Majority Element
 * 153 Find Minimum in Rotated Sorted Array    
@@ -70,8 +79,7 @@ Divide and conquer
 * 315 Count of Smaller Numbers After Self
 
 
-Backtrace
-=========
+## Backtrace
 
 * 17 Letter Combinations of a Phone Number
 * 39 Combination Sum
@@ -94,8 +102,7 @@ Backtrace
 * 212 Word Search II  
 
 
-Graph
-=====
+## Graph
 
 * 133 Clone Graph
 * 138 Copy List with Random Pointer 
@@ -134,31 +141,24 @@ Graph
 * 924 Minimize Malware Spread    
 * 1334 Find the City With the Smallest Number of Neighbors at a Threshold Distance
 
-Dynamic Programming
-===================
+## Dynamic Programming
 
 * Longest Common Subsequence: 1143
 * Longest Increasing Subsequence: 300, 673, 1048, 674, 128
 
 
-Advanced topics
-===============
+## Misc topics
 
 * 146 LRU Cache
 * 460 LFU Cache
 * Monotonic stack exercises: 901, 907, 1019, 42
-* stock problem: https://grandyang.com/leetcode/309/
-
-Miscellaneous exercises
-=======================
-
+* [stock problem](https://grandyang.com/leetcode/309/)
 * 3 Longest substring without repeated characters
 * Calculator: 150, 224, 227, 772
 
 
-.. rubric:: Footnotes
+## Footnotes
 
-.. [#] `花花酱 leetcode problem list <https://zxi.mytechroad.com/blog/leetcode-problem-categories/>`_
-.. [#] `leetcode on github <https://github.com/doocs/leetcode.git>`_
-.. [#] `https://grandyang.com/leetcode/42/`_
-
+* [花花酱 leetcode problem list](https://zxi.mytechroad.com/blog/leetcode-problem-categories/)
+* [leetcode on github](https://github.com/doocs/leetcode.git)
+* [grandyang.com/leetcode](https://grandyang.com/leetcode/42/)

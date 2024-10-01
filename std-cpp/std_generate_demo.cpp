@@ -6,21 +6,18 @@
 
 using namespace std;
 
-int f()
-{
+int f() {
 	static int i = 1;
 	return i++;
 }
 
-void printVector(const char* msg, vector<int>& v)
-{
+void printVector(const char* msg, vector<int>& v) {
 	cout << msg << ":\n";
 	copy(v.begin(), v.end(), ostream_iterator<int>(cout, " "));
 	cout << "\n";
 }
 
-int main()
-{
+int main() {
 	vector<int> v(5, 0);
 	generate(v.begin(), v.end(), f);
 	printVector("generate(f)", v);

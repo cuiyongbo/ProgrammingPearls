@@ -6,17 +6,20 @@ using namespace osrm;
 /* leetcode: 307 */
 
 /*
-    Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.
-    The update(i, val) function modifies nums by updating the element at index i to val.
-    Example:
-        Given nums = [1, 3, 5]
-        sumRange(0, 2) -> 9
-        update(1, 2)
-        sumRange(0, 2) -> 8
-    Note:
-    
-    The array is only modifiable by the update function.
-    You may assume the number of calls to update and sumRange function is distributed evenly.
+Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.
+The update(i, val) function modifies nums by updating the element at index i to val.
+Example:
+    Given nums = [1, 3, 5]
+    sumRange(0, 2) -> 9
+    update(1, 2)
+    sumRange(0, 2) -> 8
+Note:
+The array is only modifiable by the update function.
+You may assume the number of calls to update and sumRange function is distributed evenly.
+
+HINT: 
+Read about BIT https://www.topcoder.com/community/competitive-programming/tutorials/binary-indexed-trees/
+Read about Segment Tree https://www.topcoder.com/community/competitive-programming/tutorials/range-minimum-query-and-lowest-common-ancestor/
 */
 
 class FenwickTree {    
@@ -91,9 +94,11 @@ int main() {
     util::Log(logESSENTIAL) << "Running NumArray tests:";
     TIMER_START(NumArray);
     NumArray na({1, 3, 5});
-    assert(na.sumRange(0,2) == 9);
-    na.update(1, 2);
-    assert(na.sumRange(0,2) == 8);
+    for (int i=0; i<1000; i++) {
+        assert(na.sumRange(0, 2) == 9);
+        na.update(1, 2);
+        assert(na.sumRange(0, 2) == 8);
+    }
     TIMER_STOP(NumArray);
     util::Log(logESSENTIAL) << "NumArray using " << TIMER_MSEC(NumArray) << " milliseconds";
 }

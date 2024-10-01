@@ -79,7 +79,12 @@ void Solution::sortArray(vector<int>& nums, AlgorithmType type) {
     }
 }
 
+/*
 // O(nlogn) on average case
+1. pick and element, called a pivot, from the array
+2. patitioning: reorder the array so that the elements with values less than the pivot come before the pivot, and the elements with values greater than the pivot come after it (equal values can go either way). after the partition, the pivot is in its final position
+3. recursively apply the above steps to all sub-arrays
+*/
 void Solution::quickSort(vector<int>& nums) {
     auto naive_partitioner = [&] (int l, int r) {
         int i = l-1;
@@ -128,143 +133,152 @@ void Solution::countingSort(vector<int>& nums) {
     return;
 }
 
+/*
 // \Theta(log_b(k)*(n+k)), k is the maximum element value in the element
-void Solution::radixSort(vector<int>& nums) {
 
+Radix-Sort(A, d)
+    for i=1 to d
+        use a stable sort to sort array A on i_th digit
+*/
+void Solution::radixSort(vector<int>& nums) {
     auto p = minmax_element(nums.begin(), nums.end());
     int l = *(p.first);
     int r = *(p.second);
 
-    // map the value range [l, r] of elements in nums to [1, r-l+1]
-    std::transform(nums.begin(), nums.end(), nums.begin(), [&](const int& n) {return n-l+1;});
-
-    int max = r-l+1;
-    int digit_count = 0;
+    int digit_num = 0;
+    int max_ele = r-l;
     do {
-        max /= 10;
-        digit_count++;
-    } while (max!=0);
+        max_ele/=10;
+        digit_num++;
+    } while (max_ele!=0);
 
-    auto get_digit = [] (int n, int i) {
-        while (i!=0) {
+    // map array elements to [0, r-l]
+    std::transform(nums.begin(), nums.end(), nums.begin(), [&](int n){return n-l;});
+
+    auto get_digit = [](int n, int i) {
+        for (; i!=0 && n!=0; i--) {
             n/=10;
         }
         return n%10;
     };
 
-    int radix = 10;
-    std::vector<std::vector<int>> count(radix);
-    for (int i=0; i<digit_count; ++i) {
-        count.assign(radix, vector<int>());
+    for (int i=0; i<=digit_num; i++) {
+        std::vector<vector<int>> buff(10);
+        // sort by nth digit
         for (auto n: nums) {
-            int digit = get_digit(n, i);
-            count[digit].push_back(n);
+            auto d = get_digit(n, i);
+            buff[d].push_back(n);
         }
         nums.clear();
-        for (auto& t: count) {
+        for (const auto& t:  buff) {
             nums.insert(nums.end(), t.begin(), t.end());
         }
     }
 
-    // restore original value
-    std::transform(nums.begin(), nums.end(), nums.begin(), [&](const int& n) {return n+l-1;});
+    // remap array elements to original value
+    std::transform(nums.begin(), nums.end(), nums.begin(), [&](int n){return n+l;});
 }
 
 // O(nlogn) for worst-case running time
 void Solution::heapSort(vector<int>& nums) {
 
-{ // naive solution
-    int sz = nums.size();
-    // make max-heap: sift up
-    for (int i=1; i<sz; ++i) {
-        int l = i;
-        while (true) {
-            int p = (l-1)/2;
-            if (nums[p]>=nums[l]) {
-                break;
-            }
-            std::swap(nums[l], nums[p]);
-            l = p;
-        }
-    }
-    for (int i=0; i<sz-1; ++i) {
-        // pop heap
-        int r=sz-1-i;
-        std::swap(nums[0], nums[r]);
-        // restore heap: sift down
-        int l=0;
-        while (true) {
-            int largest = l;
-            int left = 2*l+1;
-            if (left<r && nums[largest]<nums[left]) {
-                largest = left;
-            }
-            int right = 2*l+2;
-            if (right<r && nums[largest]<nums[right]) {
-                largest = right;
-            }
-            if (largest == l) {
-                break;
-            }
-            std::swap(nums[largest], nums[l]);
-            l = largest;
-        }
-    }
-    return;
-}
-
 { // std solution
+    // in `std::priority_queue` template, we perform `compare(child, root)` test to see whether root, left-child, right-child are in heap-order or not
     std::priority_queue<int, std::vector<int>, std::greater<int>> pq(nums.begin(), nums.end()); // minHeap
     nums.clear();
     while (!pq.empty()) {
         nums.push_back(pq.top());
         pq.pop();
     }
+    return;
+}
+
+{ // naive solution
+    // 1. build heap with sift-up
+    // 2. pop heap head
+    // 3. restore heap with sift-down
+    // 4. repeat step 2 and 3 until the heap is empty
+    std::function<void(int, int)> sift_down = [&] (int i, int sz) {
+        // i; // root
+        int largest = i;
+        while (i < sz) {
+            largest = i;
+            int li = 2*i+1; // left child
+            if (li<sz && nums[li]>nums[largest]) {
+                largest = li;
+            }
+            int ri = 2*i+2; // right child
+            if (ri<sz && nums[ri]>nums[largest]) {
+                largest = ri;
+            }
+            if (largest == i) {
+                break;
+            }
+            swap(nums[largest], nums[i]);
+            i = largest;
+        }
+    };
+    int sz = nums.size();
+    // 1. build heap with sift-up
+    for (int i=(sz-1)/2; i>=0; i--) {
+        sift_down(i, sz);
+    }
+    for (int i=sz-1; i>0; i--) {
+        // 2. pop heap head
+        swap(nums[0], nums[i]);
+        // 3. restore heap with sift-down
+        sift_down(0, i);
+    }
+    return;
 }
 
 }
 
+/*
 // O(nlogn) for worst-case running time
+1. divide the unsorted list into n sublists, each containing 1 element
+2. repeatedly merge sublists to produce new sorted sublists untill there is only 1 sublist remaining. this will be the sorted list
+*/
 void Solution::mergeSort(std::vector<int>& nums) {
     std::vector<int> twins = nums;
     std::function<void(int, int)> dac = [&] (int l, int r) {
-        if (l>=r) { // trivial case
+        if (l >= r) { // trivial case
             return;
         }
         int m = (l+r)/2;
+        // divide
         dac(l, m); dac(m+1, r);
-        int k=l;
+        // conquer
         int i=l;
         int j=m+1;
-        while (i<=m || j<=r) {
-            if (j>r || (i<=m&&nums[i]<nums[j])) {
-                twins[k++] = nums[i++];
+        for (int k=l; k<=r; k++) {
+            if ((i<=m && nums[i]<nums[j]) || (j>r)) {
+                twins[k] = nums[i++];
             } else {
-                twins[k++] = nums[j++];
+                twins[k] = nums[j++];
             }
         }
         // swap elements in [l, r]
         std::copy(twins.begin()+l, twins.begin()+r+1, nums.begin()+l);
     };
     dac(0, nums.size()-1);
-    return;
 }
 
 // \Theta(nlogn)
 void Solution::bstSort(vector<int>& nums) {
-    multiset<int> s(nums.begin(), nums.end());
+    // std::multiset maybe implemented with red-black tree
+    std::multiset<int> s(nums.begin(), nums.end());
     std::copy(s.begin(), s.end(), nums.begin());
 }
 
 // \Theta(n^2)
 void Solution::insertionSort(vector<int>& nums) {
-    int size = nums.size();
-    for (int i=1; i<size; ++i) {
+    for (int i=1; i<nums.size(); ++i) {
         // premise: array [0, i-1] is sorted
         // 1. find temporary sorted position for nums[i]
         for (int j=0; j<i; ++j) {
             if (nums[j] > nums[i]) { // make sure it is a stable sort algorithm
-                // 2. put nums[i] to the position
+                // 2. then shift array[j, i-1] towards the right direction by one, and move nums[i] to nums[j]
                 int tmp = nums[i];
                 for (int k=i; k!=j; --k) {
                     nums[k] = nums[k-1];
@@ -290,14 +304,16 @@ void sortArray_scaffold(string input, AlgorithmType type) {
 
 void batch_test_scaffold(int array_size, AlgorithmType type) {
     util::Log(logINFO) << "Running " << AlgorithmType_toString(type) << " tests";
+    std::random_device rd;
+    std::mt19937 g(rd());
     Solution ss;
     vector<int> vi; vi.reserve(array_size);
+    for (int i=0; i<array_size; i++) {
+        vi.push_back(rand());
+    }
     for (int i=0; i<100; ++i) {
-        vi.clear();
         int n = rand() % array_size;
-        for (int j=0; j<n; ++j) {
-            vi.push_back(rand());
-        }
+        std::shuffle(vi.begin(), vi.begin()+n, g);
         ss.sortArray(vi, type);
         if(!std::is_sorted(vi.begin(), vi.end())) {
             util::Log(logERROR) << "Case(array_size<" << array_size 
@@ -359,6 +375,7 @@ int main(int argc, char* argv[]) {
 
     util::Log(logESSENTIAL) << "Running batch tests(array_size=" << array_size << "):";
     TIMER_START(sortArray_batch_test);
+    batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_radixSort);
     batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_mergeSort);
     batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_quickSort);
     batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_heapSort);
