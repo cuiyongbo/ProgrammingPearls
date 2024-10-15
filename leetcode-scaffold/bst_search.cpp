@@ -183,63 +183,32 @@ TreeNode* Solution::sortedArrayToBST(vector<int>& nums) {
 vector<int> Solution::findMode(TreeNode* root) {
 
 { // naive method
-    int max_frequency = 1;
-    std::vector<std::pair<int, int>> buffer; // node->val, frequency
-    std::function<void(TreeNode*)> dfs = [&] (TreeNode* node) {
+    int cur_freq = 0;
+    int max_freq = 0;
+    TreeNode* predecessor = nullptr;
+    vector<int> ans;
+    std::function<void(TreeNode*)> dfs  = [&] (TreeNode* node) {
         if (node == nullptr) {
             return;
         }
-        dfs(node->left);
-        if (!buffer.empty()) {
-            if (buffer.back().first == node->val) {
-                buffer.back().second++;
-                max_frequency = std::max(max_frequency, buffer.back().second);
-            } else {
-                buffer.emplace_back(node->val, 1);
-            }
-        } else {
-            buffer.emplace_back(node->val, 1);
-        }
-        dfs(node->right);
-    };
-    dfs(root);
-    std::vector<int> ans;
-    for (auto& it: buffer) {
-        if (it.second == max_frequency) {
-            ans.push_back(it.first);
-        }
-    }
-    return ans;
-}
 
-{ // refined version
-    vector<int> ans;
-    if (root == nullptr) {
-        return ans;
-    }
-    int curVal = root->val;
-    int max_count=0, cur_count=0;
-    auto update = [&] (TreeNode* node) {
-        if (node->val == curVal) {
-            cur_count++;
+        dfs(node->left);
+
+        if (predecessor != nullptr && predecessor->val == node->val) {
+            cur_freq++;
         } else {
-            curVal = node->val;
-            cur_count = 1;
+            cur_freq = 1;
         }
-        if (cur_count > max_count) {
-            max_count = cur_count;
+        if (cur_freq > max_freq) {
             ans.clear();
-            ans.push_back(curVal);
-        } else if (cur_count == max_count) {
-            ans.push_back(curVal);
+            ans.push_back(node->val);
+            max_freq = cur_freq;
+        } else if (cur_freq == max_freq) {
+            ans.push_back(node->val);
         }
-    };
-    function<void(TreeNode*)> dfs = [&] (TreeNode* node) {
-        if (node != nullptr) {
-            dfs(node->left);
-            update(node);
-            dfs(node->right);
-        }
+        predecessor = node;
+    
+        dfs(node->right);
     };
     dfs(root);
     return ans;
@@ -285,7 +254,7 @@ TreeNode* Solution::deleteNode(TreeNode* root, int key) {
 
     if (px == nullptr) { // key resides in root node
         if (x->left == nullptr || x->right == nullptr) { // root has one null child at least
-            // return the non-null child as the new root, it doesn't matter if both children are null
+            // return the non-null child as the new root, it doesn't matter whether both children are null or not
             return (x->left != nullptr) ? x->left : x->right;
         } else { // neither children of root are null
             TreeNode* xl = x->left;
@@ -303,7 +272,7 @@ TreeNode* Solution::deleteNode(TreeNode* root, int key) {
                 xs->left = xl; 
             } else {
                 // replace successor's place with successor->right
-                pxs->left = xs->right; xs->right = nullptr;
+                pxs->left = xs->right;
                 // replace root's place with successor
                 xs->left = xl; xs->right = xr;
             }
@@ -318,7 +287,7 @@ TreeNode* Solution::deleteNode(TreeNode* root, int key) {
             }
         } else if (x->left == nullptr || x->right == nullptr) { // x has only one non-null child
             TreeNode* residual = (x->left != nullptr) ? x->left : x->right;
-            if (px->val > x->val) {
+            if (px->left == residual) {
                 px->left = residual;
             } else {
                 px->right = residual;
@@ -346,7 +315,7 @@ TreeNode* Solution::deleteNode(TreeNode* root, int key) {
                 // replace successor's place with successor->right
                 pxs->left = xs->right; xs->right = nullptr;
                 // replace x's place with its succesor
-                if (px->val > x->val) {
+                if (px->left ==  x) {
                     px->left = xs;
                 } else {
                     px->right = xs;

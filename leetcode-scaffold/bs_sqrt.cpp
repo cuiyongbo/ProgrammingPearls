@@ -1,5 +1,4 @@
 #include "leetcode.h"
-#include "util/trip_farthest_insertion.hpp"
 
 using namespace std;
 using namespace osrm;
@@ -20,6 +19,7 @@ public:
     Hint: perform lower_bound search to find the first integer k such than k*k >= x
 */
 int Solution::mySqrt(int x) {
+    assert(x>=0);
     long l=0;
     long r=x+1;
     while (l < r) { // lower_bound search
@@ -41,19 +41,16 @@ int Solution::mySqrt(int x) {
     Hint: perform lower_bound search to find the minimum K which satisfies the requirement
 */
 int Solution::minEatingSpeed(std::vector<int>& piles, int H) {
+    assert(piles.size()<=H);
     auto can_eta_up_all_bananas = [&] (int speed) {
         int hours = 0;
-        for (int i=0; i<piles.size()&&hours<=H; ++i) {
+        for (int i=0; i<piles.size(); ++i) {
             hours += (piles[i]+speed-1)/speed; // nice catcha
-            /* 
-            // naive version
-            int amount = piles[i];
-            while (amount > 0) {
-                hours++;
-                amount -= speed;
-            }*/
+            if (hours > H) {
+                return false;
+            }
         }
-        return hours<=H;
+        return true;
     };
     int l = 1;
     int r = *(std::max_element(piles.begin(), piles.end())) + 1;
@@ -149,6 +146,7 @@ int main() {
     mySqrt_scaffold(1, 1);
     mySqrt_scaffold(4, 2);
     mySqrt_scaffold(8, 2);
+    mySqrt_scaffold(26, 5);
     mySqrt_scaffold(INT16_MAX, 181);
     mySqrt_scaffold(INT32_MAX, 46340);
     TIMER_STOP(mySqrt);
