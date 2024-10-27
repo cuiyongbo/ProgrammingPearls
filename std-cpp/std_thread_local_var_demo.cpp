@@ -67,7 +67,7 @@ private:
 };
 
 int main() {
-	naive_test();
-	//tea_test();
+	//naive_test();
+	tea_test();
 
 }

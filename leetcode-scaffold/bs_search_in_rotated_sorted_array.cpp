@@ -20,6 +20,38 @@ public:
     You may assume no duplicate exists in the array. Your algorithm's runtime complexity must be in the order of O(log n).
 */
 int Solution::search_33(std::vector<int>& nums, int target) {
+
+// iterative version
+{
+    stack<pair<int, int>> st;
+    st.emplace(0, nums.size()-1);
+    while (!st.empty()) {
+        auto t = st.top(); st.pop();
+        if (t.first > t.second) {
+            continue;
+        }
+        int m = (t.first + t.second)/2;
+        if (nums[m] == target) {
+            return m;
+        }
+        // perform normal binary search
+        if (nums[t.first] < nums[t.second]) {
+            if (nums[m] > target) {
+                st.emplace(t.first, m-1); // go left
+            } else {
+                st.emplace(m+1, t.second); // go right
+            }
+        } else {
+            // if there is rotation in [t.first, t.second], we have to search both partitions, since we cannot make sure which parition `target` may reside in
+            st.emplace(t.first, m-1);
+            st.emplace(m+1, t.second);
+        }
+    }
+    return -1;
+}
+
+// recursive version
+{
     std::function<int(int, int)> dac = [&] (int l, int r) {
         if (l > r) { // trivial case
             return -1;
@@ -39,7 +71,7 @@ int Solution::search_33(std::vector<int>& nums, int target) {
                 r = m-1;
             }
             return dac(l, r);
-        } else {
+        } else { // search both partitions
             int i = dac(l, m-1);
             if (i == -1) {
                 i = dac(m+1, r);
@@ -48,6 +80,7 @@ int Solution::search_33(std::vector<int>& nums, int target) {
         }
     };
     return dac(0, nums.size()-1);
+}
 }
 
 
@@ -59,17 +92,46 @@ int Solution::search_33(std::vector<int>& nums, int target) {
 */
 bool Solution::search_81(std::vector<int>& nums, int target) {
 
+// iterative version
+{
+    stack<pair<int, int>> st;
+    st.emplace(0, nums.size()-1);
+    while (!st.empty()) {
+        auto t = st.top(); st.pop();
+        if (t.first > t.second) {
+            continue;
+        }
+        int m = (t.first + t.second)/2;
+        if (nums[m] == target) {
+            return true;
+        }
+        // perform normal binary search
+        if (nums[t.first] < nums[t.second]) {
+            if (nums[m] > target) {
+                st.emplace(t.first, m-1); // go left
+            } else {
+                st.emplace(m+1, t.second); // go right
+            }
+        } else {
+            // if there is rotation in [t.first, t.second], we have to search both partitions, since we cannot make sure which parition `target` may reside in
+            st.emplace(t.first, m-1);
+            st.emplace(m+1, t.second);
+        }
+    }
+    return false;
+}
+
+// recursive version
+{
     std::function<bool(int, int)> dac = [&] (int l, int r) {
         if (l > r) { // trivial case
             return false;
         }
-
         // l must be less or equal than r
         int m = (l+r)/2;
         if (nums[m] == target) {
             return true;
         }
-
         if (nums[l] < nums[r]) { // nums[l:r] is sorted
             // perform normal binary search
             if (nums[m] < target) {
@@ -85,12 +147,39 @@ bool Solution::search_81(std::vector<int>& nums, int target) {
     return dac(0, nums.size()-1);
 }
 
+}
+
 
 /*
     Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
     (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2). Find the minimum element. You may assume no duplicate exists in the array.
 */
 int Solution::findMin(std::vector<int>& nums) {
+
+// iterative version
+{
+    int ans = INT32_MAX;
+    stack<pair<int, int>> st;
+    st.emplace(0, nums.size()-1);
+    while (!st.empty()) {
+        auto t = st.top(); st.pop();
+        if (t.first == t.second) {
+            ans = std::min(ans, nums[t.first]);
+            continue;
+        }
+        if (nums[t.first] < nums[t.second]) {
+            ans = std::min(ans, nums[t.first]);
+        } else {
+            int m = (t.first + t.second)/2;
+            st.emplace(t.first, m);
+            st.emplace(m+1, t.second);
+        }
+    }
+    return ans;
+}
+
+// recursive version
+{
     std::function<int(int, int)> dac = [&] (int l, int r) {
         if (l==r) { // trivial case
             return nums[l];
@@ -103,6 +192,7 @@ int Solution::findMin(std::vector<int>& nums) {
         }
     };
     return dac(0, nums.size()-1);
+}
 }
 
 
@@ -208,7 +298,8 @@ int Solution::findPeakElement(std::vector<int>& nums) {
 */
 int Solution::peakIndexInMountainArray(std::vector<int>& nums) {
 
-if (0) { // iterative version solution
+{ // iterative version solution
+    // find the largest index `i`, where `nums[i]<nums[i+1]`
     int l = 0;
     int r = nums.size();
     while (l < r) {
