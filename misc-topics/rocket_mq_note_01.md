@@ -72,7 +72,7 @@ Kafka and RocketMQ are both distributed messaging systems designed to handle lar
 Both Kafka and RocketMQ are powerful messaging systems with their own strengths and use cases. The choice between them depends on specific requirements such as message ordering, transactional support, ecosystem, and community support. Kafka is often chosen for its high throughput and rich ecosystem, while RocketMQ is preferred for applications requiring strict message ordering and distributed transactions.
 
 
-Q: how to tell different message queue in a topic when using RocketMQ, can a consumer only listen to a specify queue in a topic and a producer push message to a specified queue in a topic then?
+Q: when using RocketMQ, can a consumer only listen to a specify queue in a topic and a producer push message to a specified queue in a topic then?
 In Apache RocketMQ, a topic is divided into multiple message queues (also known as partitions). Each message queue can be independently consumed by different consumers. This allows for parallel processing and scalability. Here’s how you can work with specific message queues within a topic:
 
 ### 1. **Producer Sending Messages to a Specific Queue**
@@ -162,7 +162,7 @@ public class Consumer {
 
 These capabilities provide flexibility in how messages are produced and consumed, allowing for fine-grained control over message distribution and processing.
 
-Q: can we specify a message queue in a topic by name, not by queue id?
+Q: in RocketMQ can we specify a message queue in a topic by name, not by queue id?
 In Apache RocketMQ, message queues within a topic are typically identified by their queue IDs rather than by names. The concept of naming individual queues within a topic is not natively supported in RocketMQ. Instead, queues are identified by their numeric IDs, which are assigned sequentially starting from 0.
 
 However, you can achieve similar functionality by using custom logic in your producer and consumer code to map specific names to queue IDs. Here’s how you can do it:
@@ -276,8 +276,7 @@ public class Consumer {
 
 By implementing these mappings, you can effectively manage and interact with specific queues within a topic using names, even though RocketMQ natively identifies queues by their numeric IDs.
 
-Q: so in RocketMQ, the message queue in a topic means to store messages of the same type, I want to store messages of different types, I should create different topics for each type then?
-
+Q: so in RocketMQ the message queue in a topic means to store messages of the same type, I want to store messages of different types, I should create different topics for each type then?
 
 In Apache RocketMQ, a topic is a logical grouping of messages, and each topic is divided into multiple message queues (partitions) to facilitate parallel processing and scalability. If you want to store and manage messages of different types, the best practice is to create separate topics for each type of message. This approach provides several benefits:
 

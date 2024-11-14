@@ -145,7 +145,7 @@ print("Output:", output)
 
 By following these steps, you can effectively save and load your PyTorch models for future use.
 
-Q: what are the differences between resnet50, resnet101, resnet1152?
+Q: what are the differences between resnet50, resnet101, resnet152?
 
 ResNet (Residual Network) is a popular deep learning architecture introduced by Kaiming He et al. in their 2015 paper "Deep Residual Learning for Image Recognition." The key idea behind ResNet is the use of residual connections, which help mitigate the vanishing gradient problem and allow for the training of very deep networks.
 
@@ -345,5 +345,60 @@ print("The model has been successfully converted to ONNX format.")
 
 By following these steps, you can successfully convert a PyTorch model to the ONNX format, enabling you to use the model in various frameworks and tools that support ONNX.
 
+Q: after creating a `train_loader` with `torch.utils.data.DataLoader`, how to extract data of certain batch from `train_loader`?
+
+After creating a `train_loader` with `torch.utils.data.DataLoader`, you can extract data from a specific batch by iterating over the `train_loader`. If you want to extract data from a specific batch, you can convert the `train_loader` to an iterator and then access the desired batch using `itertools.islice`.
+
+Here's an example demonstrating how to extract data from a certain batch:
+
+```python
+import torch
+from torch.utils.data import DataLoader, Dataset
+import itertools
+
+# Dummy Dataset for demonstration
+class MyDataset(Dataset):
+    def __init__(self, data, labels):
+        self.data = data
+        self.labels = labels
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        return self.data[idx], self.labels[idx]
+
+# Example data
+data = torch.randn(100, 3, 32, 32)  # 100 samples, channels=3, height=32, width=32
+labels = torch.randint(0, 10, (100,))  # 100 labels for 10 classes
+
+# Create Dataset and DataLoader
+dataset = MyDataset(data, labels)
+train_loader = DataLoader(dataset, batch_size=10, shuffle=True)
+
+# Function to get a specific batch
+def get_batch(train_loader, batch_index):
+    # Convert DataLoader to an iterator
+    loader_iter = iter(train_loader)
+    
+    # Use itertools.islice to get the desired batch
+    batch = next(itertools.islice(loader_iter, batch_index, batch_index + 1))
+    
+    return batch
+
+# Example usage: get the 2nd (index 1) batch
+batch_index = 1
+data_batch, label_batch = get_batch(train_loader, batch_index)
+
+print("Data batch shape:", data_batch.shape)
+print("Label batch shape:", label_batch.shape)
+```
+
+This code will:
+1. Define a dummy dataset with `MyDataset`.
+2. Create a `DataLoader` with this dataset.
+3. Define a function `get_batch` to extract a specific batch from the `DataLoader` using `itertools.islice`.
+
+You can adjust the `batch_index` variable to access the specific batch you need. Note that the batches are indexed from 0.
 
 ```
