@@ -148,39 +148,24 @@ CUDA programm ABC:
   uint32_t size_C = dimsC.x * dimsC.y;
   uint32_t mem_size_C = size_C * sizeof(float);
 
-  /*
-  template<class T>
-  static __inline__ __host__ cudaError_t cudaMallocHost(
-    T            **ptr,
-    size_t         size,
-    unsigned int   flags = 0
-  )
-  */
-  float *h_A;
+  float *h_A, *h_B, *h_C;
   checkCudaErrors(cudaMallocHost(&h_A, mem_size_A));
-  float *h_B;
   checkCudaErrors(cudaMallocHost(&h_B, mem_size_B));
-  float *h_C;
   checkCudaErrors(cudaMallocHost(&h_C, mem_size_C));
   const float valB = 0.01f;
   ConstantInit(h_A, size_A, 1.0f);
   ConstantInit(h_B, size_B, valB);
 
   float *d_A, *d_B, *d_C;
-  checkCudaErrors(cudaMalloc((void**)&d_A, mem_size_A));
-  checkCudaErrors(cudaMalloc((void**)&d_B, mem_size_B));
-  checkCudaErrors(cudaMalloc((void**)&d_C, mem_size_C));
+  checkCudaErrors(cudaHostGetDevicePointer((void**)&d_A, (void*)h_A, 0));
+  checkCudaErrors(cudaHostGetDevicePointer((void**)&d_B, (void*)h_B, 0));
+  checkCudaErrors(cudaHostGetDevicePointer((void**)&d_C, (void*)h_C, 0));
 
   cudaStream_t stream;
   checkCudaErrors(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
 
   // 2. h2d: copy vars from host memory to device memory
   printf("2. h2d: copy vars from host memory to device memory\n");
-  /*
-  cudaError_t cudaMemcpyAsync(void *dst, const void *src, size_t count, cudaMemcpyKind kind, cudaStream_t stream = (cudaStream_t)0)
-  */
-  checkCudaErrors(cudaMemcpyAsync(d_A, h_A, mem_size_A, cudaMemcpyHostToDevice, stream));
-  checkCudaErrors(cudaMemcpyAsync(d_B, h_B, mem_size_B, cudaMemcpyHostToDevice, stream));
   
   // 3. perform computation on GPU
   printf("3. perform computation on GPU\n");
@@ -190,10 +175,8 @@ CUDA programm ABC:
   // warmup
   if (block_size == 16) {
     MatrixMulCUDAWithTile<16><<<grid, threads, 0, stream>>>(d_C, d_A, d_B, dimsA.y, dimsA.x, dimsB.y, dimsB.x);
-    //MatrixMulCUDA<16><<<grid, threads, 0, stream>>>(d_C, d_A, d_B, dimsA.x, dimsB.x);
   } else {
     MatrixMulCUDAWithTile<32><<<grid, threads, 0, stream>>>(d_C, d_A, d_B, dimsA.y, dimsA.x, dimsB.y, dimsB.x);
-    //MatrixMulCUDA<32><<<grid, threads, 0, stream>>>(d_C, d_A, d_B, dimsA.x, dimsB.x);
   }
   printf("warmup done\n");
   checkCudaErrors(cudaStreamSynchronize(stream));
@@ -209,10 +192,8 @@ CUDA programm ABC:
   for (int i=0; i<n_iter; ++i) {
     if (block_size == 16) {
       MatrixMulCUDAWithTile<16><<<grid, threads, 0, stream>>>(d_C, d_A, d_B, dimsA.y, dimsA.x, dimsB.y, dimsB.x);
-      //MatrixMulCUDA<16><<<grid, threads, 0, stream>>>(d_C, d_A, d_B, dimsA.x, dimsB.x);
     } else {
       MatrixMulCUDAWithTile<32><<<grid, threads, 0, stream>>>(d_C, d_A, d_B, dimsA.y, dimsA.x, dimsB.y, dimsB.x);
-      //MatrixMulCUDA<32><<<grid, threads, 0, stream>>>(d_C, d_A, d_B, dimsA.x, dimsB.x);
     }
   }
   // record the stop event
@@ -224,8 +205,8 @@ CUDA programm ABC:
   float ms_total = 0.0f;
   checkCudaErrors(cudaEventElapsedTime(&ms_total, start, stop));
   float ms_per_mm = ms_total/n_iter;
-  // to compute C[i][j] we have to perform multiplication wA times and addition wA-1 times (about 2*wA times ops)
-  // so the total ops would be (2*wA * hA*wB) times
+  // to compute C[i][j] we have to perform wA times multiplication and wA times addition
+  // so the total ops would be (2*wA * hA * wB) times
   double flops_per_mm = 2.0 * dimsA.x * dimsA.y * dimsB.x;
   double giga_flops = (flops_per_mm * 1e-9f) / (ms_per_mm/1000.0f);
   printf(
@@ -235,34 +216,14 @@ CUDA programm ABC:
 
   // 4. d2h: copy computation result from device memory to host memory
   printf("4. d2h: copy computation result from device memory to host memory\n");
-  checkCudaErrors(cudaMemcpyAsync(h_C, d_C, mem_size_C, cudaMemcpyDeviceToHost, stream));
-  checkCudaErrors(cudaStreamSynchronize(stream));
 
   // 4.1 verify result
   bool correct = true;
-
-  /*
-  // 4.1.1 verify result with CPU computation result
-  float *ref_C;
-  checkCudaErrors(cudaMallocHost((void**)&ref_C, mem_size_C));
-  ComputeGold(ref_C, h_A, h_B, dimsA.y, dimsA.x, dimsB.y, dimsB.x);
-  double eps = 1e-5;
-  for (uint32_t i=0; i<size_C; ++i) {
-    if (fabs(h_C[i] - ref_C[i]) > eps) {
-      printf("Error! Matrix[%05d]=%.8f, ref=%.8f error term is > %E\n",
-              i, h_C[i], ref_C[i], eps);
-      correct = false;
-    }
-  }
-  checkCudaErrors(cudaFreeHost(ref_C));
-  */
-
   // 4.1.2 verify result with GPU computation result
   float *ref_C, *ref_d_C;
   checkCudaErrors(cudaMallocHost((void**)&ref_C, mem_size_C));
-  checkCudaErrors(cudaMalloc((void**)&ref_d_C, mem_size_C));
-  MatMulKernel_naive<<<grid, threads, 0, stream>>>(ref_d_C, h_A, h_B, dimsA.y, dimsA.x, dimsB.y, dimsB.x);
-  checkCudaErrors(cudaMemcpyAsync(ref_C, ref_d_C, mem_size_C, cudaMemcpyDeviceToHost, stream));
+  checkCudaErrors(cudaHostGetDevicePointer((void**)&ref_d_C, (void*)ref_C, 0));
+  MatMulKernel_naive<<<grid, threads, 0, stream>>>(ref_d_C, d_A, d_B, dimsA.y, dimsA.x, dimsB.y, dimsB.x);
   checkCudaErrors(cudaStreamSynchronize(stream));
   double eps = 1e-6;
   for (uint32_t i=0; i<size_C; ++i) {
@@ -272,32 +233,12 @@ CUDA programm ABC:
       correct = false;
     }
   }
-  checkCudaErrors(cudaFree(ref_d_C));
   checkCudaErrors(cudaFreeHost(ref_C));
-
-  /*
-  // test relative error by the formula: |<x, y>_cpu - <x,y>_gpu|/<|x|, |y|>  < eps
-  double eps = 1e-6;
-  for (int i = 0; i < static_cast<int>(dimsC.x * dimsC.y); ++i) {
-    double abs_err = fabs(h_C[i] - (dimsA.x * valB));
-    double dot_length = dimsA.x;
-    double abs_val = fabs(h_C[i]);
-    double rel_err = abs_err / abs_val / dot_length;
-    if (rel_err > eps) {
-      printf("Error! Matrix[%05d]=%.8f, ref=%.8f error term is > %E\n",
-             i, h_C[i], dimsA.x * valB, eps);
-      correct = false;
-    }
-  }
-  */
 
   printf("%s\n", correct ? "Result = PASS" : "Result = FAIL");
 
   // 5. destroy device and host memory
   printf("5. destroy device and host memory\n");
-  checkCudaErrors(cudaFree(d_A));
-  checkCudaErrors(cudaFree(d_B));
-  checkCudaErrors(cudaFree(d_C));
   checkCudaErrors(cudaFreeHost(h_A));
   checkCudaErrors(cudaFreeHost(h_B));
   checkCudaErrors(cudaFreeHost(h_C));
@@ -331,7 +272,7 @@ int main(int argc, char **argv) {
 
   // This will pick the best possible CUDA capable device, otherwise
   // override the device ID based on input provided at the command line
-  int dev = findCudaDevice(argc, (const char **)argv);
+  int idev = findCudaDevice(argc, (const char **)argv);
 
   int block_size = 32;
 
@@ -367,6 +308,14 @@ int main(int argc, char **argv) {
   printf("MatrixA(%d,%d), MatrixB(%d,%d)\n", dimsA.x, dimsA.y,
          dimsB.x, dimsB.y);
 
+  /*
+  Set device to be used for GPU executions
+  Sets device as the current device for the calling host thread. Valid device id's are 0 to (::cudaGetDeviceCount() - 1).
+  */
+  checkCudaErrors(cudaSetDevice(idev));
+  /* To be able to retrieve the device pointer to any mapped page-locked memory, page-locked memory mapping must be enabled by calling cudaSetDeviceFlags() with the cudaDeviceMapHost flag before any other CUDA call is performed. Otherwise, cudaHostGetDevicePointer() will return an error. */
+  checkCudaErrors(cudaSetDeviceFlags(cudaDeviceMapHost));
+
   checkCudaErrors(cudaProfilerStart());
   int matrix_result = MatrixMultiply(argc, argv, block_size, dimsA, dimsB);
   checkCudaErrors(cudaProfilerStop());
@@ -374,8 +323,8 @@ int main(int argc, char **argv) {
   exit(matrix_result);
 }
 
-/*
-root@di-20241115115906-kfh5w:~/code/cuda-samples/Samples/0_Introduction/matrixMul# ./matrixMul
+/* oops, ten times slower than case where we don't use mapped memory
+root@di-20241115115906-kfh5w:~/code/cuda-samples/Samples/0_Introduction/matrixMul# ./matrixMul 
 [Matrix Multiply Using CUDA] - Starting...
 GPU Device 0: "Ada" with compute capability 8.9
 
@@ -384,7 +333,7 @@ MatrixA(320,320), MatrixB(640,320)
 2. h2d: copy vars from host memory to device memory
 3. perform computation on GPU
 warmup done
-Performance= 1949.93 GFlop/s, Time= 0.067 msec, Size= 131072000 Ops, WorkgroupSize= 1024 threads/block
+Performance= 208.38 GFlop/s, Time= 0.629 msec, Size= 131072000 Ops, WorkgroupSize= 1024 threads/block
 4. d2h: copy computation result from device memory to host memory
 Result = PASS
 5. destroy device and host memory
