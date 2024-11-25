@@ -7,52 +7,27 @@
 #include <future>
 #include <iostream>
 
-// mimic `sync.WaitGroup` in golang
-class DemoWaitGroup {
-public:
-    DemoWaitGroup() {
-        m_count = 0;
-    }
+/*
+You just need to do `std::hash<std::thread::id>{}(std::this_thread::get_id())` to get a size_t.
 
-    void add() {
-        inner_add(1);
-    }
+From cppreference:
 
-    void done() {
-        inner_add(-1);
-    }
+> The template specialization of std::hash for the std::thread::id class allows users to obtain hashes of the identifiers of threads.
+*/
 
-    void wait() {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        m_cond_var.wait(lock, [this](){ return m_count==0;});
-    }
 
-private:
-    int inner_add(int n) {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        m_count += n;
-        if (m_count == 0) {
-            m_cond_var.notify_all();
-        }
-        assert(m_count >= 0);
-        return m_count;
-    }
+/*
+    how to compile a binary: g++ cpp_thread_pool.cpp -std=c++11
+*/
 
-private:
-    int m_count;
-    std::mutex m_mutex;
-    std::condition_variable m_cond_var;
-};
-
-using task_func_t =  std::function<void()>;
-using task_func1_t = std::function<void(size_t i)>;
-using task_func2_t = std::function<void(int tid, size_t i)>;
+using task_func_t = std::function<void()>;
+// typedef void (*task_func_t)(void);
 
 class ThreadPool {
 public:
-    ThreadPool(size_t thread_num) {
-        m_thread_num = thread_num;
-        m_stopping = false;
+    ThreadPool(int worker_num=10) {
+        m_worker_num = worker_num;
+        m_running = true;
         start();
     }
 
@@ -60,109 +35,209 @@ public:
         stop();
     }
 
-    void enqueue(task_func_t&& task) {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        m_task_queue.push(task);
-        m_cond_var.notify_one();
-    }
-
-    template<class T>
-    auto enqueue_future(T task) -> std::future<decltype(task())> {
-        auto wrapper = std::make_shared<std::packaged_task<decltype(task())()>>(std::move(task));
-        {
-            std::unique_lock<std::mutex> lock{ m_mutex };
-            m_task_queue.emplace([=] {
-                (*wrapper)();
-            });
-        }
-        m_cond_var.notify_one();
-        return wrapper->get_future();
+    template<class F, class... Args>
+    void enqueue(F&& f, Args&&... args) {
+        enqueue_impl(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
     }
 
 private:
     void start() {
-        for (int i=0; i<m_thread_num; i++) {
-            m_workers.push_back(std::thread(&ThreadPool::worker_routine, this));
+        for (int i=0; i<m_worker_num; i++) {
+            m_workers.push_back(std::thread(&ThreadPool::worker_fn, this));
         }
     }
 
-    void worker_routine() {
+    void worker_fn() {
         while (true) {
-            task_func_t one_task;
+            task_func_t t;
             {
                 std::unique_lock<std::mutex> lock(m_mutex);
-                m_cond_var.wait(lock, [this]() {return m_stopping || !m_task_queue.empty();});
+                m_cond_var.wait(lock, [this]{return !m_running || !m_queue.empty();});
                 // 停止线程池前, 消耗完剩余任务
-                if (m_stopping && m_task_queue.empty()) {
+                if (!m_running && m_queue.empty()) {
                     break;
                 }
-                one_task = std::move(m_task_queue.front());
-                m_task_queue.pop();
+                assert(!m_queue.empty());
+                t = std::move(m_queue.front());
+                m_queue.pop();
             }
-            one_task();
+            t();
         }
     }
 
     void stop() {
-        { // 通知 worker, 执行完池子里的任务后退出
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_stopping = true;
+        {
+            // 通知 worker, 执行完池子里的任务后退出
+           std::unique_lock<std::mutex> lock(m_mutex);
+            m_running = false;
             m_cond_var.notify_all();
+            std::cout << "stop" << std::endl;
         }
-        for (int i=0; i<m_workers.size(); i++) {
+        for (int i=0; i<m_worker_num; i++) {
             m_workers[i].join();
         }
     }
 
+    void enqueue_impl(task_func_t&& t) {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        if (!m_running) {
+            printf("cannot add task any more, the pool has be closed\n");
+            return;
+        }
+        m_queue.push(t);
+        m_cond_var.notify_one();
+    }
+
 private:
-    bool m_stopping;
-    int m_thread_num;
+    std::queue<task_func_t> m_queue;
+    int m_worker_num;
     std::vector<std::thread> m_workers;
+    bool m_running;
     std::mutex m_mutex;
     std::condition_variable m_cond_var;
-    std::queue<task_func_t> m_task_queue;
 };
 
-void enqueue_future_test() {
-    std::cout << "running " << __FUNCTION__ << std::endl;
-    ThreadPool pool(4);
-    auto f1 = pool.enqueue_future([] {
-        std::cout << "Task 1 running\n";
-        return 1;
-    });
-    auto f2 = pool.enqueue_future([] {
-        std::cout << "Task 2 running\n";
-        return 2;
-    });
-    auto f3 = pool.enqueue_future([] {
-        std::cout << "Task 3 running\n";
-        return "hello world";
-    });
-    std::cout << "Task 1 result: " << f1.get() << '\n';
-    std::cout << "Task 2 result: " << f2.get() << '\n';
-    std::cout << "Task 3 result: " << f3.get() << '\n';
-}
+ 
+int main(void) {
+    ThreadPool pool(5);
+    for (int i=0; i<20; i++) {
+        pool.enqueue([i](){
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            //std::cout << "thread " << std::this_thread::get_id() << ", task " << i << std::endl;
+            printf("thread_id: %#zx, task: %d\n", std::hash<std::thread::id>{}(std::this_thread::get_id()), i);
+        });
+        pool.enqueue([](int id){
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            printf("thread_id: %#zx, task: %d\n", std::hash<std::thread::id>{}(std::this_thread::get_id()), id);
+        }, i);
+    }
 
-void enqueue_test() {
-    std::cout << "running " << __FUNCTION__ << std::endl;
-    ThreadPool pool(4);
-    pool.enqueue([] {
-        std::cout << "Task 1 running\n";
-    });
-    pool.enqueue_future([] {
-        std::cout << "Task 2 running\n";
-    });
-    pool.enqueue_future([] {
-        std::cout << "Task 3 running\n";
-    });
-}
-
-int main() {
-    enqueue_future_test();
-    enqueue_test();
-    return 0;
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 }
 
 /*
-    how to compile a binary: g++ cpp_thread_pool.cpp -std=c++11
+Implementing a thread pool in C++ involves creating a certain number of threads that are kept alive to perform various tasks as they're provided. This is a common way to manage resources and improve performance for concurrent tasks.
+
+Here is a high-level overview of how to implement a basic thread pool:
+
+1. **Create a work queue**: This queue holds all the tasks that need to be executed. Tasks can be represented as `std::function<void()>` objects or any callable type.
+
+2. **Create worker threads**: Create a specific number of threads that will process tasks from the work queue.
+
+3. **Synchronize access to the work queue**: Since multiple threads access the queue, you need synchronization mechanisms like mutexes and condition variables to ensure thread-safe operations.
+
+4. **Implement a thread loop**: Each thread runs a loop that retrieves tasks from the work queue and executes them.
+
+5. **Manage thread lifecycle**: Implement thread joining or detachment, and make sure that no threads are left hanging on program exit.
+
+6. **Handle shutdown**: Provide a method for shutting down the thread pool gracefully, ensuring all tasks are completed before closing.
+
+Below is a simple example of a thread pool implementation in C++ using the C++ Standard Library:
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <functional>
+#include <future>
+
+class ThreadPool {
+public:
+    ThreadPool(size_t threadCount) : done(false) {
+        for (size_t i = 0; i < threadCount; ++i) {
+            workers.emplace_back([this]{
+                while (!done) {
+                    std::function<void()> task;
+                    {
+                        std::unique_lock<std::mutex> lock(queue_mutex);
+                        condition.wait(lock, [this]{ return done || !taskQueue.empty(); });
+                        if (done && taskQueue.empty())
+                            return;
+                        task = std::move(taskQueue.front());
+                        taskQueue.pop();
+                    }
+                    task();
+                }
+            });
+        }
+    }
+
+    ~ThreadPool() {
+        {
+            std::unique_lock<std::mutex> lock(queue_mutex);
+            done = true;
+        }
+        condition.notify_all();
+        for (std::thread &worker : workers) {
+            worker.join();
+        }
+    }
+
+    template<class F, class... Args>
+    auto enqueue(F&& f, Args&&... args) 
+        -> std::future<typename std::result_of<F(Args...)>::type> {
+        using return_type = typename std::result_of<F(Args...)>::type;
+
+        auto task = std::make_shared<std::packaged_task<return_type()>>(
+            std::bind(std::forward<F>(f), std::forward<Args>(args)...)
+        );
+      
+        std::future<return_type> res = task->get_future();
+        {
+            std::unique_lock<std::mutex> lock(queue_mutex);
+
+            if(done)
+                throw std::runtime_error("enqueue on stopped ThreadPool");
+
+            taskQueue.emplace([task](){ (*task)(); });
+        }
+        condition.notify_one();
+        return res;
+    }
+
+private:
+    std::vector<std::thread> workers;
+    std::queue<std::function<void()>> taskQueue;
+    std::mutex queue_mutex;
+    std::condition_variable condition;
+    bool done;
+};
+
+// Usage example
+void exampleTask() {
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::cout << "Task is executed." << std::endl;
+}
+
+int main() {
+    ThreadPool pool(4); // Create a thread pool with 4 threads
+
+    // Enqueue a couple of tasks
+    for (int i = 0; i < 8; ++i) {
+        pool.enqueue(exampleTask);
+    }
+
+    // Destructor of ThreadPool will be called here
+    // All tasks should be completed before main() exits and pool is destroyed.
+    return 0;
+}
+```
+
+This is a very simple implementation and does not cover all edge cases and possible optimizations. A real-world thread pool might have additional features, such as task prioritization, better exception handling, dynamic thread creation, and more sophisticated shutdown procedures.
+
+Always remember, in production code, you would also want to make sure that you properly handle tasks that throw exceptions, to prevent threads from exiting prematurely.
+
+The use of `condition.notify_one()` in `enqueue()` and `condition.notify_all()` in `~ThreadPool()` has to do with the intended behavior in those two different scenarios within the thread pool.
+
+1. **In `enqueue()`:**
+   When we add a new task to the queue, we only need to wake up one waiting thread to handle the new task. This is more efficient than waking up all threads because only one thread is required to process one task at a time. If multiple threads were woke up, they would all try to lock the mutex and access the queue, but only one could proceed, leading to unnecessary contention. Using `condition.notify_one()` is an optimization to ensure that only one thread is awoken to take the new task, reducing contention and context switching overhead.
+
+2. **In `~ThreadPool()`:**
+   When destroying the pool (`~ThreadPool()`), we set the `done` flag to `true`, which signals to all worker threads that they should not wait for new tasks anymore and should exit their run loop so that they can be joined in the destructor. In this situation, we use `condition.notify_all()` because we want to wake up all the waiting threads. If we only woke up one thread, only that single thread would see `done == true` and exit, while the others would remain blocked on `condition.wait()`. `condition.notify_all()` ensures all threads wake up and thus can exit the waiting state to check the `done` flag, allowing the destructor to join them properly.
+
+In summary, `condition.notify_one()` is an efficiency measure to wake only one thread for a new task during normal pool operation, and `condition.notify_all()` is used at destruction time to wake all threads to ensure they all exit and can be joined back into the main thread.
+
 */

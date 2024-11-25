@@ -339,4 +339,97 @@ Result = PASS
 5. destroy device and host memory
 
 NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+
+
+root@di-20241115115906-kfh5w:~/code/cuda-samples/Samples/0_Introduction/matrixMul# nsys profile --stat=true ./matrixMul
+[Matrix Multiply Using CUDA] - Starting...
+GPU Device 0: "Ada" with compute capability 8.9
+
+MatrixA(320,320), MatrixB(640,320)
+1. prepare host and device memory
+2. h2d: copy vars from host memory to device memory
+3. perform computation on GPU
+warmup done
+Performance= 1933.02 GFlop/s, Time= 0.068 msec, Size= 131072000 Ops, WorkgroupSize= 1024 threads/block
+4. d2h: copy computation result from device memory to host memory
+Result = PASS
+5. destroy device and host memory
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+Generating '/tmp/nsys-report-df28.qdstrm'
+[1/8] [========================100%] report2.nsys-rep
+[2/8] [========================100%] report2.sqlite
+[3/8] Executing 'nvtx_sum' stats report
+SKIPPED: /root/code/cuda-samples/Samples/0_Introduction/matrixMul/report2.sqlite does not contain NV Tools Extension (NVTX) data.
+[4/8] Executing 'osrt_sum' stats report
+
+ Time (%)  Total Time (ns)  Num Calls   Avg (ns)    Med (ns)   Min (ns)  Max (ns)   StdDev (ns)          Name         
+ --------  ---------------  ---------  ----------  ----------  --------  ---------  -----------  ---------------------
+     70.0        548552070         22  24934185.0  10060914.5      3173  267166127   56251384.5  poll                 
+     29.0        227431990        606    375300.3     97712.0       338   14540695    1083465.2  ioctl                
+      0.5          4071155         44     92526.3      7721.5      2170    1780871     285386.5  open64               
+      0.2          1533528         70     21907.5      1667.0       880    1361948     162502.8  fopen                
+      0.1           802080         27     29706.7      6069.0      2520     465728      88119.1  mmap64               
+      0.1           420015         10     42001.5     20432.5     14375     232145      66939.3  sem_timedwait        
+      0.0           191770         21      9131.9      3477.0       697      79604      17443.1  mmap                 
+      0.0           112755          2     56377.5     56377.5     46922      65833      13372.1  pthread_create       
+      0.0            73370         12      6114.2      6370.0       567      11982       3084.4  write                
+      0.0            65606         64      1025.1       558.0       473      19715       2401.5  fclose               
+      0.0            34217         25      1368.7        55.0        47      32846       6557.8  fgets                
+      0.0            30316          6      5052.7      4628.5      1126       9699       2920.6  open                 
+      0.0            25442          9      2826.9      2811.0      1643       4254       1002.8  munmap               
+      0.0            19076         58       328.9       274.5       135        816        164.3  fcntl                
+      0.0            14310          2      7155.0      7155.0      5430       8880       2439.5  socket               
+      0.0            13963         15       930.9       730.0       321       2514        687.6  read                 
+      0.0            11410          3      3803.3      3610.0      1640       6160       2266.2  pipe2                
+      0.0            10812          1     10812.0     10812.0     10812      10812          0.0  connect              
+      0.0             4290          1      4290.0      4290.0      4290       4290          0.0  fread                
+      0.0             3351          1      3351.0      3351.0      3351       3351          0.0  bind                 
+      0.0             2962         64        46.3        36.0        34        247         36.5  pthread_mutex_trylock
+      0.0             1829          7       261.3       284.0       165        385         89.0  dup                  
+      0.0              933          1       933.0       933.0       933        933          0.0  listen               
+      0.0              592         10        59.2        43.0        43        184         44.1  fflush               
+
+[5/8] Executing 'cuda_api_sum' stats report
+
+ Time (%)  Total Time (ns)  Num Calls   Avg (ns)    Med (ns)   Min (ns)  Max (ns)  StdDev (ns)                Name               
+ --------  ---------------  ---------  ----------  ----------  --------  --------  -----------  ---------------------------------
+     29.9         20569147          1  20569147.0  20569147.0  20569147  20569147          0.0  cudaProfilerStop                 
+     29.9         20564640          4   5141160.0     26568.0      6638  20504866   10242482.3  cudaMallocManaged                
+     28.1         19308233          1  19308233.0  19308233.0  19308233  19308233          0.0  cudaEventSynchronize             
+      8.1          5601553        302     18548.2      3170.0      2768   3597993     214811.7  cudaLaunchKernel                 
+      2.2          1545788          1   1545788.0   1545788.0   1545788   1545788          0.0  cudaGetDeviceProperties_v2_v12000
+      1.4           984463          2    492231.5    492231.5    268205    716258     316821.3  cudaStreamSynchronize            
+      0.2           117071          1    117071.0    117071.0    117071    117071          0.0  cudaFree                         
+      0.1            36804          1     36804.0     36804.0     36804     36804          0.0  cudaStreamCreateWithFlags        
+      0.0             6565          2      3282.5      3282.5      1924      4641       1921.2  cudaEventRecord                  
+      0.0             3774          2      1887.0      1887.0       472      3302       2001.1  cudaEventCreate                  
+      0.0             3731          1      3731.0      3731.0      3731      3731          0.0  cudaProfilerStart                
+      0.0             2419          2      1209.5      1209.5       353      2066       1211.3  cudaEventDestroy                 
+      0.0             2330          1      2330.0      2330.0      2330      2330          0.0  cuModuleGetLoadingMode           
+
+[6/8] Executing 'cuda_gpu_kern_sum' stats report
+
+ Time (%)  Total Time (ns)  Instances  Avg (ns)  Med (ns)  Min (ns)  Max (ns)  StdDev (ns)                                                  Name                                                
+ --------  ---------------  ---------  --------  --------  --------  --------  -----------  ----------------------------------------------------------------------------------------------------
+     98.7         20855804        301   69288.4   67072.0     66848    723451      37831.4  void MatrixMulCUDAWithTile<(int)32>(float *, float *, float *, int, int, int, int)                  
+      1.3           266719          1  266719.0  266719.0    266719    266719          0.0  MatMulKernel_naive(float *, const float *, const float *, unsigned int, unsigned int, unsigned int,…
+
+[7/8] Executing 'cuda_gpu_mem_time_sum' stats report
+
+ Time (%)  Total Time (ns)  Count  Avg (ns)  Med (ns)  Min (ns)  Max (ns)  StdDev (ns)               Operation              
+ --------  ---------------  -----  --------  --------  --------  --------  -----------  ------------------------------------
+     58.1           152485     34    4484.9    2831.0      2239     40384       6676.0  [CUDA memcpy Unified Host-to-Device]
+     41.9           110128     24    4588.7    2367.5      1343     21119       5582.5  [CUDA memcpy Unified Device-to-Host]
+
+[8/8] Executing 'cuda_gpu_mem_size_sum' stats report
+
+ Total (MB)  Count  Avg (MB)  Med (MB)  Min (MB)  Max (MB)  StdDev (MB)               Operation              
+ ----------  -----  --------  --------  --------  --------  -----------  ------------------------------------
+      2.097     24     0.087     0.031     0.004     0.520        0.147  [CUDA memcpy Unified Device-to-Host]
+      2.097     34     0.062     0.016     0.004     1.032        0.180  [CUDA memcpy Unified Host-to-Device]
+
+Generated:
+    /root/code/cuda-samples/Samples/0_Introduction/matrixMul/report2.nsys-rep
+    /root/code/cuda-samples/Samples/0_Introduction/matrixMul/report2.sqlite
 */
