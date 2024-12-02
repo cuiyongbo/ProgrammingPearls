@@ -125,11 +125,10 @@ int main(int argc, char **argv) {
 #endif
     printf("%s", msg);
 
-    printf("  (%03d) Multiprocessors, (%03d) CUDA Cores/MP:    %d CUDA Cores\n",
+    printf("  (%d) Multiprocessors, (%d) CUDA Cores/MP:    %d CUDA Cores\n",
            deviceProp.multiProcessorCount,
            _ConvertSMVer2Cores(deviceProp.major, deviceProp.minor),
-           _ConvertSMVer2Cores(deviceProp.major, deviceProp.minor) *
-               deviceProp.multiProcessorCount);
+           _ConvertSMVer2Cores(deviceProp.major, deviceProp.minor) * deviceProp.multiProcessorCount);
     printf(
         "  GPU Max Clock rate:                            %.0f MHz (%0.2f "
         "GHz)\n",
