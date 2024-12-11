@@ -10,6 +10,8 @@ Table of Contents
 * [how to prepare model repository](#how-to-prepare-model-repository)
 * [triton backend](#triton-backend)
     * [python backend](#python-backend)
+* [model ensemble](#model-ensemble)
+* [Business Logic Scripting](#business-logic-scripting)
 * [FAQs](#faqs)
 
 
@@ -164,6 +166,9 @@ model_warmup {
 # [Response Cache](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#response-cache)
 # [Optimization Policy](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#optimization-policy)
 ```
+
+* [`config.pbtxt` examples](https://jamied.io/cheat_sheet.html)
+* for more examples, refer to [model_store](./model-store/)
 
 * for `label_filename`, refer to [how to parse classification labels from response](https://github.com/triton-inference-server/server/blob/main/docs/protocol/extension_classification.md)
 
@@ -362,9 +367,98 @@ Stub::RunCommand()
         py::object execute_return = model_instance_.attr("execute")(py_request_list);
 ```
 
+## [model ensemble](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/architecture.html#ensemble-models)
+
+in some scenario you need to request multiple models for one task, of course you can request model one by one, either serially or simultaneously.
+however, you can do this more elegantly by making one request and letting triton to request multiple models during inference. this is often more efficiently since it reuqires less network passes, less intermediate variables. refer to [bge_ensemble_model](./model-store/bge_ensemble_model) for an ensemble to prcess nlp task. ensemble is only an abstraction, and there is no physical instance bound with it.
+and you don't need to code a `model.py` since triton schedules the models according to `ensemble_scheduling` in `config.pbtxt`.
+
+following is an ensemble example to perform object detection in an image:
+
+```protobuffer
+name: "ensemble_model"
+platform: "ensemble"
+max_batch_size: 1
+input [
+  {
+    name: "IMAGE"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  }
+]
+output [
+  {
+    name: "CLASSIFICATION"
+    data_type: TYPE_FP32
+    dims: [ 1000 ]
+  },
+  {
+    name: "SEGMENTATION"
+    data_type: TYPE_FP32
+    dims: [ 3, 224, 224 ]
+  }
+]
+# note that ensemble_scheduling.step order doesn't descide the execution order of internal models
+# inside the models run as a DAG(directed acyclic graph)
+ensemble_scheduling { 
+  step [
+    {
+      model_name: "image_preprocess_model"
+      model_version: -1
+      input_map {
+        key: "RAW_IMAGE" # an input/output name of the composing model
+        value: "IMAGE" # inputs for the first model should be mapped to the ensemble inputs
+      }
+      output_map {
+        key: "PREPROCESSED_OUTPUT"
+        value: "preprocessed_image" # intermediate tensor names can be arbitray but should be unique within the ensemble
+      }
+    },
+    {
+      model_name: "classification_model"
+      model_version: -1
+      input_map {
+        key: "FORMATTED_IMAGE"
+        value: "preprocessed_image"
+      }
+      output_map {
+        key: "CLASSIFICATION_OUTPUT"
+        value: "CLASSIFICATION"
+      }
+    },
+    {
+      model_name: "segmentation_model"
+      model_version: -1
+      input_map {
+        key: "FORMATTED_IMAGE"
+        value: "preprocessed_image"
+      }
+      output_map {
+        key: "SEGMENTATION_OUTPUT"
+        value: "SEGMENTATION" # output for the last model should be mapped to the ensemble outputs
+      }
+    }
+  ]
+}
+```
+
+remember that
+
+* don't add `instance_group` in `config.pbtxt`
+
+> Ensemble models are an abstraction Triton uses to execute a user-defined pipeline of models. Since there is no physical instance associated with an ensemble model,
+> the `instance_group` field can not be specified for it.
+> However, each composing model that makes up an ensemble can specify `instance_group` in its config file and individually support parallel execution
+> as described above when the ensemble receives multiple requests.
+
+
+## [Business Logic Scripting](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/python_backend/README.html#business-logic-scripting)
+
+compared to model ensemble, Business Logic Scripting (BLS for short) allows you to control how internel models will be executed. you may add condition flow control(if-else, loop control) during inference: Execute a model only when the outputs of former model satisfy some condition, or modify the outputs of internal models etc. unlike ensemble which is just an abstraction and no physical instance bond with it,
+BLS model has bond instances and you need to code a `mode.py` to tell triton how to perform inference.
+
 
 ## FAQs
-
 
 * [how to install tritonclient?](https://github.com/triton-inference-server/client)
 * [how to add log in python_backend](https://github.com/triton-inference-server/python_backend?tab=readme-ov-file#logging)

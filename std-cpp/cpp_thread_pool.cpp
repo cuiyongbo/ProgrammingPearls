@@ -20,99 +20,120 @@ From cppreference:
     how to compile a binary: g++ cpp_thread_pool.cpp -std=c++11
 */
 
+std::mutex cout_mutex;
 using task_func_t = std::function<void()>;
 // typedef void (*task_func_t)(void);
 
+
 class ThreadPool {
 public:
-    ThreadPool(int worker_num=10) {
+    ThreadPool(int worker_num) {
         m_worker_num = worker_num;
-        m_running = true;
+        m_is_running = true;
         start();
     }
 
     ~ThreadPool() {
-        stop();
-    }
-
-    template<class F, class... Args>
-    void enqueue(F&& f, Args&&... args) {
-        enqueue_impl(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
-    }
-
-private:
-    void start() {
-        for (int i=0; i<m_worker_num; i++) {
-            m_workers.push_back(std::thread(&ThreadPool::worker_fn, this));
-        }
-    }
-
-    void worker_fn() {
-        while (true) {
-            task_func_t t;
-            {
-                std::unique_lock<std::mutex> lock(m_mutex);
-                m_cond_var.wait(lock, [this]{return !m_running || !m_queue.empty();});
-                // 停止线程池前, 消耗完剩余任务
-                if (!m_running && m_queue.empty()) {
-                    break;
-                }
-                assert(!m_queue.empty());
-                t = std::move(m_queue.front());
-                m_queue.pop();
-            }
-            t();
-        }
-    }
-
-    void stop() {
-        {
-            // 通知 worker, 执行完池子里的任务后退出
-           std::unique_lock<std::mutex> lock(m_mutex);
-            m_running = false;
-            m_cond_var.notify_all();
-            std::cout << "stop" << std::endl;
-        }
         for (int i=0; i<m_worker_num; i++) {
             m_workers[i].join();
         }
     }
 
-    void enqueue_impl(task_func_t&& t) {
+    int task_count() {
         std::unique_lock<std::mutex> lock(m_mutex);
-        if (!m_running) {
-            printf("cannot add task any more, the pool has be closed\n");
-            return;
+        return m_tasks.size();
+    }
+
+    template<class F, class... Args>
+    int enqueue(F&& f, Args&&... args) {
+        return enqueue_impl(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+    }
+
+    int enqueue_impl(task_func_t&& t) {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        if (!m_is_running) {
+            std::cout << "thread pool is going to close, no more tasks" << std::endl;
+            return 1;
         }
-        m_queue.push(t);
-        m_cond_var.notify_one();
+        m_tasks.push(t);
+        m_cv.notify_one();
+        return 0;
+    }
+
+    void stop() {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_is_running = false;
+        m_cv.notify_all();
     }
 
 private:
-    std::queue<task_func_t> m_queue;
+    void woker_fn() {
+        while (true) {
+            task_func_t task;
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_cv.wait(lock, [this](){
+                    return !m_tasks.empty() || !m_is_running;
+                });
+                if (m_tasks.empty() && !m_is_running) {
+                    break;
+                }
+                auto t = m_tasks.front(); m_tasks.pop();
+                task = std::move(t);
+            }
+            task();
+        }
+    }
+
+    void start() {
+        for (int i=0; i<m_worker_num; i++) {
+            std::thread t = std::thread(&ThreadPool::woker_fn, this);
+            m_workers.push_back(std::move(t));
+        }
+    }
+
+private:
     int m_worker_num;
     std::vector<std::thread> m_workers;
-    bool m_running;
+    std::queue<task_func_t> m_tasks;
     std::mutex m_mutex;
-    std::condition_variable m_cond_var;
+    std::condition_variable m_cv;
+    bool m_is_running;
 };
 
- 
+
 int main(void) {
     ThreadPool pool(5);
     for (int i=0; i<20; i++) {
-        pool.enqueue([i](){
+        pool.enqueue([](){
+            std::unique_lock<std::mutex> lock(cout_mutex);
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            //std::cout << "thread " << std::this_thread::get_id() << ", task " << i << std::endl;
-            printf("thread_id: %#zx, task: %d\n", std::hash<std::thread::id>{}(std::this_thread::get_id()), i);
+            printf("thread_id: %#zx\n", std::hash<std::thread::id>{}(std::this_thread::get_id()));
         });
         pool.enqueue([](int id){
+            std::unique_lock<std::mutex> lock(cout_mutex);
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
             printf("thread_id: %#zx, task: %d\n", std::hash<std::thread::id>{}(std::this_thread::get_id()), id);
         }, i);
+        pool.enqueue(
+            [](int x, int y) {
+                std::unique_lock<std::mutex> lock(cout_mutex);
+                std::cout <<"thread_id: " << std::this_thread::get_id() << ": " << x+y << std::endl;
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            },
+            i, 10*i
+        );
     }
-
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    pool.stop();
+    std::cout << "task_count: " << pool.task_count() << std::endl;
+    pool.enqueue(
+        [](int x, int y) {
+            std::unique_lock<std::mutex> lock(cout_mutex);
+            std::cout << std::this_thread::get_id() << ":" << x+y << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        },
+        1, 2
+    );
 }
 
 /*
