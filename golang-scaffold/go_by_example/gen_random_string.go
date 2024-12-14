@@ -26,7 +26,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(randomString)
+	fmt.Println(randomString, len(randomString))
 }
 
 
