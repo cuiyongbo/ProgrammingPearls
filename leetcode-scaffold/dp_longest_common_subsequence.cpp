@@ -69,6 +69,7 @@ int Solution::lengthOflongestCommonSubsequence(string x, string y) {
 }
 
 string Solution::longestCommonSubsequence(string x, string y) {
+
     int m = x.size();
     int n = y.size();
     vector<vector<int>> dp(m+1, vector<int>(n+1, 0));
@@ -151,8 +152,8 @@ void longestCommonSubsequence_scaffold(string x, string y, string lcs) {
     Solution ss;
     int actual_len = ss.lengthOflongestCommonSubsequence(x, y); 
     string actual_lcs = ss.longestCommonSubsequence(x, y); 
-    if (actual_len == lcs.size()/* && actual_lcs == lcs*/) {
-        util::Log(logINFO) << "case(" << x << ", " << y << ") passed";
+    if (actual_len == lcs.size() && actual_lcs == lcs) {
+        util::Log(logINFO) << "case(" << x << ", " << y << ", lcs: " << lcs << ") passed";
     } else {
         util::Log(logERROR) << "case(" << x << ", " << y << ") failed, actual lcs: " << actual_lcs << ", expected: " << lcs;
     }

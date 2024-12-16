@@ -2,7 +2,7 @@
 
 we refer Triton Inference Server as triton for short in the following doc.
 
-Table of Contents
+Table of Contents:
 
 * [what is triton](#what-is-triton)
 * [git repos](#git-repos)
