@@ -1,17 +1,30 @@
 # Ubuntu Setup
 
+Table Of Content:
+
+- [Shortcuts](#shortcuts)
+- [Apt Packages](#apt-packages)
+- [Git Setup](#git-setup)
+- [Docker Setup](#docker-setup)
+- [Compiler ToolChain Setup](#compiler-toolchain-setup)
+- [Python Packages](#python-packages)
+- [Machine Learning Env Setup](#machine-learning-env-setup)
+- [Miscellaneous Topics](#miscellaneous-topics)
+
+
 ## Shortcuts
 
-* Open Terminal: Ctrl+Alt+T
-* Copy in Terminal: Ctrl+Shift+C
-* Paste in Terminal: Ctrl+Shift+V
+- Open Terminal: Ctrl+Alt+T
+- Copy in Terminal: Ctrl+Shift+C
+- Paste in Terminal: Ctrl+Shift+V
+- Maximize Window: Alt+F10
 
 
-## Packages
+## Apt Packages
 
-* [How to use the traditional `vi` editor?](./traditional_vi_note.md)
+- [How to use the traditional `vi` editor?](./traditional_vi_note.md)
 
-* change apt source list: [aliyun unbuntu sources](https://developer.aliyun.com/mirror/ubuntu?spm=a2c6h.13651102.0.0.3e221b114p7WHD)
+- change apt source list: [aliyun unbuntu sources](https://developer.aliyun.com/mirror/ubuntu?spm=a2c6h.13651102.0.0.3e221b114p7WHD)
 
 ```bash
 # lsb_release -a
@@ -22,11 +35,11 @@ Release:        22.04
 Codename:       jammy  # refer to configurations with the same Codename 
 ```
 
-* install packages:
+- install packages:
 
 ```bash
 sudo apt update
-sudo apt install -y vim tree htop
+sudo apt install -y vim tree htop net-tools
 
 # setup ssh
 sudo apt install openssh-server
@@ -35,7 +48,7 @@ sudo systemctl start ssh
 sudo systemctl status ssh
 ```
 
-* package settings:
+- package settings:
 
 ```bash
 # for vim
@@ -51,7 +64,7 @@ set list
 
 # in ~/.bashrc
 # display IP in bash prompt
-export PS1='\u@$(hostname -I) \w\n> '
+export PS1='\u@$(hostname -I|cut -d" " -f1) \w\n# '
 
 # in ~/.inputrc
 # no newline when copying/pasting code block in python interpreter
@@ -66,7 +79,7 @@ alias g++='g++ -std=c++11'
 alias tailf='tail -f'
 ```
 
-* [install Chinese Input Method](https://www.jb51.net/article/192113.htm)
+- [安装中文输入法](https://blog.csdn.net/windson_f/article/details/124932523)
 
 
 ## Git Setup
@@ -92,51 +105,24 @@ git config --global credential.helper store
 git config --global --add fetch.prune true
 ```
 
-## Compiler ToolChain Setup
-
-* GCC/G++
-* GDB
-* CMake
-* [Protocol Buffer](hello-world/my_wiki/programmer_note/grpc/protobuf_faq.md)
 
 ## Docker Setup
 
-* [install docker](hello-world/my_wiki/programmer_note/docker_note/docker_note.rst)
+- [install docker](hello-world/my_wiki/programmer_note/docker_note/docker_note.rst)
 
 
-## Machine Learning Env Setup
+## Compiler ToolChain Setup
 
-* install pytorch
+- GCC/G++
+- GDB
+- CMake
+- [Protocol Buffer](hello-world/my_wiki/programmer_note/grpc/protobuf_faq.md)
 
-```bash
-# install pytorch: https://pytorch.org/get-started/locally/
-pip3 install torch torchvision torchaudio
-pip3 install pandas
-pip3 install altair
-```
-
-* [Setup TensorFlow](../machine-learning-note/setup_tensorflow_env.md)
-* [Setup nanoGPT](../machine-learning-note/transformer/setup_nanoGPT_env.md)
-* [Setup Nvidia Triton Inference Server](../machine-learning-note/tritonserver-note/nvidia_triton_inference_server_note.md)
-* [how to use panda?](./panda_abc_demo.ipynb)
-* [NGC Containers](https://catalog.ngc.nvidia.com/containers)
-    * **Be sure to check the compatibility between cuda and nividia driver before downloading NGC**
-    * [CUDA Programming](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda)
-    * [tensorflow](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tensorflow)
-    * [pytorch](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch)
-    * [tritonserver](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tritonserver)
-
-* Mirrors
-    * HuggingFace Mirrors
-        * https://modelscope.cn/models
-        * https://hf-mirror.com/models
-            * 修改 HF_ENDPOINT: 往 `~/.bashrc` 中注入: `export HF_ENDPOINT=https://hf-mirror.com`
-    * GitHub Mirrors
-        * https://gitee.com/
 
 ## Python Packages
 
-* pip to change package index url
+- install pip3: `sudo apt install python3-pip`
+- change pip package index url
 
 ```bash
 # pip3 install -h
@@ -157,17 +143,49 @@ trusted-host=mirrors.aliyun.com
 $ sudo -H pip3 install package_name -i https://mirrors.aliyun.com/pypi/simple/
 ```
 
-* [jupyter notebook](https://docs.jupyter.org/en/latest/install.html)
-* [mermaid-python: draw mermaid diagram in jupyter notebook](https://pypi.org/project/mermaid-python/)
-* [Python code formatter: Black](https://pypi.org/project/black/)
-* [docarray](https://docs.docarray.org/)
-* [Pillow - image process lib](https://pillow.readthedocs.io)
-* sentence-transformers
-* matplotlib
-* pandas
+- [requirements.txt for Python3.12](./py3_12_requirements.txt)
+    - [jupyter notebook](https://docs.jupyter.org/en/latest/install.html)
+    - [mermaid-python: draw mermaid diagram in jupyter notebook](https://pypi.org/project/mermaid-python/)
+    - [Python code formatter: Black](https://pypi.org/project/black/)
+    - [docarray](https://docs.docarray.org/)
+    - [Pillow - image process lib](https://pillow.readthedocs.io)
+    - sentence-transformers
+    - matplotlib
+    - pandas
+
+
+## Machine Learning Env Setup
+
+- install pytorch
+
+```bash
+# install pytorch: https://pytorch.org/get-started/locally/
+pip3 install torch torchvision torchaudio
+```
+
+- [Setup TensorFlow](../machine-learning-note/setup_tensorflow_env.md)
+- [Setup nanoGPT](../machine-learning-note/transformer/setup_nanoGPT_env.md)
+- [Setup Nvidia Triton Inference Server](../machine-learning-note/tritonserver-note/nvidia_triton_inference_server_note.md)
+- [how to use panda?](./panda_abc_demo.ipynb)
+- [NGC Containers](https://catalog.ngc.nvidia.com/containers)
+    - **Be sure to check the compatibility between cuda and nividia driver before downloading NGC**
+    - [CUDA Programming](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda)
+    - [tensorflow](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tensorflow)
+    - [pytorch](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch)
+    - [tritonserver](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tritonserver)
+
+- Mirrors
+    - HuggingFace Mirrors
+        - https://modelscope.cn/models
+        - https://hf-mirror.com/models
+            - 修改 HF_ENDPOINT: 往 `~/.bashrc` 中注入: `export HF_ENDPOINT=https://hf-mirror.com`
+    - GitHub Mirrors
+        - https://gitee.com/
+
+- start/stop Nvidia GPU: [start_gpu.sh](./start_gpu.sh)/[stop_gpu.sh](./stop_gpu.sh)
 
 
 ## Miscellaneous Topics
 
-* [Redis](hello-world/my_wiki/programmer_note/redis_note.rst)
-* Kafka
+- [Redis](hello-world/my_wiki/programmer_note/redis_note.rst)
+- Kafka

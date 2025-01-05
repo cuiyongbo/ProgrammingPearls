@@ -1,0 +1,13 @@
+docarray>=0.40.0
+pillow>=10.2.0
+matplotlib>=3.10.0
+notebook>=7.3.2
+pandas>=2.2.3
+sentence-transformers>=3.3.1
+
+
+# packages to manage RST, MD document
+Sphinx>=8.1.3
+sphinx-rtd-theme>=3.0.2
+sphinxcontrib-mermaid>=1.0.0
+myst-parser>=4.0.0
