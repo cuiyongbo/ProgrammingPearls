@@ -4,15 +4,16 @@ we refer Triton Inference Server as triton for short in the following doc.
 
 Table of Contents:
 
-* [what is triton](#what-is-triton)
-* [git repos](#git-repos)
-* [how to start tritonserver with NGC](#how-to-start-tritonserver-with-ngc)
-* [how to prepare model repository](#how-to-prepare-model-repository)
-* [triton backend](#triton-backend)
-    * [python backend](#python-backend)
-* [model ensemble](#model-ensemble)
-* [Business Logic Scripting](#business-logic-scripting)
-* [FAQs](#faqs)
+- [Nvidia Triton Inference Server](#nvidia-triton-inference-server)
+  - [what is triton](#what-is-triton)
+  - [git repos](#git-repos)
+  - [how to start tritonserver with NGC](#how-to-start-tritonserver-with-ngc)
+  - [how to prepare model repository](#how-to-prepare-model-repository)
+  - [triton backend](#triton-backend)
+    - [python\_backend](#python_backend)
+  - [model ensemble](#model-ensemble)
+  - [Business Logic Scripting](#business-logic-scripting)
+  - [FAQs](#faqs)
 
 
 ## what is triton
@@ -90,6 +91,29 @@ I0803 04:17:03.600956 145 server.cc:676]
 ```
 
 you can run `tritonserver -help` for full service options.
+
+
+- docker: Error response from daemon: could not select device driver "" with capabilities: [[gpu]].
+
+Environment:
+
+```bash
+# lsb_release  -a
+No LSB modules are available.
+Distributor ID: Ubuntu
+Description:    Ubuntu 24.04.1 LTS
+Release:        24.04
+Codename:       noble
+# docker --version
+Docker version 27.4.1, build b9d17ea
+```
+
+Solution:
+
+```bash
+sudo apt-get install -y nvidia-container-toolkit
+sudo systemctl restart docker
+```
 
 
 ## how to prepare model repository
