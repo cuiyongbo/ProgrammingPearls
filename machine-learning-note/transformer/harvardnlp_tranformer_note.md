@@ -9,10 +9,50 @@
 
 ## Env Setup
 
-- install `python 3.10.12`: https://docs.vultr.com/update-python3-on-debian
-    - https://www.python.org/downloads/source/
-- set pip index-url: `pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/`
-- create virtual environment with python3.10
+- os
+  
+```bash
+# lsb_release -a
+No LSB modules are available.
+Distributor ID: Ubuntu
+Description:    Ubuntu 24.04.1 LTS
+Release:        24.04
+Codename:       noble
+
+# nvidia-smi 
+Thu Jan 23 00:28:04 2025       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.05              Driver Version: 560.35.05      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 2080 Ti     Off |   00000000:06:00.0  On |                  N/A |
+| 22%   25C    P8             32W /  250W |     544MiB /  22528MiB |      9%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+```
+
+- [install pyenv on ubuntu 24.04](https://idroot.us/install-pyenv-ubuntu-24-04/)
+
+- create a python3.10 virtualenv
+
+```bash
+# pyenv install 3.10.12
+Downloading Python-3.10.12.tar.xz...
+-> https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tar.xz
+
+Installing Python-3.10.12...
+Installed Python-3.10.12 to /home/cherry/.pyenv/versions/3.10.12
+
+# pyenv virtualenv 3.10.12 transformer-env
+
+# pyenv activate transformer-env
+
+# set index-url to aliyun to accelerate installation
+# pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
+```
 
 - install packages in venv
 
@@ -26,10 +66,10 @@ pip3 install 'portalocker>=2.0.0'
 - download and install spacy tokenizer
 
 ```
-# github: https://github.com/explosion/spacy-models/releases
-# https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.2.0/de_core_news_sm-3.2.0-py3-none-any.whl
+# tokenizer: https://github.com/explosion/spacy-models
+# https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl
 #python3 -m spacy download de_core_news_sm
-# https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.2.0/en_core_web_sm-3.2.0-py3-none-any.whl
+# https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 #python3 -m spacy download en_core_web_sm
 # if you have download whl packages to local host, you may install them manually with
 # pip3 install *.whl
@@ -60,6 +100,8 @@ total 5468
 ```
 
 ## training log
+
+- with nvidia L4 GPU
 
 ```bash
 root@di-20241115115906-kfh5w:~/.cache/torch/text/datasets/Multi30k# nvidia-smi 
@@ -349,4 +391,295 @@ Example 0 ========
 Source Text (Input)        : <s> Eine Frau steht auf einem Bein auf einer hohen Klippe und blickt über einen Fluss . </s>
 Target Text (Ground Truth) : <s> A woman standing on a high cliff on one leg looking over a river . </s>
 Model Output               : <s> A woman stands on a high cliff over a river . </s>
+```
+
+- with nvidia RTX 2080Ti
+
+```bash
+# nvidia-smi 
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.05              Driver Version: 560.35.05      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 2080 Ti     Off |   00000000:06:00.0  On |                  N/A |
+| 34%   59C    P0            241W /  250W |    4687MiB /  22528MiB |     94%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A     43279      C   ...ersions/transformer-env/bin/python3       4124MiB |
++-----------------------------------------------------------------------------------------+
+
+# python3 the_annotated_transformer.py 
+Building German Vocabulary ...
+Building English Vocabulary ...
+Finished.
+Vocabulary sizes:
+8316
+6384
+Train worker process using GPU: 0 for training
+[GPU0] Epoch 0 Training ====
+Epoch Step:      1 | Accumulation Step:   1 | Loss:   7.61 | Tokens / Sec:  2806.2 | Learning Rate: 5.4e-07
+Epoch Step:     41 | Accumulation Step:   5 | Loss:   7.40 | Tokens / Sec:  4377.0 | Learning Rate: 1.1e-05
+Epoch Step:     81 | Accumulation Step:   9 | Loss:   7.00 | Tokens / Sec:  4294.1 | Learning Rate: 2.2e-05
+Epoch Step:    121 | Accumulation Step:  13 | Loss:   6.64 | Tokens / Sec:  4163.0 | Learning Rate: 3.3e-05
+Epoch Step:    161 | Accumulation Step:  17 | Loss:   6.45 | Tokens / Sec:  4307.9 | Learning Rate: 4.4e-05
+Epoch Step:    201 | Accumulation Step:  21 | Loss:   6.33 | Tokens / Sec:  4269.2 | Learning Rate: 5.4e-05
+Epoch Step:    241 | Accumulation Step:  25 | Loss:   6.21 | Tokens / Sec:  4336.6 | Learning Rate: 6.5e-05
+Epoch Step:    281 | Accumulation Step:  29 | Loss:   5.99 | Tokens / Sec:  4280.0 | Learning Rate: 7.6e-05
+Epoch Step:    321 | Accumulation Step:  33 | Loss:   5.77 | Tokens / Sec:  4254.5 | Learning Rate: 8.7e-05
+Epoch Step:    361 | Accumulation Step:  37 | Loss:   5.49 | Tokens / Sec:  4241.2 | Learning Rate: 9.7e-05
+Epoch Step:    401 | Accumulation Step:  41 | Loss:   5.45 | Tokens / Sec:  4287.5 | Learning Rate: 1.1e-04
+Epoch Step:    441 | Accumulation Step:  45 | Loss:   5.02 | Tokens / Sec:  4289.0 | Learning Rate: 1.2e-04
+Epoch Step:    481 | Accumulation Step:  49 | Loss:   4.88 | Tokens / Sec:  4170.2 | Learning Rate: 1.3e-04
+Epoch Step:    521 | Accumulation Step:  53 | Loss:   4.78 | Tokens / Sec:  4269.6 | Learning Rate: 1.4e-04
+Epoch Step:    561 | Accumulation Step:  57 | Loss:   4.50 | Tokens / Sec:  4299.7 | Learning Rate: 1.5e-04
+Epoch Step:    601 | Accumulation Step:  61 | Loss:   4.46 | Tokens / Sec:  4268.7 | Learning Rate: 1.6e-04
+Epoch Step:    641 | Accumulation Step:  65 | Loss:   4.48 | Tokens / Sec:  4239.3 | Learning Rate: 1.7e-04
+Epoch Step:    681 | Accumulation Step:  69 | Loss:   4.25 | Tokens / Sec:  4276.9 | Learning Rate: 1.8e-04
+Epoch Step:    721 | Accumulation Step:  73 | Loss:   4.15 | Tokens / Sec:  4202.7 | Learning Rate: 1.9e-04
+Epoch Step:    761 | Accumulation Step:  77 | Loss:   4.04 | Tokens / Sec:  3898.4 | Learning Rate: 2.0e-04
+Epoch Step:    801 | Accumulation Step:  81 | Loss:   4.12 | Tokens / Sec:  4137.1 | Learning Rate: 2.2e-04
+Epoch Step:    841 | Accumulation Step:  85 | Loss:   4.02 | Tokens / Sec:  4137.4 | Learning Rate: 2.3e-04
+Epoch Step:    881 | Accumulation Step:  89 | Loss:   4.07 | Tokens / Sec:  4262.3 | Learning Rate: 2.4e-04
+| ID | GPU | MEM |
+------------------
+|  0 | 93% | 17% |
+[GPU0] Epoch 0 Validation ====
+(tensor(3.8710, device='cuda:0'), <__main__.TrainState object at 0x78bfd53d9330>)
+[GPU0] Epoch 1 Training ====
+Epoch Step:      1 | Accumulation Step:   1 | Loss:   3.97 | Tokens / Sec:  4361.1 | Learning Rate: 2.4e-04
+Epoch Step:     41 | Accumulation Step:   5 | Loss:   4.16 | Tokens / Sec:  4315.2 | Learning Rate: 2.6e-04
+Epoch Step:     81 | Accumulation Step:   9 | Loss:   3.91 | Tokens / Sec:  4244.1 | Learning Rate: 2.7e-04
+Epoch Step:    121 | Accumulation Step:  13 | Loss:   3.82 | Tokens / Sec:  4150.1 | Learning Rate: 2.8e-04
+Epoch Step:    161 | Accumulation Step:  17 | Loss:   3.53 | Tokens / Sec:  3978.9 | Learning Rate: 2.9e-04
+Epoch Step:    201 | Accumulation Step:  21 | Loss:   3.56 | Tokens / Sec:  4117.5 | Learning Rate: 3.0e-04
+Epoch Step:    241 | Accumulation Step:  25 | Loss:   3.78 | Tokens / Sec:  4055.9 | Learning Rate: 3.1e-04
+Epoch Step:    281 | Accumulation Step:  29 | Loss:   3.54 | Tokens / Sec:  3976.7 | Learning Rate: 3.2e-04
+Epoch Step:    321 | Accumulation Step:  33 | Loss:   3.26 | Tokens / Sec:  4306.3 | Learning Rate: 3.3e-04
+Epoch Step:    361 | Accumulation Step:  37 | Loss:   3.40 | Tokens / Sec:  4121.6 | Learning Rate: 3.4e-04
+Epoch Step:    401 | Accumulation Step:  41 | Loss:   3.28 | Tokens / Sec:  4167.2 | Learning Rate: 3.5e-04
+Epoch Step:    441 | Accumulation Step:  45 | Loss:   3.19 | Tokens / Sec:  4212.1 | Learning Rate: 3.6e-04
+Epoch Step:    481 | Accumulation Step:  49 | Loss:   2.98 | Tokens / Sec:  4121.8 | Learning Rate: 3.7e-04
+Epoch Step:    521 | Accumulation Step:  53 | Loss:   3.28 | Tokens / Sec:  3952.5 | Learning Rate: 3.8e-04
+Epoch Step:    561 | Accumulation Step:  57 | Loss:   3.07 | Tokens / Sec:  4176.2 | Learning Rate: 4.0e-04
+Epoch Step:    601 | Accumulation Step:  61 | Loss:   3.44 | Tokens / Sec:  4108.5 | Learning Rate: 4.1e-04
+Epoch Step:    641 | Accumulation Step:  65 | Loss:   3.13 | Tokens / Sec:  3920.2 | Learning Rate: 4.2e-04
+Epoch Step:    681 | Accumulation Step:  69 | Loss:   3.30 | Tokens / Sec:  4070.1 | Learning Rate: 4.3e-04
+Epoch Step:    721 | Accumulation Step:  73 | Loss:   3.21 | Tokens / Sec:  4212.7 | Learning Rate: 4.4e-04
+Epoch Step:    761 | Accumulation Step:  77 | Loss:   2.94 | Tokens / Sec:  4201.3 | Learning Rate: 4.5e-04
+Epoch Step:    801 | Accumulation Step:  81 | Loss:   3.08 | Tokens / Sec:  4246.3 | Learning Rate: 4.6e-04
+Epoch Step:    841 | Accumulation Step:  85 | Loss:   2.85 | Tokens / Sec:  4197.6 | Learning Rate: 4.7e-04
+Epoch Step:    881 | Accumulation Step:  89 | Loss:   2.80 | Tokens / Sec:  4140.8 | Learning Rate: 4.8e-04
+| ID | GPU | MEM |
+------------------
+|  0 | 95% | 21% |
+[GPU0] Epoch 1 Validation ====
+(tensor(2.8402, device='cuda:0'), <__main__.TrainState object at 0x78bfd53d9330>)
+[GPU0] Epoch 2 Training ====
+Epoch Step:      1 | Accumulation Step:   1 | Loss:   2.83 | Tokens / Sec:  4495.1 | Learning Rate: 4.9e-04
+Epoch Step:     41 | Accumulation Step:   5 | Loss:   2.66 | Tokens / Sec:  4254.6 | Learning Rate: 5.0e-04
+Epoch Step:     81 | Accumulation Step:   9 | Loss:   2.76 | Tokens / Sec:  4216.2 | Learning Rate: 5.1e-04
+Epoch Step:    121 | Accumulation Step:  13 | Loss:   2.77 | Tokens / Sec:  4202.2 | Learning Rate: 5.2e-04
+Epoch Step:    161 | Accumulation Step:  17 | Loss:   2.88 | Tokens / Sec:  3870.5 | Learning Rate: 5.3e-04
+Epoch Step:    201 | Accumulation Step:  21 | Loss:   2.84 | Tokens / Sec:  4171.0 | Learning Rate: 5.4e-04
+Epoch Step:    241 | Accumulation Step:  25 | Loss:   2.62 | Tokens / Sec:  4178.7 | Learning Rate: 5.5e-04
+Epoch Step:    281 | Accumulation Step:  29 | Loss:   2.52 | Tokens / Sec:  4199.2 | Learning Rate: 5.6e-04
+Epoch Step:    321 | Accumulation Step:  33 | Loss:   2.45 | Tokens / Sec:  4226.4 | Learning Rate: 5.7e-04
+Epoch Step:    361 | Accumulation Step:  37 | Loss:   2.67 | Tokens / Sec:  4155.2 | Learning Rate: 5.9e-04
+Epoch Step:    401 | Accumulation Step:  41 | Loss:   2.49 | Tokens / Sec:  3839.2 | Learning Rate: 6.0e-04
+Epoch Step:    441 | Accumulation Step:  45 | Loss:   2.47 | Tokens / Sec:  4016.3 | Learning Rate: 6.1e-04
+Epoch Step:    481 | Accumulation Step:  49 | Loss:   2.36 | Tokens / Sec:  4222.9 | Learning Rate: 6.2e-04
+Epoch Step:    521 | Accumulation Step:  53 | Loss:   2.32 | Tokens / Sec:  4129.7 | Learning Rate: 6.3e-04
+Epoch Step:    561 | Accumulation Step:  57 | Loss:   2.72 | Tokens / Sec:  4238.5 | Learning Rate: 6.4e-04
+Epoch Step:    601 | Accumulation Step:  61 | Loss:   2.34 | Tokens / Sec:  4289.2 | Learning Rate: 6.5e-04
+Epoch Step:    641 | Accumulation Step:  65 | Loss:   2.29 | Tokens / Sec:  4269.1 | Learning Rate: 6.6e-04
+Epoch Step:    681 | Accumulation Step:  69 | Loss:   2.63 | Tokens / Sec:  4090.5 | Learning Rate: 6.7e-04
+Epoch Step:    721 | Accumulation Step:  73 | Loss:   2.33 | Tokens / Sec:  4272.2 | Learning Rate: 6.8e-04
+Epoch Step:    761 | Accumulation Step:  77 | Loss:   2.20 | Tokens / Sec:  4219.5 | Learning Rate: 6.9e-04
+Epoch Step:    801 | Accumulation Step:  81 | Loss:   2.43 | Tokens / Sec:  4271.9 | Learning Rate: 7.0e-04
+Epoch Step:    841 | Accumulation Step:  85 | Loss:   1.95 | Tokens / Sec:  4251.3 | Learning Rate: 7.1e-04
+Epoch Step:    881 | Accumulation Step:  89 | Loss:   2.10 | Tokens / Sec:  4242.9 | Learning Rate: 7.3e-04
+| ID | GPU | MEM |
+------------------
+|  0 | 93% | 21% |
+[GPU0] Epoch 2 Validation ====
+(tensor(2.1210, device='cuda:0'), <__main__.TrainState object at 0x78bfd53d9330>)
+[GPU0] Epoch 3 Training ====
+Epoch Step:      1 | Accumulation Step:   1 | Loss:   2.09 | Tokens / Sec:  4196.9 | Learning Rate: 7.3e-04
+Epoch Step:     41 | Accumulation Step:   5 | Loss:   1.82 | Tokens / Sec:  4207.1 | Learning Rate: 7.4e-04
+Epoch Step:     81 | Accumulation Step:   9 | Loss:   1.89 | Tokens / Sec:  4224.5 | Learning Rate: 7.5e-04
+Epoch Step:    121 | Accumulation Step:  13 | Loss:   2.07 | Tokens / Sec:  3768.1 | Learning Rate: 7.6e-04
+Epoch Step:    161 | Accumulation Step:  17 | Loss:   1.90 | Tokens / Sec:  3851.5 | Learning Rate: 7.8e-04
+Epoch Step:    201 | Accumulation Step:  21 | Loss:   1.97 | Tokens / Sec:  4229.4 | Learning Rate: 7.9e-04
+Epoch Step:    241 | Accumulation Step:  25 | Loss:   1.82 | Tokens / Sec:  4191.3 | Learning Rate: 8.0e-04
+Epoch Step:    281 | Accumulation Step:  29 | Loss:   2.03 | Tokens / Sec:  4187.0 | Learning Rate: 8.1e-04
+Epoch Step:    321 | Accumulation Step:  33 | Loss:   2.08 | Tokens / Sec:  3993.9 | Learning Rate: 8.0e-04
+Epoch Step:    361 | Accumulation Step:  37 | Loss:   1.96 | Tokens / Sec:  3953.3 | Learning Rate: 8.0e-04
+Epoch Step:    401 | Accumulation Step:  41 | Loss:   1.82 | Tokens / Sec:  3971.3 | Learning Rate: 7.9e-04
+Epoch Step:    441 | Accumulation Step:  45 | Loss:   1.84 | Tokens / Sec:  4089.6 | Learning Rate: 7.9e-04
+Epoch Step:    481 | Accumulation Step:  49 | Loss:   1.53 | Tokens / Sec:  4189.1 | Learning Rate: 7.8e-04
+Epoch Step:    521 | Accumulation Step:  53 | Loss:   1.86 | Tokens / Sec:  4231.4 | Learning Rate: 7.8e-04
+Epoch Step:    561 | Accumulation Step:  57 | Loss:   2.05 | Tokens / Sec:  4213.3 | Learning Rate: 7.7e-04
+Epoch Step:    601 | Accumulation Step:  61 | Loss:   1.90 | Tokens / Sec:  4263.5 | Learning Rate: 7.7e-04
+Epoch Step:    641 | Accumulation Step:  65 | Loss:   1.84 | Tokens / Sec:  4235.9 | Learning Rate: 7.6e-04
+Epoch Step:    681 | Accumulation Step:  69 | Loss:   2.21 | Tokens / Sec:  4199.7 | Learning Rate: 7.6e-04
+Epoch Step:    721 | Accumulation Step:  73 | Loss:   1.77 | Tokens / Sec:  4152.5 | Learning Rate: 7.5e-04
+Epoch Step:    761 | Accumulation Step:  77 | Loss:   1.95 | Tokens / Sec:  4250.9 | Learning Rate: 7.5e-04
+Epoch Step:    801 | Accumulation Step:  81 | Loss:   1.81 | Tokens / Sec:  4248.8 | Learning Rate: 7.4e-04
+Epoch Step:    841 | Accumulation Step:  85 | Loss:   1.76 | Tokens / Sec:  4184.4 | Learning Rate: 7.4e-04
+Epoch Step:    881 | Accumulation Step:  89 | Loss:   1.66 | Tokens / Sec:  4167.9 | Learning Rate: 7.4e-04
+| ID | GPU | MEM |
+------------------
+|  0 | 94% | 21% |
+[GPU0] Epoch 3 Validation ====
+(tensor(1.7545, device='cuda:0'), <__main__.TrainState object at 0x78bfd53d9330>)
+[GPU0] Epoch 4 Training ====
+Epoch Step:      1 | Accumulation Step:   1 | Loss:   1.31 | Tokens / Sec:  4798.2 | Learning Rate: 7.3e-04
+Epoch Step:     41 | Accumulation Step:   5 | Loss:   1.89 | Tokens / Sec:  4256.4 | Learning Rate: 7.3e-04
+Epoch Step:     81 | Accumulation Step:   9 | Loss:   1.41 | Tokens / Sec:  4240.6 | Learning Rate: 7.3e-04
+Epoch Step:    121 | Accumulation Step:  13 | Loss:   1.34 | Tokens / Sec:  3968.3 | Learning Rate: 7.2e-04
+Epoch Step:    161 | Accumulation Step:  17 | Loss:   1.34 | Tokens / Sec:  4173.2 | Learning Rate: 7.2e-04
+Epoch Step:    201 | Accumulation Step:  21 | Loss:   1.39 | Tokens / Sec:  4269.7 | Learning Rate: 7.1e-04
+Epoch Step:    241 | Accumulation Step:  25 | Loss:   1.25 | Tokens / Sec:  4124.2 | Learning Rate: 7.1e-04
+Epoch Step:    281 | Accumulation Step:  29 | Loss:   1.83 | Tokens / Sec:  4205.7 | Learning Rate: 7.1e-04
+Epoch Step:    321 | Accumulation Step:  33 | Loss:   1.40 | Tokens / Sec:  4142.2 | Learning Rate: 7.0e-04
+Epoch Step:    361 | Accumulation Step:  37 | Loss:   1.28 | Tokens / Sec:  4140.5 | Learning Rate: 7.0e-04
+Epoch Step:    401 | Accumulation Step:  41 | Loss:   1.47 | Tokens / Sec:  4162.5 | Learning Rate: 7.0e-04
+Epoch Step:    441 | Accumulation Step:  45 | Loss:   1.42 | Tokens / Sec:  4183.7 | Learning Rate: 6.9e-04
+Epoch Step:    481 | Accumulation Step:  49 | Loss:   1.65 | Tokens / Sec:  4265.0 | Learning Rate: 6.9e-04
+Epoch Step:    521 | Accumulation Step:  53 | Loss:   1.53 | Tokens / Sec:  4205.0 | Learning Rate: 6.9e-04
+Epoch Step:    561 | Accumulation Step:  57 | Loss:   2.01 | Tokens / Sec:  4255.7 | Learning Rate: 6.8e-04
+Epoch Step:    601 | Accumulation Step:  61 | Loss:   1.68 | Tokens / Sec:  4284.1 | Learning Rate: 6.8e-04
+Epoch Step:    641 | Accumulation Step:  65 | Loss:   1.52 | Tokens / Sec:  4146.9 | Learning Rate: 6.8e-04
+Epoch Step:    681 | Accumulation Step:  69 | Loss:   1.59 | Tokens / Sec:  4249.6 | Learning Rate: 6.7e-04
+Epoch Step:    721 | Accumulation Step:  73 | Loss:   1.41 | Tokens / Sec:  4264.9 | Learning Rate: 6.7e-04
+Epoch Step:    761 | Accumulation Step:  77 | Loss:   1.52 | Tokens / Sec:  4186.0 | Learning Rate: 6.7e-04
+Epoch Step:    801 | Accumulation Step:  81 | Loss:   1.48 | Tokens / Sec:  4218.6 | Learning Rate: 6.6e-04
+Epoch Step:    841 | Accumulation Step:  85 | Loss:   1.58 | Tokens / Sec:  4278.8 | Learning Rate: 6.6e-04
+Epoch Step:    881 | Accumulation Step:  89 | Loss:   1.49 | Tokens / Sec:  4189.1 | Learning Rate: 6.6e-04
+| ID | GPU | MEM |
+------------------
+|  0 | 94% | 21% |
+[GPU0] Epoch 4 Validation ====
+(tensor(1.5927, device='cuda:0'), <__main__.TrainState object at 0x78bfd53d9330>)
+[GPU0] Epoch 5 Training ====
+Epoch Step:      1 | Accumulation Step:   1 | Loss:   1.29 | Tokens / Sec:  5005.3 | Learning Rate: 6.6e-04
+Epoch Step:     41 | Accumulation Step:   5 | Loss:   1.22 | Tokens / Sec:  4225.6 | Learning Rate: 6.5e-04
+Epoch Step:     81 | Accumulation Step:   9 | Loss:   1.29 | Tokens / Sec:  4221.1 | Learning Rate: 6.5e-04
+Epoch Step:    121 | Accumulation Step:  13 | Loss:   1.08 | Tokens / Sec:  4226.6 | Learning Rate: 6.5e-04
+Epoch Step:    161 | Accumulation Step:  17 | Loss:   1.17 | Tokens / Sec:  4241.7 | Learning Rate: 6.4e-04
+Epoch Step:    201 | Accumulation Step:  21 | Loss:   1.31 | Tokens / Sec:  4187.4 | Learning Rate: 6.4e-04
+Epoch Step:    241 | Accumulation Step:  25 | Loss:   1.36 | Tokens / Sec:  4216.4 | Learning Rate: 6.4e-04
+Epoch Step:    281 | Accumulation Step:  29 | Loss:   1.30 | Tokens / Sec:  4259.0 | Learning Rate: 6.4e-04
+Epoch Step:    321 | Accumulation Step:  33 | Loss:   1.49 | Tokens / Sec:  4109.9 | Learning Rate: 6.3e-04
+Epoch Step:    361 | Accumulation Step:  37 | Loss:   1.38 | Tokens / Sec:  4169.8 | Learning Rate: 6.3e-04
+Epoch Step:    401 | Accumulation Step:  41 | Loss:   1.16 | Tokens / Sec:  4177.0 | Learning Rate: 6.3e-04
+Epoch Step:    441 | Accumulation Step:  45 | Loss:   1.19 | Tokens / Sec:  4263.1 | Learning Rate: 6.3e-04
+Epoch Step:    481 | Accumulation Step:  49 | Loss:   1.01 | Tokens / Sec:  4197.3 | Learning Rate: 6.2e-04
+Epoch Step:    521 | Accumulation Step:  53 | Loss:   1.30 | Tokens / Sec:  4268.3 | Learning Rate: 6.2e-04
+Epoch Step:    561 | Accumulation Step:  57 | Loss:   1.32 | Tokens / Sec:  4147.7 | Learning Rate: 6.2e-04
+Epoch Step:    601 | Accumulation Step:  61 | Loss:   1.64 | Tokens / Sec:  4153.8 | Learning Rate: 6.2e-04
+Epoch Step:    641 | Accumulation Step:  65 | Loss:   1.47 | Tokens / Sec:  4136.1 | Learning Rate: 6.1e-04
+Epoch Step:    681 | Accumulation Step:  69 | Loss:   1.26 | Tokens / Sec:  3913.1 | Learning Rate: 6.1e-04
+Epoch Step:    721 | Accumulation Step:  73 | Loss:   1.06 | Tokens / Sec:  4221.4 | Learning Rate: 6.1e-04
+Epoch Step:    761 | Accumulation Step:  77 | Loss:   1.38 | Tokens / Sec:  4209.6 | Learning Rate: 6.1e-04
+Epoch Step:    801 | Accumulation Step:  81 | Loss:   1.26 | Tokens / Sec:  4219.2 | Learning Rate: 6.0e-04
+Epoch Step:    841 | Accumulation Step:  85 | Loss:   1.29 | Tokens / Sec:  4192.2 | Learning Rate: 6.0e-04
+Epoch Step:    881 | Accumulation Step:  89 | Loss:   1.31 | Tokens / Sec:  4266.1 | Learning Rate: 6.0e-04
+| ID | GPU | MEM |
+------------------
+|  0 | 93% | 21% |
+[GPU0] Epoch 5 Validation ====
+(tensor(1.5168, device='cuda:0'), <__main__.TrainState object at 0x78bfd53d9330>)
+[GPU0] Epoch 6 Training ====
+Epoch Step:      1 | Accumulation Step:   1 | Loss:   1.13 | Tokens / Sec:  5061.3 | Learning Rate: 6.0e-04
+Epoch Step:     41 | Accumulation Step:   5 | Loss:   1.29 | Tokens / Sec:  4295.7 | Learning Rate: 6.0e-04
+Epoch Step:     81 | Accumulation Step:   9 | Loss:   1.26 | Tokens / Sec:  4081.8 | Learning Rate: 5.9e-04
+Epoch Step:    121 | Accumulation Step:  13 | Loss:   1.07 | Tokens / Sec:  4272.5 | Learning Rate: 5.9e-04
+Epoch Step:    161 | Accumulation Step:  17 | Loss:   1.25 | Tokens / Sec:  4167.5 | Learning Rate: 5.9e-04
+Epoch Step:    201 | Accumulation Step:  21 | Loss:   1.25 | Tokens / Sec:  4132.6 | Learning Rate: 5.9e-04
+Epoch Step:    241 | Accumulation Step:  25 | Loss:   1.11 | Tokens / Sec:  3992.5 | Learning Rate: 5.9e-04
+Epoch Step:    281 | Accumulation Step:  29 | Loss:   1.11 | Tokens / Sec:  4067.6 | Learning Rate: 5.8e-04
+Epoch Step:    321 | Accumulation Step:  33 | Loss:   1.26 | Tokens / Sec:  3977.0 | Learning Rate: 5.8e-04
+Epoch Step:    361 | Accumulation Step:  37 | Loss:   1.23 | Tokens / Sec:  4152.5 | Learning Rate: 5.8e-04
+Epoch Step:    401 | Accumulation Step:  41 | Loss:   1.24 | Tokens / Sec:  4089.6 | Learning Rate: 5.8e-04
+Epoch Step:    441 | Accumulation Step:  45 | Loss:   0.95 | Tokens / Sec:  3978.0 | Learning Rate: 5.8e-04
+Epoch Step:    481 | Accumulation Step:  49 | Loss:   1.33 | Tokens / Sec:  4077.8 | Learning Rate: 5.7e-04
+Epoch Step:    521 | Accumulation Step:  53 | Loss:   1.25 | Tokens / Sec:  3911.4 | Learning Rate: 5.7e-04
+Epoch Step:    561 | Accumulation Step:  57 | Loss:   1.24 | Tokens / Sec:  4015.8 | Learning Rate: 5.7e-04
+Epoch Step:    601 | Accumulation Step:  61 | Loss:   1.22 | Tokens / Sec:  4085.2 | Learning Rate: 5.7e-04
+Epoch Step:    641 | Accumulation Step:  65 | Loss:   1.22 | Tokens / Sec:  3929.9 | Learning Rate: 5.7e-04
+Epoch Step:    681 | Accumulation Step:  69 | Loss:   1.02 | Tokens / Sec:  4046.3 | Learning Rate: 5.6e-04
+Epoch Step:    721 | Accumulation Step:  73 | Loss:   1.06 | Tokens / Sec:  4052.6 | Learning Rate: 5.6e-04
+Epoch Step:    761 | Accumulation Step:  77 | Loss:   1.16 | Tokens / Sec:  4058.4 | Learning Rate: 5.6e-04
+Epoch Step:    801 | Accumulation Step:  81 | Loss:   1.23 | Tokens / Sec:  4180.2 | Learning Rate: 5.6e-04
+Epoch Step:    841 | Accumulation Step:  85 | Loss:   1.15 | Tokens / Sec:  4124.5 | Learning Rate: 5.6e-04
+Epoch Step:    881 | Accumulation Step:  89 | Loss:   1.26 | Tokens / Sec:  4078.3 | Learning Rate: 5.6e-04
+| ID | GPU | MEM |
+------------------
+|  0 | 94% | 21% |
+[GPU0] Epoch 6 Validation ====
+(tensor(1.4683, device='cuda:0'), <__main__.TrainState object at 0x78bfd53d9330>)
+[GPU0] Epoch 7 Training ====
+Epoch Step:      1 | Accumulation Step:   1 | Loss:   1.04 | Tokens / Sec:  4586.5 | Learning Rate: 5.5e-04
+Epoch Step:     41 | Accumulation Step:   5 | Loss:   0.90 | Tokens / Sec:  4157.5 | Learning Rate: 5.5e-04
+Epoch Step:     81 | Accumulation Step:   9 | Loss:   1.07 | Tokens / Sec:  3997.9 | Learning Rate: 5.5e-04
+Epoch Step:    121 | Accumulation Step:  13 | Loss:   0.89 | Tokens / Sec:  3928.3 | Learning Rate: 5.5e-04
+Epoch Step:    161 | Accumulation Step:  17 | Loss:   0.99 | Tokens / Sec:  4085.8 | Learning Rate: 5.5e-04
+Epoch Step:    201 | Accumulation Step:  21 | Loss:   1.06 | Tokens / Sec:  4042.3 | Learning Rate: 5.5e-04
+Epoch Step:    241 | Accumulation Step:  25 | Loss:   1.05 | Tokens / Sec:  4108.5 | Learning Rate: 5.4e-04
+Epoch Step:    281 | Accumulation Step:  29 | Loss:   1.19 | Tokens / Sec:  4137.8 | Learning Rate: 5.4e-04
+Epoch Step:    321 | Accumulation Step:  33 | Loss:   1.15 | Tokens / Sec:  4080.8 | Learning Rate: 5.4e-04
+Epoch Step:    361 | Accumulation Step:  37 | Loss:   0.94 | Tokens / Sec:  4146.4 | Learning Rate: 5.4e-04
+Epoch Step:    401 | Accumulation Step:  41 | Loss:   1.00 | Tokens / Sec:  4134.2 | Learning Rate: 5.4e-04
+Epoch Step:    441 | Accumulation Step:  45 | Loss:   0.94 | Tokens / Sec:  4002.8 | Learning Rate: 5.4e-04
+Epoch Step:    481 | Accumulation Step:  49 | Loss:   0.88 | Tokens / Sec:  3945.3 | Learning Rate: 5.3e-04
+Epoch Step:    521 | Accumulation Step:  53 | Loss:   1.15 | Tokens / Sec:  4068.0 | Learning Rate: 5.3e-04
+Epoch Step:    561 | Accumulation Step:  57 | Loss:   1.17 | Tokens / Sec:  4128.7 | Learning Rate: 5.3e-04
+Epoch Step:    601 | Accumulation Step:  61 | Loss:   1.01 | Tokens / Sec:  4039.3 | Learning Rate: 5.3e-04
+Epoch Step:    641 | Accumulation Step:  65 | Loss:   1.17 | Tokens / Sec:  4182.5 | Learning Rate: 5.3e-04
+Epoch Step:    681 | Accumulation Step:  69 | Loss:   1.11 | Tokens / Sec:  4085.3 | Learning Rate: 5.3e-04
+Epoch Step:    721 | Accumulation Step:  73 | Loss:   0.94 | Tokens / Sec:  4115.3 | Learning Rate: 5.3e-04
+Epoch Step:    761 | Accumulation Step:  77 | Loss:   1.11 | Tokens / Sec:  4021.9 | Learning Rate: 5.2e-04
+Epoch Step:    801 | Accumulation Step:  81 | Loss:   1.00 | Tokens / Sec:  4088.6 | Learning Rate: 5.2e-04
+Epoch Step:    841 | Accumulation Step:  85 | Loss:   1.32 | Tokens / Sec:  4127.1 | Learning Rate: 5.2e-04
+Epoch Step:    881 | Accumulation Step:  89 | Loss:   1.10 | Tokens / Sec:  4130.2 | Learning Rate: 5.2e-04
+| ID | GPU | MEM |
+------------------
+|  0 | 94% | 20% |
+[GPU0] Epoch 7 Validation ====
+(tensor(1.4561, device='cuda:0'), <__main__.TrainState object at 0x78bfd53d9330>)
+Checking Model Outputs:
+
+Example 0 ========
+
+Source Text (Input)        : <s> Ein kleines Mädchen streckt die Hand aus , um ein Reh zu streicheln . </s>
+Target Text (Ground Truth) : <s> Young girl reaches out to pet a deer . </s>
+Model Output               : <s> A little girl is sticking her hand out to a deer . </s>
+Preparing Data ...
+Loading Trained Model ...
+Checking Model Outputs:
+
+Example 0 ========
+
+Source Text (Input)        : <s> Drei Frauen sitzen da und lächeln . </s>
+Target Text (Ground Truth) : <s> Three women smiling and sitting down . </s>
+Model Output               : <s> Three women are sitting and smiling . </s>
+Preparing Data ...
+Loading Trained Model ...
+Checking Model Outputs:
+
+Example 0 ========
+
+Source Text (Input)        : <s> Der Mann telefoniert vor einem Sportgeschäft mit seinem Handy . </s>
+Target Text (Ground Truth) : <s> The man is talking on his cellphone in front of a sports store . </s>
+Model Output               : <s> The man is talking on the cellphone outside of a shop with his cellphone . </s>
 ```
