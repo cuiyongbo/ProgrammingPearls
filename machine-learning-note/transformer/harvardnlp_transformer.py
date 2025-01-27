@@ -68,6 +68,64 @@ def attention(query, key, value, mask=None, dropout=None):
     return torch.matmul(p_attn, value), p_attn
 
 
+class Generator(nn.Module):
+    """"Define standard linear + softmax generation step"""
+    def __init__(self, d_model, vocab):
+        super(Generator, self).__init__()
+        self.proj = nn.Linear(d_model, vocab)
+    def forward(self, x):
+        return log_softmax(self.proj(x), dim=-1)
+
+
+class LayerNorm(nn.Module):
+    def __init__(self, feature_shape, eps=1e-6):
+        super(LayerNorm, self).__init__()
+        self.a_2 = nn.Parameter(torch.ones(feature_shape))
+        self.b_2 = nn.Parameter(torch.zeros(feature_shape))
+        self.eps = eps
+    def forward(self, x):
+        mean = x.mean(dim=-1, keepdim=True)
+        std = x.std(dim=-1, keepdim=True)
+        return self.a_2 * (x-mean)/(std+self.eps) + self.b_2
+
+
+class Encoder(nn.Module):
+    """Encoder is a stack of layers"""
+    def __init__(self, layer, N):
+        super(Encoder, self).__init__()
+        self.layers = clones(layer, N)
+        self.norm = LayerNorm(layer.size)
+    def forward(self, x, mask):
+        """Pass the input and mask through each layer in turn"""
+        for layer in self.layers:
+            x = layer(x, mask)
+        return self.norm(x)
+
+
+class SublayerConnection(nn.Module):
+    """A residual connection followed by a layer norm"""
+    def __init__(self, size, dropout):
+        super(SublayerConnection, self).__init__()
+        self.norm = LayerNorm(size)
+        self.dropout = nn.Dropout(dropout)
+    def forward(self, x, sublayer):
+        """assume the output of sublayer is the same shape with x"""
+        return x + self.dropout(sublayer(self.norm(x)))
+
+
+class EncoderLayer(nn.Module):
+    """Encoder consists of self-attention and feed forward layer"""
+    def __init__(self, size, self_attn, ffn, dropout):
+        super(EncoderLayer, self).__init__()
+        self.self_attn = self_attn
+        self.ffn = ffn
+        self.sublayer = clones(SublayerConnection(size, dropout), 2)
+        self.size = size
+    def forward(self, x, mask):
+        x = self.sublayer[0](x, lambda x: self.attn(x, x, x, mask)) 
+        return self.sublayer[1](x, self.ffn)
+
+
 class MultiHeadedAttention(nn.Module):
     def __init__(self, h, d_model, dropout=0.1):
         super(MultiHeadedAttention, self).__init__()
