@@ -176,7 +176,7 @@ pip3 install torch torchvision torchaudio
     - [tritonserver](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tritonserver)
 
 - Mirrors
-    - HuggingFace Mirrors
+    - [HuggingFace Mirrors](../../hello-world/my_wiki/machine_learning/huggingface_model_store.md)
         - https://modelscope.cn/models
         - https://hf-mirror.com/models
             - 修改 HF_ENDPOINT: 往 `~/.bashrc` 中注入: `export HF_ENDPOINT=https://hf-mirror.com`
@@ -201,3 +201,4 @@ sudo DISPLAY=:1   nvidia-settings -a GPUTargetFanSpeed=20
 
 - [Redis](hello-world/my_wiki/programmer_note/redis_note.rst)
 - Kafka
+- netron

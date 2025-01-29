@@ -5,7 +5,6 @@
 - [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
 - [The Annotated Transformer](http://nlp.seas.harvard.edu/2018/04/03/attention.html)
     - [harvardnlp/annotated-transformer](https://github.com/harvardnlp/annotated-transformer)
-    - [docker image](https://hub.docker.com/r/zhaokundev/annotated-transformer/)
 
 ## Env Setup
 
@@ -45,6 +44,12 @@ Downloading Python-3.10.12.tar.xz...
 
 Installing Python-3.10.12...
 Installed Python-3.10.12 to /home/cherry/.pyenv/versions/3.10.12
+
+# pyenv versions
+* system (set by /home/cherry/.pyenv/version)
+  3.10.12
+  3.10.12/envs/sd-webui-env
+  sd-webui-env --> /home/cherry/.pyenv/versions/3.10.12/envs/sd-webui-env
 
 # pyenv virtualenv 3.10.12 transformer-env
 
