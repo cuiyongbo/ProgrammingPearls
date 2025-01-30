@@ -272,4 +272,6 @@ BERT, introduced by Google in the paper "BERT: Pre-training of Deep Bidirectiona
 
 In essence, BERT is a specialized application of the Transformer model, focusing on leveraging the encoder's capabilities for bidirectional language representation and achieving state-of-the-art performance on various NLP tasks.
 
+
+
 ```

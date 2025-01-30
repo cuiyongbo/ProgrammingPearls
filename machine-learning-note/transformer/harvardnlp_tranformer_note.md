@@ -62,6 +62,7 @@ Installed Python-3.10.12 to /home/cherry/.pyenv/versions/3.10.12
 - install packages in venv
 
 ```bash
+# IMPORTANT: make sure there is no compatibility problem among torch packages: https://www.cnblogs.com/phillee/p/18599125
 # try cu118 if you have older cuda driver installed
 # pip3 install torch==2.1.0+cu118 torchtext==0.16 -f https://mirrors.aliyun.com/pytorch-wheels/cu118
 pip3 install torch==2.1.0+cu121 torchtext==0.16 -f https://mirrors.aliyun.com/pytorch-wheels/cu121

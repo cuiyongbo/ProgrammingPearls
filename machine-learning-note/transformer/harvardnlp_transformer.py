@@ -794,7 +794,7 @@ if __name__ == "__main__":
     train_model(vocab_src, vocab_tgt, spacy_de, spacy_en, config)
 
     model = load_trained_model(len(vocab_src), len(vocab_tgt))
-    run_model_example(model, vocab_src, vocab_tgt, spacy_de, spacy_en, n_examples=1)
+    run_model_example(model, vocab_src, vocab_tgt, spacy_de, spacy_en, n_examples=11)
 
     input_text = "Eine Mutter füttert ihren Sohn mit Milch"
     ground_truth_text = "a mother is feeding her son with milk"
