@@ -1,8 +1,9 @@
 配件列表:
 ```
-- 主板: [技嘉B550 AORUS ELITE AX V2 rev.1.5 ATX主板 WIFI6](https://www.gigabyte.cn/Motherboard/B550-AORUS-ELITE-AX-V2-rev-10/sp#sp)
+- 主板: [技嘉B550 AORUS ELITE AX V2 rev.1.5 ATX主板 WIFI6](https://www.gigabyte.com/us/Motherboard/B550-AORUS-ELITE-AX-V2-rev-15/support#support-dl-driver)
    - [Issue: AMD drivers for NVME](https://community.amd.com/t5/pc-drivers-software/amd-drivers-for-nvme/td-p/665340)
-   - [设备驱动](https://www.gigabyte.com/Motherboard/B550-AORUS-ELITE-AX-V2-rev-15/support#support-dl-driver-sataraidahci)
+   - [设备驱动](https://www.gigabyte.com/us/Motherboard/B550-AORUS-ELITE-AX-V2-rev-15/support#support-dl-driver)
+   - [BIOS](https://www.gigabyte.com/WebPage/954/amd500-bios.html)
 - CPU: R7-5700X (不带核显, 需要安装独立显卡才能接显示器, !_!''', 下次记得CPU要买带核显的)
 - 内存: 金士顿fury野兽系列16G骇客神条 3200MHz
 - 固态硬盘: WD/西部数据SN580高速固态1t

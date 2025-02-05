@@ -86,6 +86,7 @@ void Solution::sortArray(vector<int>& nums, AlgorithmType type) {
 3. recursively apply the above steps to all sub-arrays
 */
 void Solution::quickSort(vector<int>& nums) {
+    // l, r are inclusive
     auto naive_partitioner = [&] (int l, int r) {
         int i = l-1;
         int pivot = nums[r];
@@ -94,11 +95,12 @@ void Solution::quickSort(vector<int>& nums) {
                 std::swap(nums[++i], nums[k]);
             }
         }
-        // put pivot in its final position when array is sorted
+        // move pivot to its final sorted position
         std::swap(nums[i+1], nums[r]);
         return i+1;
     };
-    function<void(int, int)> dac = [&] (int l, int r) {
+    // l, r are inclusive
+    std::function<void(int, int)> dac = [&] (int l, int r) {
         if (l >= r) { // trivial case
             return;
         }

@@ -12,9 +12,9 @@
 </p></details>
 
 
-
 ## Summary
 
+* sort an array
 * stack: First In Last Out
 * queue: First In First Out
 * priority_queue: max_heap, min_heap

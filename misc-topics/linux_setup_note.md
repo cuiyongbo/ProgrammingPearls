@@ -19,6 +19,9 @@ Table Of Content:
 - Copy in Terminal: Ctrl+Shift+C
 - Paste in Terminal: Ctrl+Shift+V
 - Maximize Window: Alt+F10
+- New tab in Files: Ctrl+T
+- Lock Screen: Windows+L
+- Change to CMD mode: Ctrl+Alt+F4/F6
 
 
 ## Apt Packages
@@ -81,6 +84,7 @@ alias tailf='tail -f'
 ```
 
 - [安装中文输入法](https://blog.csdn.net/windson_f/article/details/124932523)
+- [Ubuntu 更换 macOS Big Sur 主题](https://www.cnblogs.com/Undefined443/p/18133703)
 
 
 ## Git Setup
@@ -95,9 +99,6 @@ git config --global user.email "csu20120504@126.com"
 
 # set vim as the default commit message editor
 git config --global core.editor vim
-
-# force line ending to CRLF
-git config --global core.autocrlf true
 
 # save username and password
 git config --global credential.helper store
@@ -122,6 +123,8 @@ git config --global --add fetch.prune true
 
 ## Python Packages
 
+- [pyenv - simple python version management](https://github.com/pyenv/pyenv)
+  - [pyenv/pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv)
 - install pip3: `sudo apt install python3-pip`
 - change pip package index url
 
@@ -196,9 +199,23 @@ sudo DISPLAY=:1   nvidia-settings -a GPUFanControlState=1
 sudo DISPLAY=:1   nvidia-settings -a GPUTargetFanSpeed=20
 ```
 
+- [black screen with cursor after logging in unbuntu 24.04](https://bugs.launchpad.net/ubuntu/+source/gnome-shell/+bug/2089709)
+
+It is not fixed yet, maybe there is something wrong with Nvidia driver, for now you can
+
+```
+- enter cmd mode with `Ctrl+Alt+F4`
+- restart gdm with `sudo systemctl restart gdm3`
+```
+
 
 ## Miscellaneous Topics
 
 - [Redis](hello-world/my_wiki/programmer_note/redis_note.rst)
 - Kafka
 - netron
+- frog - an OCR tool
+- live caption - a STT tools
+- [Offline API Document Browser: devdocs.io](https://devdocs.io/)
+- [Offline API Document Browser: zeal](https://zealdocs.org/)
+  - [Zeal Docs Download Links](https://github.com/kitty-panics/zeal-docs-download-links)

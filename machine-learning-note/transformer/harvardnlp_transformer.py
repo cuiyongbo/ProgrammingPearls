@@ -2,21 +2,21 @@
 #coding=utf-8
 
 # original code: https://github.com/harvardnlp/annotated-transformer/the_annotated_transformer.py
+# we are going to train a model to translate Germany into English
 
 import os
-import torch
-import torch.nn as nn
-from torch.nn.functional import log_softmax, pad
 import math
 import copy
 import time
-from torch.optim.lr_scheduler import LambdaLR
-from torchtext.data.functional import to_map_style_dataset
-from torch.utils.data import DataLoader
-from torchtext.vocab import build_vocab_from_iterator
-import torchtext.datasets as datasets
+import torch
 import spacy
 import GPUtil
+import torch.nn as nn
+from torch.optim.lr_scheduler import LambdaLR
+from torchtext.data.functional import to_map_style_dataset
+import torchtext.datasets as datasets
+from torch.utils.data import DataLoader
+from torchtext.vocab import build_vocab_from_iterator
 from torch.utils.data.distributed import DistributedSampler
 import torch.distributed as dist
 import torch.multiprocessing as mp
@@ -57,10 +57,10 @@ class LayerNorm(nn.Module):
         return self.a_2 * (x-mean)/(std+self.eps) + self.b_2
 
 
-class SublayerConnection(nn.Module):
+class ResidueConnectionLayer(nn.Module):
     """A residual connection followed by a layer norm"""
     def __init__(self, size, dropout):
-        super(SublayerConnection, self).__init__()
+        super(ResidueConnectionLayer, self).__init__()
         self.norm = LayerNorm(size)
         self.dropout = nn.Dropout(dropout)
     def forward(self, x, sublayer):
@@ -74,7 +74,7 @@ class EncoderLayer(nn.Module):
         super(EncoderLayer, self).__init__()
         self.self_attn = self_attn
         self.ffn = ffn
-        self.sublayer = clones(SublayerConnection(size, dropout), 2)
+        self.sublayer = clones(ResidueConnectionLayer(size, dropout), 2)
         self.size = size
     def forward(self, x, mask):
         x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask)) 
@@ -102,7 +102,7 @@ class DecoderLayer(nn.Module):
         self.self_attn = self_attn
         self.src_attn = src_attn
         self.ffn = ffn
-        self.sublayer = clones(SublayerConnection(size, dropout), 3)
+        self.sublayer = clones(ResidueConnectionLayer(size, dropout), 3)
     def forward(self, x, memory, src_mask, tgt_mask):
         m = memory
         x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, tgt_mask))
@@ -171,6 +171,9 @@ class Embeddings(nn.Module):
 
 
 class PositionwiseFeedForward(nn.Module):
+    """
+    implement w_2 * max(0, w_1*x + b_1) + b_2
+    """
     def __init__(self, d_model, d_ff, dropout=0.1):
         super(PositionwiseFeedForward, self).__init__()
         self.f1 = nn.Linear(d_model, d_ff)
@@ -224,7 +227,7 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
         self.proj = nn.Linear(d_model, vocab)
     def forward(self, x):
-        return log_softmax(self.proj(x), dim=-1)
+        return nn.functional.log_softmax(self.proj(x), dim=-1)
 
 
 def make_model(src_vocab, tgt_vocab, N=6, d_model=512, d_ff=2048, h=8, dropout=0.1):
@@ -502,7 +505,7 @@ def collate_batch(
         )
         src_list.append(
             # warning - overwrites values for negative values of padding - len
-            pad(
+            nn.functional.pad(
                 processed_src,
                 (
                     0,
@@ -512,7 +515,7 @@ def collate_batch(
             )
         )
         tgt_list.append(
-            pad(
+            nn.functional.pad(
                 processed_tgt,
                 (0, max_padding - len(processed_tgt)),
                 value=pad_id,
@@ -655,7 +658,7 @@ def train_worker(gpu, ngpus_per_node, vocab_src, vocab_tgt, spacy_de, spacy_en, 
         torch.save(module.state_dict(), file_path)
 
 
-def train_distributed_model(vocab_src, vocab_tgt, spacy_de, spacy_en, config):
+def train_distributed_model(vocab_src, vocab_tgt, spacy_src, spacy_dst, config):
     from harvardnlp_transformer import train_worker
 
     ngpus = torch.cuda.device_count()
@@ -666,18 +669,18 @@ def train_distributed_model(vocab_src, vocab_tgt, spacy_de, spacy_en, config):
     mp.spawn(
         train_worker,
         nprocs=ngpus,
-        args=(ngpus, vocab_src, vocab_tgt, spacy_de, spacy_en, config, True),
+        args=(ngpus, vocab_src, vocab_tgt, spacy_src, spacy_dst, config, True),
     )
 
 
-def train_model(vocab_src, vocab_tgt, spacy_de, spacy_en, config):
+def train_model(vocab_src, vocab_tgt, spacy_src, spacy_dst, config):
     model_path = "multi30k_model_final.pt"
     if os.path.exists(model_path):
         return
     if config["distributed"]:
-        train_distributed_model(vocab_src, vocab_tgt, spacy_de, spacy_en, config)
+        train_distributed_model(vocab_src, vocab_tgt, spacy_src, spacy_dst, config)
     else:
-        train_worker(0, 1, vocab_src, vocab_tgt, spacy_de, spacy_en, config, is_distributed=False)
+        train_worker(0, 1, vocab_src, vocab_tgt, spacy_src, spacy_dst, config, is_distributed=False)
 
 
 def load_trained_model(vocab_src_size, vocab_tgt_size):

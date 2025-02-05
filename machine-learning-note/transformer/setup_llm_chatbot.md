@@ -7,6 +7,9 @@
 - [download LLM models](https://ollama.com/search)
 
 ```bash
+# curl http://127.0.0.1:11434/
+Ollama is running
+
 # display help message
 # ollama help
 
@@ -137,3 +140,5 @@ export ENABLE_OPENAI_API=0
   - [Stability-AI/stablediffusion](https://github.com/Stability-AI/stablediffusion.git)
   - [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui.git)
   - [where to find finetuned models: civitai.work](https://civitai.work/models)
+  - [Civitai - how to use models](https://github.com/civitai/civitai/wiki/How-to-use-models)
+  - [Flux 1.x Quick Guide](https://education.civitai.com/quickstart-guide-to-flux-1/)
