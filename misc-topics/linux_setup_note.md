@@ -211,9 +211,10 @@ It is not fixed yet, maybe there is something wrong with Nvidia driver, for now 
 
 ## Miscellaneous Topics
 
+- [VSCode](hello-world/my_wiki/computer_glossary/os_problem/vscode_faq_note.md)
 - [Redis](hello-world/my_wiki/programmer_note/redis_note.rst)
 - Kafka
-- netron
+- netron - inspect NN model network
 - frog - an OCR tool
 - live caption - a STT tools
 - [Offline API Document Browser: devdocs.io](https://devdocs.io/)

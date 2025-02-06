@@ -97,6 +97,13 @@ INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
 # try open-webui in browser with `http://127.0.0.1:8080` (you maynot use `0.0.0.0` to avoid `Connection is not secure` warnning, otherwise you would have trouble to call Mic or speaker)
 ```
 
+- customize prompt
+
+for llama model series:
+```
+You are Llama, a large language model trained by Meta. Follow the user's instructions carefully. Respond using markdown. Format mathematical expressions using $ or $$ markup outside code block.
+```
+
 - set local STT and TTS
 
 ![open-webui TTS, STT Settings](../images/open-webui_tts_stt_setting.png)
