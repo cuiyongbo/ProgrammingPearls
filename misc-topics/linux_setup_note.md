@@ -220,3 +220,5 @@ It is not fixed yet, maybe there is something wrong with Nvidia driver, for now 
 - [Offline API Document Browser: devdocs.io](https://devdocs.io/)
 - [Offline API Document Browser: zeal](https://zealdocs.org/)
   - [Zeal Docs Download Links](https://github.com/kitty-panics/zeal-docs-download-links)
+  - [hashhar/dash-contrib-docset-feeds](https://github.com/hashhar/dash-contrib-docset-feeds)
+  - [kapeli/feeds](https://github.com/kapeli/feeds)

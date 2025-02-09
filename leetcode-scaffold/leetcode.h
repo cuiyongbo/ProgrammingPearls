@@ -28,6 +28,16 @@
 #include "util/disjoint_set.h"
 #include "util/dist_table_wrapper.hpp"
 
+/*
+to install spdlog:
+$ git clone https://github.com/gabime/spdlog.git
+$ cd spdlog && mkdir build && cd build
+$ cmake .. && cmake --build .
+$ sudo make install
+*/
+#include "spdlog/spdlog.h"
+
+
 struct ListNode {
     int val;
     ListNode* next;

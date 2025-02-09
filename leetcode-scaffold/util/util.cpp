@@ -242,7 +242,7 @@ bool graph_equal(Node* g1, Node* g2) {
             return false;
         } else {
             int sz = g1->neighbors.size();
-            if (sz != g2->neighbors.size()) {
+            if (sz != (int)g2->neighbors.size()) {
                 return false;
             }
             for (int i=0; i<sz; ++i) {

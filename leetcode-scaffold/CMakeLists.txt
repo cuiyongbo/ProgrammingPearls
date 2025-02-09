@@ -9,6 +9,13 @@ project(scaffold VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
+
+if(NOT TARGET spdlog)
+    # Stand-alone build
+    find_package(spdlog REQUIRED)
+endif()
+
+
 file(GLOB_RECURSE PUB_UTIL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/util/*.cpp")
 # message(STATUS ${PUB_UTIL_FILES})
 
@@ -360,7 +367,7 @@ target_link_libraries(bst_search)
 
 add_executable(array_sort array_sort.cpp ${PUB_UTIL_FILES})
 target_compile_features(array_sort PUBLIC cxx_auto_type)
-target_link_libraries(array_sort)
+target_link_libraries(array_sort PRIVATE spdlog::spdlog_header_only)
 
 add_executable(binary_search_tester binary_search_tester.cpp ${PUB_UTIL_FILES})
 target_compile_features(binary_search_tester PUBLIC cxx_auto_type)
