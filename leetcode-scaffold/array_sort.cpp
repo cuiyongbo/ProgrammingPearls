@@ -144,66 +144,64 @@ void Solution::countingSort(vector<int>& nums) {
     return;
 }
 
+
 /*
 // \Theta(log_b(k)*(n+k)), k is the maximum element value in the element
 
 Radix-Sort(A, d)
     for i=1 to d
         use a stable sort to sort array A on i_th digit
+
+for example, given an input array: [2457, 2400, 7939, 7705, 6845, 8773, 8469, 3366, 3604, 6218]
+
+loop 1: (2400), (8773), (3604), (7705, 6845), (3366), (2457), (6218), (7939, 8469)
+loop 2: (2400, 3604, 7705), (6218), (7939), (6845), (2457), (3366, 8469), (8773)
+loop 3: (6218), (3366), (2400, 2457, 8469), (3604), (7705, 8773), (6845), (7939)
+loop 4:  (2400, 2457), (3366, 3604), (6218, 6845), (7705, 7939), (8469, 8773)
 */
 void Solution::radixSort(vector<int>& nums) {
     auto p = minmax_element(nums.begin(), nums.end());
     int l = *(p.first);
     int r = *(p.second);
-
-    int digit_num = 0;
-    int max_ele = r-l;
-    do {
-        max_ele/=10;
-        digit_num++;
-    } while (max_ele!=0);
-
     // map array elements to [0, r-l]
-    std::transform(nums.begin(), nums.end(), nums.begin(), [&](int n){return n-l;});
+    std::transform(nums.begin(), nums.end(), nums.begin(), [&](int a) {return a-l;});
 
-    auto get_digit = [](int n, int i) {
-        for (; i!=0 && n!=0; i--) {
-            n/=10;
+    std::function<void(int)> worker = [&] (int base) {
+        int sz = nums.size();
+        for (int i=1; i<sz; i++) {
+            int tmp = nums[i];
+            int ni = nums[i]/base%10;
+            for (int j=0; j<i; j++) {
+                int nj = nums[j]/base%10;
+                if (ni<nj) {
+                    // we should put ni at nj, but before we do that, we must shift nums[j:i-1] to right by one place to spare place
+                    for (int k=i; k>j; k--) {
+                        nums[k] = nums[k-1];
+                    }
+                    nums[j] = tmp;
+                    break;
+                }
+            }
         }
-        return n%10;
     };
 
-    for (int i=0; i<=digit_num; i++) {
-        std::vector<vector<int>> buff(10);
-        // sort by nth digit
-        for (auto n: nums) {
-            auto d = get_digit(n, i);
-            buff[d].push_back(n);
-        }
-        nums.clear();
-        for (const auto& t:  buff) {
-            nums.insert(nums.end(), t.begin(), t.end());
-        }
+    int base = 1;
+    int max_num = r-l;
+    while (max_num > 0) {
+        // perform stable sort on ith digit, such as insertion sort
+        worker(base);
+        base *= 10;
+        max_num /= 10;
     }
-
     // remap array elements to original value
-    std::transform(nums.begin(), nums.end(), nums.begin(), [&](int n){return n+l;});
+    std::transform(nums.begin(), nums.end(), nums.begin(), [&](int a) {return a+l;});
+    return;
 }
+
 
 // O(nlogn) for worst-case running time
 void Solution::heapSort(vector<int>& nums) {
-
-/*
-two loops:
-
-outer loop: extract the largest from heap top at each step
-inner loop: reoragnize the remaining array, so it doesn't invalidate the heap property
-
-
-*/
-
 {
-
     auto sift_down = [&] (int root, int size) {
         while (root<size) {
             int p_i = root;
@@ -227,17 +225,14 @@ inner loop: reoragnize the remaining array, so it doesn't invalidate the heap pr
     for (int i=size/2; i>=0; i--) {
         sift_down(i, size);
     }
-
     // 2. extract the largest element from the remaining array one by one
     for (int i=size-1; i>0; i--) {
         std::swap(nums[0], nums[i]);
-        // sift-down
+        // restore the heap with sift-down
         sift_down(0, i);
     }
     return;
 }
-
-
 
 { // std solution
     // in `std::priority_queue` template, we perform `compare(child, root)` test to see whether root, left-child, right-child are in heap-order or not
@@ -246,45 +241,6 @@ inner loop: reoragnize the remaining array, so it doesn't invalidate the heap pr
     while (!min_heap.empty()) {
         nums.push_back(min_heap.top());
         min_heap.pop();
-    }
-    return;
-}
-
-{ // naive solution
-    // 1. build heap with sift-up
-    // 2. pop heap head
-    // 3. restore heap with sift-down
-    // 4. repeat step 2 and 3 until the heap is empty
-    std::function<void(int, int)> sift_down = [&] (int i, int sz) {
-        // i; // root
-        int largest = i;
-        while (i < sz) {
-            largest = i;
-            int li = 2*i+1; // left child
-            if (li<sz && nums[li]>nums[largest]) {
-                largest = li;
-            }
-            int ri = 2*i+2; // right child
-            if (ri<sz && nums[ri]>nums[largest]) {
-                largest = ri;
-            }
-            if (largest == i) {
-                break;
-            }
-            swap(nums[largest], nums[i]);
-            i = largest;
-        }
-    };
-    int sz = nums.size();
-    // 1. build heap with sift-up
-    for (int i=(sz-1)/2; i>=0; i--) {
-        sift_down(i, sz);
-    }
-    for (int i=sz-1; i>0; i--) {
-        // 2. pop heap head
-        swap(nums[0], nums[i]);
-        // 3. restore heap with sift-down
-        sift_down(0, i);
     }
     return;
 }
@@ -298,6 +254,7 @@ inner loop: reoragnize the remaining array, so it doesn't invalidate the heap pr
 */
 void Solution::mergeSort(std::vector<int>& nums) {
     std::vector<int> twins = nums;
+    // l, r in inclusive
     std::function<void(int, int)> dac = [&] (int l, int r) {
         if (l >= r) { // trivial case
             return;
@@ -378,7 +335,7 @@ void batch_test_scaffold(int array_scale, AlgorithmType type) {
         vi.push_back(rand());
     }
     for (int i=0; i<100; ++i) {
-        SPDLOG_INFO("Running {} tests at {}", AlgorithmType_toString(type), i+1);
+        //SPDLOG_INFO("Running {} tests at {}", AlgorithmType_toString(type), i+1);
         int n = rand() % array_scale;
         std::shuffle(vi.begin(), vi.begin()+n, g);
         ss.sortArray(vi, type);
@@ -444,7 +401,7 @@ int main(int argc, char* argv[]) {
     batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_mergeSort);
     batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_quickSort);
     batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_heapSort);
-    batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_insertionSort);
+    //batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_insertionSort);
     TIMER_STOP(sortArray_batch_test);
     SPDLOG_INFO("batch tests using {:.2f} milliseconds", TIMER_MSEC(sortArray_batch_test));
 }

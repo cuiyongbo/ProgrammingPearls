@@ -208,6 +208,16 @@ It is not fixed yet, maybe there is something wrong with Nvidia driver, for now 
 - restart gdm with `sudo systemctl restart gdm3`
 ```
 
+- disable/enable sleep/suspend/hibernation option in power button
+
+```bash
+# display suspend/hibernation status
+sudo systemctl status sleep.target suspend.target hibernate.target hybrid-sleep.target
+# disable suspend/hibernation mode
+sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+# enable suspend/hibernation mode
+sudo systemctl unmask sleep.target suspend.target hibernate.target hybrid-sleep.target
+```
 
 ## Miscellaneous Topics
 
@@ -222,3 +232,4 @@ It is not fixed yet, maybe there is something wrong with Nvidia driver, for now 
   - [Zeal Docs Download Links](https://github.com/kitty-panics/zeal-docs-download-links)
   - [hashhar/dash-contrib-docset-feeds](https://github.com/hashhar/dash-contrib-docset-feeds)
   - [kapeli/feeds](https://github.com/kapeli/feeds)
+
