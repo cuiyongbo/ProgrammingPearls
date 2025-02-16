@@ -335,7 +335,7 @@ target_link_libraries(binary_tree_misc_exercises)
 
 add_executable(list_traversal list_traversal.cpp ${PUB_UTIL_FILES})
 target_compile_features(list_traversal PUBLIC cxx_auto_type)
-target_link_libraries(list_traversal)
+target_link_libraries(list_traversal PRIVATE spdlog::spdlog_header_only)
 
 add_executable(list_cycle list_cycle.cpp ${PUB_UTIL_FILES})
 target_compile_features(list_cycle PUBLIC cxx_auto_type)

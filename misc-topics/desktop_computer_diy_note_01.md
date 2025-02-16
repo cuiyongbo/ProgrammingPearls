@@ -1,6 +1,6 @@
 配件列表:
 ```
-- 主板: [技嘉B550 AORUS ELITE AX V2 rev.1.5 ATX主板 WIFI6](https://www.gigabyte.com/us/Motherboard/B550-AORUS-ELITE-AX-V2-rev-15/support#support-dl-driver)
+- 主板: [技嘉B550 AORUS ELITE AX V2 rev.1.5 ATX主板 WIFI6](https://www.aorus.com/components/B550-AORUS-ELITE-AX-V2-rev-15/Specification)
    - [Issue: AMD drivers for NVME](https://community.amd.com/t5/pc-drivers-software/amd-drivers-for-nvme/td-p/665340)
    - [设备驱动](https://www.gigabyte.com/us/Motherboard/B550-AORUS-ELITE-AX-V2-rev-15/support#support-dl-driver)
    - [BIOS](https://www.gigabyte.com/WebPage/954/amd500-bios.html)
@@ -9,9 +9,9 @@
 - 固态硬盘: WD/西部数据SN580高速固态1t
 - 键盘鼠标: 一定要带有线的
 - 机箱: 先马黑洞pro
-- 电源: 先马金牌认证 850W
-- 显卡: [nvidia tesla t4 - 不支持图形输出!!!, 当服务器上用倒无所谓](https://www.nvidia.cn/content/dam/en-zz/zh_cn/Solutions/Data-Center/tesla-t4/nvidia-t4-datasheet-a4-nvidia-772234-r14-lr-cn.pdf)
-- 显卡: [nvidia RTX 2080Ti - PCB 魔改后显存22G](https://www.nvidia.cn/geforce/graphics-cards/rtx-2080-ti/#specs)
+- 电源: [先马GT850 850W](http://www.sama.cn/archives/9342)
+- 显卡: [nvidia tesla t4 - 不支持图形输出!!!, 当服务器用倒无所谓](https://www.nvidia.cn/content/dam/en-zz/zh_cn/Solutions/Data-Center/tesla-t4/nvidia-t4-datasheet-a4-nvidia-772234-r14-lr-cn.pdf)
+- 显卡: [nvidia RTX 2080Ti - PCB 魔改后显存22G, 涡轮版的噪音很大](https://www.nvidia.cn/geforce/graphics-cards/rtx-2080-ti/#specs)
    - [GeForce Game Ready 驱动程序 566.36 | Windows 11](https://www.nvidia.cn/drivers/details/237723/)
    - [NVIDIA Studio 驱动程序 566.36 | Windows 11](https://www.nvidia.cn/drivers/details/237789/)
    - [linux 驱动](https://us.download.nvidia.com/XFree86/Linux-x86_64/550.142/NVIDIA-Linux-x86_64-550.142.run)
@@ -21,7 +21,9 @@
 - xbox 无线手柄
    - [How to Install Driver for Xbox One Controller/Headset in Ubuntu 22.04](https://fostips.com/install-driver-xbox-one-controller-headset-ubuntu/#google_vignette)
    - [linux driver](https://github.com/atar-axis/xpadneo)
-- 游戏: [FlightGear Manual](https://flightgear.sourceforge.net/manual/2020.3/en/getstart-ench3.html)
+- 游戏: 
+   - [FlightGear Manual](https://flightgear.sourceforge.net/manual/2020.3/en/getstart-ench3.html)
+   - [Forza Horizon 4](https://fitgirl-repacks.site/forza-horizon-4/)
 
 ```
 Q: 你好, 我想组装一台台式机电脑, 知道需要哪些配件, 但是我对配件品牌不熟悉, 我预期的配置是 使用 ATX 主板, AMD CPU, 32G 内存, 1T 固态硬盘, 2T 机械硬盘, Nvidia RTX 2080Ti 显卡, 请问该如何选择配件品牌

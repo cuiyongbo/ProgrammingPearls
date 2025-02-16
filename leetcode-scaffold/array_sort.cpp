@@ -394,7 +394,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    SPDLOG_INFO("Running batch tests(array_size={})", array_size);
+    SPDLOG_WARN("Running batch tests(array_size={})", array_size);
     TIMER_START(sortArray_batch_test);
     //batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_countingSort);
     batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_radixSort);
@@ -403,5 +403,5 @@ int main(int argc, char* argv[]) {
     batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_heapSort);
     //batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_insertionSort);
     TIMER_STOP(sortArray_batch_test);
-    SPDLOG_INFO("batch tests using {:.2f} milliseconds", TIMER_MSEC(sortArray_batch_test));
+    SPDLOG_WARN("batch tests using {:.2f} milliseconds", TIMER_MSEC(sortArray_batch_test));
 }

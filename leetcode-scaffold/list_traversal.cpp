@@ -21,19 +21,24 @@ public:
 };
 
 ListNode* Solution::reverseList(ListNode* head) {
+{
     ListNode dummy;
     ListNode* p = &dummy;
     while (head != nullptr) {
-        ListNode* tmp = head->next; head->next = nullptr;
+        ListNode* tmp = head->next;
+        head->next = nullptr; // DEBUG_ONLY
         head->next = p->next; p->next = head; // push_front
         head = tmp;
     }
     return dummy.next;
 }
 
+}
+
+
 ListNode* Solution::reverseKGroup(ListNode* head, int k) {
 /*
-Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
+Given the head of a linked list, reverse the nodes of the list by k nodes at a time, and return the modified list.
 k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
 You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
@@ -43,34 +48,35 @@ Examples:
     Input: head = [1,2,3,4,5], k = 3
     Output: [3,2,1,4,5]
 */
+
+{
     ListNode dummy;
     ListNode* p = &dummy;
     std::stack<ListNode*> st;
     while (head != nullptr) {
-        if (st.size() == k) {
+        ListNode* tmp = head->next; 
+        // DON'T waste your mind, you have to isolate node before pushing it to stack
+        head->next = nullptr;
+        st.push(head);
+        // reverse nodes in a k-subgroup
+        if ((int)st.size() == k) {
             while (!st.empty()) {
-                auto t = st.top(); st.pop();
-                p->next = t; p = p->next; // push_back
+                auto node = st.top(); st.pop();
+                p->next = node; p = p->next; // push_backss
             }
         }
-        // 别想太多, 这里就得把 header 先给孤立掉
-        ListNode* tmp = head->next; head->next = nullptr;
-        st.push(head);
         head = tmp;
     }
-    if (st.size() == k) {
-        while (!st.empty()) {
-            auto t = st.top(); st.pop();
-            p->next = t; p = p->next; // push_back
-        }
-    } else { // keep the original order when there are less nodes than k 
-        while (!st.empty()) {
-            auto t = st.top(); st.pop();
-            t->next = p->next; p->next = t; // push_front
-        }
+    // for left-out nodes, we should remain their original order
+    while (!st.empty()) {
+        auto node = st.top(); st.pop();
+        node->next = p->next; p->next = node; // push_front
     }
     return dummy.next;
 }
+
+}
+
 
 ListNode* Solution::swapPairs(ListNode* head) {
 /*
@@ -79,6 +85,7 @@ ListNode* Solution::swapPairs(ListNode* head) {
 */
     return reverseKGroup(head, 2);
 }
+
 
 ListNode* Solution::removeNthFromEnd(ListNode* head, int n) {
 /*
@@ -93,23 +100,25 @@ Examples:
 */
     std::stack<ListNode*> st;
     while (head != nullptr) {
-        st.push(head);
         ListNode* tmp = head->next;
-        head->next = nullptr; // debug only
+        head->next = nullptr; // isolate nodes
+        st.push(head);
         head = tmp;
     }
     ListNode dummy;
     ListNode* p = &dummy;
-    int index = 1;
+    int index = 0;
     while (!st.empty()) {
         auto t = st.top(); st.pop();
-        if (index++ == n) {
+        index++;
+        if (index == n) {
             continue;
         }
         t->next = p->next; p->next = t; // push_front
     }
     return dummy.next;
 }
+
 
 ListNode* Solution::partition(ListNode* head, int x) {
 /*
@@ -136,6 +145,7 @@ Examples:
     p1->next = dummy2.next;
     return dummy1.next;
 }
+
 
 ListNode* Solution::deleteDuplicates_082(ListNode* head) {
 /*
@@ -219,12 +229,10 @@ Examples:
     ListNode dummy;
     ListNode* p = &dummy;
     while (head != nullptr) {
-        if (head->val == val) {
-            head = head->next;
-            continue;
-        }
         ListNode* tmp = head->next; head->next = nullptr;
-        p->next = head; p = p->next; // push_back
+        if (head->val != val) {
+            p->next = head; p = p->next; // push_back
+        }
         head = tmp;
     }
     return dummy.next;
@@ -246,8 +254,8 @@ Examples:
 
 ListNode* Solution::addTwoNumbers(ListNode* l1, ListNode* l2) {
 /*
-    You are given two non-empty linked lists representing two non-negative integers. 
-    The digits are stored in LSB-first order and each of their nodes contain a single digit. 
+    You are given two non-empty linked lists representing two *non-negative* integers. 
+    The digits are stored in *LSB-first* order and each of their nodes contain a single digit. 
     Add the two numbers and return it as a linked list.
     You may assume the two numbers do not contain any leading zero, except the number 0 itself.
     Example:
@@ -255,68 +263,92 @@ ListNode* Solution::addTwoNumbers(ListNode* l1, ListNode* l2) {
         Output: 7 -> 0 -> 8
         Explanation: 342 + 465 = 807.
 */
+
+{
     int carry = 0;
-    ListNode dummy(0);
+    ListNode dummy(-1);
     ListNode* p = &dummy;
-    while (l1 != nullptr || l2 != nullptr || carry != 0) {
-        ListNode* node = new ListNode(0);
-        node->val += carry; carry = 0;
-        if (l1 != nullptr) {
-            node->val += l1->val;
-            l1 = l1->next;
+    ListNode* p1 = l1;
+    ListNode* p2 = l2;
+    while (p1 != nullptr || p2 != nullptr || carry != 0) {
+        int val = 0;
+        if (p1 != nullptr) {
+            val += p1->val;
+            p1 = p1->next;
         }
-        if (l2 != nullptr) {
-            node->val += l2->val;
-            l2 = l2->next;
-        }
-        if (node->val > 9) {
+        if (p2 != nullptr) {
+            val += p2->val;
+            p2 = p2->next;
+        }       
+        val += carry;
+        if (val >= 10) {
+            val -= 10;
             carry = 1;
-            node->val -= 10;
+        } else {
+            carry = 0;
         }
+        ListNode* node = new ListNode(val);
         p->next = node; p = p->next; // push_back
     }
     return dummy.next;
 }
 
+}
+
+
 ListNode* Solution::addTwoNumber_445(ListNode* l1, ListNode* l2) {
 /*
-    You are given two non-empty linked lists representing two non-negative integers. 
-    The most significant digit comes first and each of their nodes contain a single digit. 
+    You are given two non-empty linked lists representing two *non-negative* integers. 
+    The digits are stored in *MSB-first* order and each of their nodes contain a single digit. 
     Add the two numbers and return it as a linked list.
     You may assume the two numbers do not contain any leading zero, except the number 0 itself.
     Example:
         Input: (7 -> 2 -> 4 -> 3) + (5 -> 6 -> 4)
         Output: 7 -> 8 -> 0 -> 7
 */
-    std::stack<int> s1, s2;
-    while (l1 != nullptr || l2 != nullptr) {
-        if (l1 != nullptr) {
-            s1.push(l1->val); l1 = l1->next;
+
+{
+    std::stack<int> st1;
+    std::stack<int> st2;
+    ListNode* p1 = l1;
+    ListNode* p2 = l2;
+    while (p1 != nullptr || p2 != nullptr) {
+        if (p1 != nullptr) {
+            st1.push(p1->val);
+            p1 = p1->next;
         }
-        if (l2 != nullptr) {
-            s2.push(l2->val); l2 = l2->next;
+        if (p2 != nullptr) {
+            st2.push(p2->val);
+            p2 = p2->next;
         }
     }
+
     int carry = 0;
-    ListNode dummy(0);
+    ListNode dummy(-1);
     ListNode* p = &dummy;
-    while (!s1.empty() || !s2.empty() || carry != 0) {
-        ListNode* node = new ListNode;
-        node->val += carry; carry = 0;
-        if (!s1.empty()) {
-            node->val += s1.top(); s1.pop();
+    while (!st1.empty() || !st2.empty() || carry != 0) {
+        int val = 0;
+        if (!st1.empty()) {
+            val += st1.top(); st1.pop();
         }
-        if (!s2.empty()) {
-            node->val += s2.top(); s2.pop();
-        }
-        if (node->val > 9) {
-            node->val -= 10;
+        if (!st2.empty()) {
+            val += st2.top(); st2.pop();
+        }    
+        val += carry;
+        if (val >= 10) {
+            val -= 10;
             carry = 1;
+        } else {
+            carry = 0;
         }
+        ListNode* node = new ListNode(val);
         node->next = p->next; p->next = node; // push_front
     }
     return dummy.next;
 }
+
+}
+
 
 ListNode* Solution::getIntersectionNode(ListNode* l1, ListNode* l2) {
 /*
@@ -372,6 +404,25 @@ ListNode* Solution::getIntersectionNode(ListNode* l1, ListNode* l2) {
 */
 
     // 1. iterate over one list, and save nodes into a set, test node existence against the set when iterating the other list, failed to meet the requirement of the running time and space complexity
+
+    // 2. you can image there is a virtual null node connecting the two lists, then iterate over them as usual
+{
+    ListNode* p1 = l1;
+    ListNode* p2 = l2;
+    while (p1 != p2) {
+        p1 = p1->next;
+        if (p1 == nullptr) {
+            p1 = l2;
+        }
+        p2 = p2->next;
+        if (p2 == nullptr) {
+            p2 = l1;
+        }
+    }
+    return p1;
+}
+
+{
     ListNode* p1 = l1;
     ListNode* p2 = l2;
     while (p1 != p2) {
@@ -379,6 +430,8 @@ ListNode* Solution::getIntersectionNode(ListNode* l1, ListNode* l2) {
         p2 = p2==nullptr ? l1 : p2->next;
     }
     return p1;
+}
+
 }
 
 
@@ -393,13 +446,13 @@ void addTwoNumbers_scaffold(std::string input1, std::string input2, std::string 
     } else if (func_no == 445) {
         ans = ss.addTwoNumber_445(l1, l2);
     } else {
-        util::Log(logERROR) << "func_no can only be values in [2, 445]";
+        SPDLOG_ERROR("func_no can only be values in [2, 445], actual: {}", func_no);
         return;
     }
     if (list_equal(ans, l3)) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << input3 << ") passed.";
+        SPDLOG_INFO("Case({}, {}, {}) passed.",  input1, input2, input3);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << input3 << ") failed.";
+        SPDLOG_ERROR("Case({}, {}, {}) failed.",  input1, input2, input3);
     }
 }
 
@@ -411,9 +464,9 @@ void reverseList_scaffold(std::string input1, std::string expectedResult) {
     Solution ss;
     ListNode* ans = ss.reverseList(l1);
     if(list_equal(ans, l3)) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}) passed", input1, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << expectedResult << ") failed";
+        SPDLOG_ERROR("Case({}, {}) failed", input1, expectedResult);
     }
 }
 
@@ -425,11 +478,26 @@ void swapPairs_scaffold(std::string input1, std::string expectedResult) {
     Solution ss;
     ListNode* ans = ss.swapPairs(l1);
     if (list_equal(ans, l3)) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}) passed", input1, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << expectedResult << ") failed";
+        SPDLOG_ERROR("Case({}, {}) failed", input1, expectedResult);
     }
 }
+
+
+void reverseKGroup_scaffold(std::string input1, std::string input2, int x) {
+    ListNode* l1 = stringToListNode(input1);
+    ListNode* l2 = stringToListNode(input2);
+    Solution ss;
+    ListNode* ans = ss.reverseKGroup(l1, x);
+    if (list_equal(ans, l2)) {
+        SPDLOG_INFO("Case({}, {}, {}) passed", input1, input2, x);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, {}) failed. acutal:", input1, input2, x);
+        printLinkedList(ans);
+    }
+}
+
 
 void removeElements_scaffold(std::string input1, int val, std::string expectedResult) {
     ListNode* l1 = stringToListNode(input1);
@@ -438,11 +506,12 @@ void removeElements_scaffold(std::string input1, int val, std::string expectedRe
     Solution ss;
     ListNode* ans = ss.removeElements(l1, val);
     if (list_equal(ans, l3)) {
-        util::Log(logINFO) << "Case(" << input1 << ", val: " << val << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, {}) passed", input1, val, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", val: " << val << ", " << expectedResult << ") failed";
+        SPDLOG_INFO("Case({}, {}, {}) failed", input1, val, expectedResult);
     }
 }
+
 
 void deleteDuplicates_scaffold(std::string input1, std::string input2, int func_no) {
     ListNode* l1 = stringToListNode(input1);
@@ -454,13 +523,13 @@ void deleteDuplicates_scaffold(std::string input1, std::string input2, int func_
     } else if (func_no == 83) {
         ans = ss.deleteDuplicates_083(l1);
     } else {
-        util::Log(logERROR) << "func_no can only be values in [82, 83]";
+        SPDLOG_ERROR("func_no can only be values in [82, 83], actual: {}", func_no);
         return;
     }
     if (list_equal(ans, l2)) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << func_no << ") passed.";
+        SPDLOG_INFO("Case({}, {}, {}) passed.",  input1, input2, func_no);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << func_no <<  ") failed. actual: ";
+        SPDLOG_ERROR("Case({}, {}, {}) failed. actual:",  input1, input2, func_no);
         printLinkedList(ans);
     }
 }
@@ -472,9 +541,9 @@ void partition_scaffold(std::string input1, std::string input2, int x) {
     Solution ss;
     ListNode* ans = ss.partition(l1, x);
     if (list_equal(ans, l2)) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << x << ") passed.";
+        SPDLOG_INFO("Case({}, {}, {}) passed", input1, input2, x);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << x <<  ") failed. actual: ";
+        SPDLOG_ERROR("Case({}, {}, {}) failed. acutal:", input1, input2, x);
         printLinkedList(ans);
     }
 }
@@ -486,50 +555,47 @@ void removeNthFromEnd_scaffold(std::string input1, std::string input2, int x) {
     Solution ss;
     ListNode* ans = ss.removeNthFromEnd(l1, x);
     if (list_equal(ans, l2)) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << x << ") passed.";
+        SPDLOG_INFO("Case({}, {}, {}) passed", input1, input2, x);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << x <<  ") failed. actual: ";
-        printLinkedList(ans);
-    }
-}
-
-
-void reverseKGroup_scaffold(std::string input1, std::string input2, int x) {
-    ListNode* l1 = stringToListNode(input1);
-    ListNode* l2 = stringToListNode(input2);
-    Solution ss;
-    ListNode* ans = ss.reverseKGroup(l1, x);
-    if (list_equal(ans, l2)) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << x << ") passed.";
-    } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << x <<  ") failed. actual: ";
+        SPDLOG_ERROR("Case({}, {}, {}) failed. acutal:", input1, input2, x);
         printLinkedList(ans);
     }
 }
 
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
-    util::Log(logESSENTIAL) << "Running reverseList tests:";
+    SPDLOG_WARN("Running reverseList tests:");
     TIMER_START(reverseList);
     reverseList_scaffold("[1,2,3,4,5]", "[5,4,3,2,1]");
+    reverseList_scaffold("[2,8,9,3,6,9,3,4,1,7,4]", "[4,7,1,4,3,9,6,3,9,8,2]");
+    reverseList_scaffold("[2,0,4,8,5,2,8,1]", "[1,8,2,5,8,4,0,2]");
+    reverseList_scaffold("[6,7,5,2,9,1,5,5,9,8,2]", "[2,8,9,5,5,1,9,2,5,7,6]");
     reverseList_scaffold("[1,2,3,4,]", "[4,3,2,1]");
     reverseList_scaffold("[1]", "[1]");
     reverseList_scaffold("[]", "[]");
     TIMER_STOP(reverseList);
-    util::Log(logESSENTIAL) << "Running reverseList tests uses " << TIMER_MSEC(reverseList) << "ms.";
+    SPDLOG_WARN("Running reverseList tests uses {} ms", TIMER_MSEC(reverseList));
 
-    util::Log(logESSENTIAL) << "Running swapPairs tests:";
+    SPDLOG_WARN("Running swapPairs tests:");
     TIMER_START(swapPairs);
     swapPairs_scaffold("[1,2,3,4,5]", "[2,1,4,3,5]");
     swapPairs_scaffold("[1,2,3,4]", "[2,1,4,3]");
     swapPairs_scaffold("[1]", "[1]");
     swapPairs_scaffold("[]", "[]");
     TIMER_STOP(swapPairs);
-    util::Log(logESSENTIAL) << "Running swapPairs tests uses " << TIMER_MSEC(swapPairs) << "ms.";
+    SPDLOG_WARN("Running swapPairs tests uses {} ms", TIMER_MSEC(swapPairs));
 
-    util::Log(logESSENTIAL) << "Running addTwoNumbers tests:";
+    SPDLOG_WARN("Running reverseKGroup tests:");
+    TIMER_START(reverseKGroup);
+    reverseKGroup_scaffold("[1,2,3,4,5]", "[2,1,4,3,5]", 2);
+    reverseKGroup_scaffold("[1,2,3,4,5]", "[3,2,1,4,5]", 3);
+    reverseKGroup_scaffold("[1]", "[1]", 1);
+    reverseKGroup_scaffold("[1,2]", "[1,2]", 1);
+    reverseKGroup_scaffold("[1,2]", "[2,1]", 2);
+    TIMER_STOP(reverseKGroup);
+    SPDLOG_WARN("Running reverseKGroup tests uses {} ms", TIMER_MSEC(reverseKGroup));
+
+    SPDLOG_WARN("Running addTwoNumbers tests:");
     TIMER_START(addTwoNumbers);
     addTwoNumbers_scaffold("[3,4,5]", "[7,0,8]", "[0,5,3,1]", 2);
     addTwoNumbers_scaffold("[2,4,3]", "[5,6,4]", "[7,0,8]", 2);
@@ -542,20 +608,23 @@ int main() {
     addTwoNumbers_scaffold("[2,4,3]", "[6,6,3]", "[9,0,6]", 445);
     addTwoNumbers_scaffold("[1]", "[9]", "[1, 0]", 445);
     addTwoNumbers_scaffold("[1]", "[9,9,9]", "[1,0,0,0]", 445);
+    addTwoNumbers_scaffold("[2,8,9,3,6,9,3,4,1,7,4]", "[1,8,2,5,8,4,0,2]", "[2,8,9,5,5,1,9,2,5,7,6]", 445);
+    addTwoNumbers_scaffold("[2,0,4,8,5,2,8,1]", "[4,7,1,4,3,9,6,3,9,8,2]", "[6,7,5,2,9,1,5,5,9,8,2]", 2);
     TIMER_STOP(addTwoNumbers);
-    util::Log(logESSENTIAL) << "Running addTwoNumbers tests uses " << TIMER_MSEC(addTwoNumbers) << "ms.";
+    SPDLOG_WARN("Running addTwoNumbers tests uses {} ms", TIMER_MSEC(addTwoNumbers));
 
-    util::Log(logESSENTIAL) << "Running removeElements tests:";
+    SPDLOG_WARN("Running removeElements tests:");
     TIMER_START(removeElements);
     removeElements_scaffold("[1,2,6,3,4,5,6]", 6, "[1,2,3,4,5]");
     removeElements_scaffold("[1,2,6,3,4,5,6]", 1, "[2,6,3,4,5,6]");
     removeElements_scaffold("[1,2,6,3,4,5,6]", 8, "[1,2,6,3,4,5,6]");
+    removeElements_scaffold("[1,2,6,3,4,5,6]", 3, "[1,2,6,4,5,6]");
     removeElements_scaffold("[]", 6, "[]");
     removeElements_scaffold("[6,6,6,6]", 6, "[]");
-    TIMER_STOP(swapPairs);
-    util::Log(logESSENTIAL) << "Running removeElements tests uses " << TIMER_MSEC(removeElements) << "ms.";
+    TIMER_STOP(removeElements);
+    SPDLOG_WARN("Running removeElements tests uses {} ms", TIMER_MSEC(removeElements));
 
-    util::Log(logESSENTIAL) << "Running deleteDuplicates tests:";
+    SPDLOG_WARN("Running deleteDuplicates tests:");
     TIMER_START(deleteDuplicates);
     deleteDuplicates_scaffold("[1,1,1]", "[]", 82);
     deleteDuplicates_scaffold("[1,1,2]", "[2]", 82);
@@ -568,20 +637,20 @@ int main() {
     deleteDuplicates_scaffold("[1,2,2,3]", "[1,2,3]", 83);
     deleteDuplicates_scaffold("[1,1,2,3,3]", "[1,2,3]", 83);
     deleteDuplicates_scaffold("[1,2,3,3,4,4,5]", "[1,2,3,4,5]", 83);
-    TIMER_STOP(addTwoNumbers);
-    util::Log(logESSENTIAL) << "Running deleteDuplicates tests uses " << TIMER_MSEC(deleteDuplicates) << "ms.";
+    TIMER_STOP(deleteDuplicates);
+    SPDLOG_WARN("Running deleteDuplicates tests uses {} ms", TIMER_MSEC(deleteDuplicates));
 
-    util::Log(logESSENTIAL) << "Running partition tests:";
+    SPDLOG_WARN("Running partition tests:");
     TIMER_START(partition);
-    partition_scaffold("[1,1,1]", "[1,1,1]", 82);
-    partition_scaffold("[1,1,1]", "[1,1,1]", 0);
-    partition_scaffold("[1,1,2]", "[1,1,2]", 2);
+    partition_scaffold("[1,1,1]", "[1,1,1]", 82); // left partition is empty
+    partition_scaffold("[1,1,1]", "[1,1,1]", 0); // right partition is empty
+    partition_scaffold("[1,1,2]", "[1,1,2]", 2); // no need to change the array 
     partition_scaffold("[1,4,3,2,5,2]", "[1,2,2,4,3,5]", 3);
     partition_scaffold("[2,1]", "[1,2]", 2);
     TIMER_STOP(partition);
-    util::Log(logESSENTIAL) << "Running partition tests uses " << TIMER_MSEC(partition) << "ms.";
+    SPDLOG_WARN("Running partition tests uses {} ms", TIMER_MSEC(partition));
 
-    util::Log(logESSENTIAL) << "Running removeNthFromEnd tests:";
+    SPDLOG_WARN("Running removeNthFromEnd tests:");
     TIMER_START(removeNthFromEnd);
     removeNthFromEnd_scaffold("[1,2,3,4,5]", "[1,2,3,5]", 2);
     removeNthFromEnd_scaffold("[1]", "[]", 1);
@@ -589,15 +658,6 @@ int main() {
     removeNthFromEnd_scaffold("[1,2]", "[2]", 2);
     removeNthFromEnd_scaffold("[1,2,3]", "[1,2,3]", 4);
     TIMER_STOP(removeNthFromEnd);
-    util::Log(logESSENTIAL) << "Running removeNthFromEnd tests uses " << TIMER_MSEC(removeNthFromEnd) << "ms.";
+    SPDLOG_WARN("Running removeNthFromEnd tests uses {} ms", TIMER_MSEC(removeNthFromEnd));
 
-    util::Log(logESSENTIAL) << "Running reverseKGroup tests:";
-    TIMER_START(reverseKGroup);
-    reverseKGroup_scaffold("[1,2,3,4,5]", "[2,1,4,3,5]", 2);
-    reverseKGroup_scaffold("[1,2,3,4,5]", "[3,2,1,4,5]", 3);
-    reverseKGroup_scaffold("[1]", "[1]", 1);
-    reverseKGroup_scaffold("[1,2]", "[1,2]", 1);
-    reverseKGroup_scaffold("[1,2]", "[2,1]", 2);
-    TIMER_STOP(reverseKGroup);
-    util::Log(logESSENTIAL) << "Running reverseKGroup tests uses " << TIMER_MSEC(reverseKGroup) << "ms.";
 }
