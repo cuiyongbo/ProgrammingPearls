@@ -155,9 +155,9 @@ void isSameTree_scaffold(std::string input1, std::string input2) {
     std::unique_ptr<TreeNode> guard1(t1);
     std::unique_ptr<TreeNode> guard2(t2);
     Solution ss;
-    bool acutual = ss.isSameTree(t1, t2);
+    bool actual = ss.isSameTree(t1, t2);
     bool expected = input1 == input2;
-    if (expected == acutual) {
+    if (expected == actual) {
         util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ") passed.";
     } else {
         util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ") failed.";
@@ -170,8 +170,8 @@ void isSubtree_scaffold(std::string input1, std::string input2, bool expected) {
     std::unique_ptr<TreeNode> guard1(t1);
     std::unique_ptr<TreeNode> guard2(t2);
     Solution ss;
-    bool acutual = ss.isSubtree(t1, t2);
-    if (expected == acutual) {
+    bool actual = ss.isSubtree(t1, t2);
+    if (expected == actual) {
         util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ") passed.";
     } else {
         util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ") failed.";

@@ -10,8 +10,8 @@ public:
     vector<vector<int>> permute_46(vector<int>& nums);
     vector<vector<int>> permute_47(vector<int>& nums);
     vector<string> letterCasePermutation(string S);
-    string shortestSuperstring(vector<string>& A);
     int numSquarefulPerms(vector<int>& A);
+    string shortestSuperstring(vector<string>& A);
 };
 
 
@@ -30,21 +30,24 @@ public:
 vector<vector<int>> Solution::permute_46(vector<int>& nums) {
     int sz = nums.size();
     vector<bool> used(sz, false);
-    vector<int> path; path.reserve(sz);
+    vector<int> candidate; candidate.reserve(nums.size());
     vector<vector<int>> ans;
-    function<void(int)> backtrace = [&] (int u) {
-        if (u == sz) {
-            ans.push_back(path);
+    std::function<void(int)> backtrace = [&] (int pos) {
+        if (pos == sz) {
+            ans.push_back(candidate);
             return;
         }
-        for (int i=0; i<sz; ++i) {
-            if (!used[i]) {
-                used[i] = true;
-                path.push_back(nums[i]);
-                backtrace(u+1);
-                path.pop_back();
-                used[i] = false;
+        // start iteration from beginning at each depth 
+        for (int i=0; i<sz; i++) {
+            // prune invalid branches
+            if (used[i]) {
+                continue;
             }
+            used[i] = true;
+            candidate.push_back(nums[i]);
+            backtrace(pos+1); // go to the next depth
+            candidate.pop_back();
+            used[i] = false;
         }
     };
     backtrace(0);
@@ -64,29 +67,31 @@ vector<vector<int>> Solution::permute_46(vector<int>& nums) {
 vector<vector<int>> Solution::permute_47(vector<int>& nums) {
     int sz = nums.size();
     vector<bool> used(sz, false);
-    vector<int> path; path.reserve(sz);
+    vector<int> candidate; candidate.reserve(nums.size());
     vector<vector<int>> ans;
-    function<void(int)> backtrace = [&] (int u) {
-        if (u == sz) {
-            ans.push_back(path);
+    std::function<void(int)> backtrace = [&] (int pos) {
+        if (pos == sz) {
+            ans.push_back(candidate);
             return;
         }
-        for (int i=0; i<sz; ++i) {
-            // the same number can only be used once at each depth
-            if (i>0 && nums[i-1]==nums[i] && !used[i-1]) {
+        for (int i=0; i<sz; i++) {
+            // we find a duplicate in the previous position but it is not used, which means it has been used in former iteration at current depth
+            if (i>0 && nums[i]==nums[i-1] && !used[i-1]) {
                 continue;
             }
-            if (!used[i]) {
-                used[i] = true;
-                path.push_back(nums[i]);
-                backtrace(u+1);
-                path.pop_back();
-                used[i] = false;
+            // prune invalid branches
+            if (used[i]) {
+                continue;
             }
+            used[i] = true;
+            candidate.push_back(nums[i]);
+            backtrace(pos+1); // go to the next depth
+            candidate.pop_back();
+            used[i] = false;
         }
     };
     backtrace(0);
-    return ans;    
+    return ans;
 }
 
 
@@ -114,7 +119,7 @@ vector<string> Solution::letterCasePermutation(string input) {
                 continue;
             }
             input[i] = std::islower(input[i]) ? (input[i]-diff) : (input[i]+diff); // change case
-            backtrace(i+1);
+            backtrace(i+1); // extend to later position only
             input[i] = std::islower(input[i]) ? (input[i]-diff) : (input[i]+diff); // restore case
         }
     };
@@ -124,11 +129,12 @@ vector<string> Solution::letterCasePermutation(string input) {
 
 
 /*
-    Given an array A of strings, find any smallest string that contains each string in A as a substring.
-    We may assume that no string in A is substring of another string in A.
+    Given an array of strings words, return the smallest string that contains each string in words as a substring. If there are multiple valid strings of the smallest length, return any of them.
+    You may assume that no string in words is a substring of another string in words.
 
     Method 1: 
     enumerate every permutation, check if a certain permutaion satisfies the requirement, time complexity: O(n!), n = A.size()
+    NOT WORK, we don't need to concatenate words[i] to format a super string, actually we need to crash two string instead of just concatenating them
     
     Method 2: 
     DP: g[i][j] is the cost of appending word[j] after word[i], or weight of edge[i][j].
@@ -189,6 +195,8 @@ string Solution::shortestSuperstring(vector<string>& A) {
     return ans;
 }
 
+
+
 }
 
 
@@ -198,7 +206,7 @@ string Solution::shortestSuperstring(vector<string>& A) {
     For example, Given a input array [1,17,8] return 2 ([1,8,17] and [17,8,1] are the valid permutations).
 */
 int Solution::numSquarefulPerms(vector<int>& A) {
-    //std::sort(A.begin(), A.end());
+    std::sort(A.begin(), A.end());
     int ans = 0;
     int sz = A.size();
     vector<bool> used(sz, false);
@@ -253,12 +261,11 @@ void permute_scaffold(string input, string expectedResult, bool duplicate) {
     std::sort(expected.begin(), expected.end());
     
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ", duplicate: " << duplicate << ") passed";
+        SPDLOG_INFO("Case({}, {}, {}) passed", input, expectedResult, duplicate);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ", duplicate: " << duplicate << ") failed";
-        util::Log(logERROR) << "Actual:";
+        SPDLOG_ERROR("Case({}, {}, {}) failed, actual: ", input, expectedResult, duplicate);
         for (const auto& s: actual) {
-            util::Log(logERROR) << numberVectorToString(s);
+            SPDLOG_ERROR(numberVectorToString(s));
         }
     }
 }
@@ -274,13 +281,12 @@ void letterCasePermutation_scaffold(string input, string expectedResult) {
     std::sort(expected.begin(), expected.end());
 
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ") failed";
-        util::Log(logERROR) << "Actual:";
-        for (const auto& s: actual) util::Log(logERROR) << s;
-        util::Log(logERROR) << "expected:";
-        for (const auto& s: expected) util::Log(logERROR) << s;
+        SPDLOG_ERROR("Case({}, {}) failed, actual: ", input, expectedResult);
+        for (const auto& s: actual) {
+            SPDLOG_ERROR(s);
+        }
     }
 }
 
@@ -290,10 +296,9 @@ void shortestSuperstring_scaffold(string input, string expectedResult) {
     vector<string> food = stringTo1DArray<string>(input);
     string actual = ss.shortestSuperstring(food);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual:" << actual;
+        SPDLOG_ERROR("Case({}, {}) failed, actual: {}", input, expectedResult, actual);
     }
 }
 
@@ -303,10 +308,9 @@ void numSquarefulPerms_scaffold(string input, int expectedResult) {
     vector<int> A = stringTo1DArray<int>(input);
     int actual = ss.numSquarefulPerms(A);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual:" << actual;
+        SPDLOG_ERROR("Case({}, {}) failed, actual: {}", input, expectedResult, actual);
     }
 }
 
@@ -314,35 +318,43 @@ void numSquarefulPerms_scaffold(string input, int expectedResult) {
 int main() {
     util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running permute tests:";
+    SPDLOG_WARN("Running permute tests:");
     TIMER_START(permute);
     permute_scaffold("[1,2,3]", "[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]", false);
     permute_scaffold("[1,2,3]", "[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]", true);
     permute_scaffold("[1,2,2]", "[[1,2,2],[2,1,2],[2,2,1]]", true);
     permute_scaffold("[1,2,2,2]", "[[1,2,2,2],[2,1,2,2],[2,2,1,2],[2,2,2,1]]", true);
     TIMER_STOP(permute);
-    util::Log(logESSENTIAL) << "permute using " << TIMER_MSEC(permute) << " milliseconds";
+    SPDLOG_WARN("permute using {} ms", TIMER_MSEC(permute));
 
-    util::Log(logESSENTIAL) << "Running letterCasePermutation tests:";
+    SPDLOG_WARN("Running letterCasePermutation tests:");
     TIMER_START(letterCasePermutation);
     letterCasePermutation_scaffold("1234", "[1234]");
     letterCasePermutation_scaffold("a2b4", "[a2b4,A2b4,A2B4,a2B4]");
     letterCasePermutation_scaffold("3z4", "[3z4,3Z4]");
     letterCasePermutation_scaffold("a2b4c5", "[a2b4c5,A2b4c5,A2B4c5,A2B4C5,A2b4C5,a2B4c5,a2B4C5,a2b4C5]");
     TIMER_STOP(letterCasePermutation);
-    util::Log(logESSENTIAL) << "letterCasePermutation using " << TIMER_MSEC(letterCasePermutation) << " milliseconds";
+    SPDLOG_WARN("letterCasePermutation using {} ms", TIMER_MSEC(letterCasePermutation));
 
-    util::Log(logESSENTIAL) << "Running shortestSuperstring tests:";
+    SPDLOG_WARN("Running shortestSuperstring tests:");
     TIMER_START(shortestSuperstring);
     shortestSuperstring_scaffold("[alex, loves, leetcode]", "alexlovesleetcode");
     shortestSuperstring_scaffold("[catg, ctaagt, gcta, ttca, atgcatc]", "gctaagttcatgcatc");
     TIMER_STOP(shortestSuperstring);
-    util::Log(logESSENTIAL) << "shortestSuperstring using " << TIMER_MSEC(shortestSuperstring) << " milliseconds";
+    SPDLOG_WARN("shortestSuperstring using {} ms", TIMER_MSEC(shortestSuperstring));
 
-    util::Log(logESSENTIAL) << "Running numSquarefulPerms tests:";
+    SPDLOG_WARN("Running numSquarefulPerms tests:");
     TIMER_START(numSquarefulPerms);
+    numSquarefulPerms_scaffold("[1,8,8,1]", 3);
     numSquarefulPerms_scaffold("[2,2,2]", 1);
     numSquarefulPerms_scaffold("[1,8,17]", 2);
     TIMER_STOP(numSquarefulPerms);
-    util::Log(logESSENTIAL) << "numSquarefulPerms using " << TIMER_MSEC(numSquarefulPerms) << " milliseconds";
+    SPDLOG_WARN("numSquarefulPerms using {} ms", TIMER_MSEC(numSquarefulPerms));
 }
+
+
+/*
+1,8,1,8
+1,8,8,1
+8,1,8,1
+*/

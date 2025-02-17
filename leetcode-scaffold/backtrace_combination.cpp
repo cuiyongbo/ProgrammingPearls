@@ -8,10 +8,10 @@ using namespace osrm;
 class Solution {
 public:
     vector<string> letterCombinations(string digits);
+    vector<vector<int>> combine(int n, int k);
     vector<vector<int>> combinationSum_39(vector<int>& candidates, int target);
     vector<vector<int>> combinationSum_40(vector<int>& candidates, int target);
     vector<vector<int>> combinationSum_216(int k, int n);
-    vector<vector<int>> combine(int n, int k);
     vector<vector<int>> subsets_78(vector<int>& nums);
     vector<vector<int>> subsets_90(vector<int>& nums);
 };
@@ -35,14 +35,14 @@ vector<string> Solution::letterCombinations(string digits) {
     d[9] = {'w','x','y','z'};
     string candidate;
     vector<string> ans;
-    function<void(int)> backtrace = [&] (int cur) {
-        if (cur == digits.size()) {
+    function<void(int)> backtrace = [&] (int pos) {
+        if (pos == digits.size()) {
             ans.push_back(candidate);
             return;
         }
-        for (auto c: d[digits[cur]-'0']) {
+        for (auto c: d[digits[pos]-'0']) {
             candidate.push_back(c);
-            backtrace(cur+1);
+            backtrace(pos+1); // go to the next position
             candidate.pop_back();
         }
     };
@@ -65,6 +65,7 @@ vector<vector<int>> Solution::combinationSum_39(vector<int>& candidates, int tar
     vector<vector<int>> ans;
     int sz = candidates.size();
     function<void(int, int)> backtrace = [&] (int cur, int cur_sum) {
+        // prune invalid branches
         if (cur_sum == target) {
             ans.push_back(buffer);
             return;
@@ -74,7 +75,7 @@ vector<vector<int>> Solution::combinationSum_39(vector<int>& candidates, int tar
                 continue;
             }
             buffer.push_back(candidates[i]);
-            backtrace(i, cur_sum+candidates[i]);
+            backtrace(i, cur_sum+candidates[i]); // add current element to sum, and test the next
             buffer.pop_back();
         }
     };
@@ -103,15 +104,17 @@ vector<vector<int>> Solution::combinationSum_40(vector<int>& candidates, int tar
             return;
         }
         for (int i=u; i<sz; ++i) {
+            // prune invalid branches
             if (sum + candidates[i] > target) {
-                break;
+                break; // we can stop here since next number is no less than current one
             }
-            // the same number can ONLY be used once at each depth
+            // make sure we don't use a duplicate number more than once
             if (i>u && candidates[i-1] == candidates[i]) {
                 continue;
             }
             buffer.push_back(candidates[i]);
-            backtrace(i+1, sum+candidates[i]);
+            // make sure we don't use the same number more than once
+            backtrace(i+1, sum+candidates[i]); // add current element to sum, and test the next
             buffer.pop_back();
         }
     };
@@ -128,22 +131,22 @@ vector<vector<int>> Solution::combinationSum_40(vector<int>& candidates, int tar
         Output: [[1,2,6], [1,3,5], [2,3,4]]
 */
 vector<vector<int>> Solution::combinationSum_216(int k, int n) {
-    vector<int> buffer;
+    vector<int> candidates;
     vector<vector<int>> ans;
     function<void(int, int)> backtrace = [&] (int u, int sum) {
-        if (buffer.size() == k) {
-            if (sum == n) {
-                ans.push_back(buffer);
-            }
+        if (candidates.size() == k && sum == n) {
+            ans.push_back(candidates);
             return;
         }
         for (int i=u; i<10; ++i) {
-            if (sum+i > n) {
-                break;
+            // prune invalid branches
+            if (sum+i > n || candidates.size() > k) {
+                break; // yes, we can stop here since the next element would be larger than `i`
             }
-            buffer.push_back(i);
+            candidates.push_back(i);
+            // make sure we won't use the same number more than once
             backtrace(i+1, sum+i);
-            buffer.pop_back();
+            candidates.pop_back();
         }
     };
     backtrace(1, 0);
@@ -154,19 +157,20 @@ vector<vector<int>> Solution::combinationSum_216(int k, int n) {
 /*
     Given two integers n and k, return all possible combinations of k numbers out of 1 … n.
     For example, If n=4 and k=2, a solution is [[2,4],[3,4],[2,3],[1,2],[1,3],[1,4]]
+    note that [1,2] and [2,1] are the same in combination theory
 */
 vector<vector<int>> Solution::combine(int n, int k) {
-    vector<int> buffer;
+    vector<int> candidate;
     vector<vector<int>> ans;
-    function<void(int)> backtrace = [&] (int cur) {
-        if (buffer.size() == k) {
-            ans.push_back(buffer);
+    function<void(int)> backtrace = [&] (int pos) {
+        if (k == candidate.size()) {
+            ans.push_back(candidate);
             return;
         }
-        for (int i=cur; i<=n; ++i) {
-            buffer.push_back(i);
-            backtrace(i+1);
-            buffer.pop_back();
+        for (int i=pos; i<=n; i++) {
+            candidate.push_back(i);
+            backtrace(i+1); // exclude digits from [1, i]
+            candidate.pop_back();
         }
     };
     backtrace(1);
@@ -192,16 +196,16 @@ vector<vector<int>> Solution::combine(int n, int k) {
         The solution set must not contain duplicate subsets.
 */
 vector<vector<int>> Solution::subsets_78(vector<int>& nums) {
-    std::sort(nums.begin(), nums.end());
-    int sz = nums.size();
-    vector<int> buffer; buffer.reserve(sz);
+    // preprocess `nums` so the elements in each subset are in non-descending order
+    std::sort(nums.begin(), nums.end(), std::less<int>());
+    vector<int> candidate; candidate.reserve(nums.size());
     vector<vector<int>> ans;
-    function<void(int)> backtrace = [&] (int u) {
-        ans.push_back(buffer);
-        for (int i=u; i<sz; ++i) {
-            buffer.push_back(nums[i]);
-            backtrace(i+1);
-            buffer.pop_back();
+    std::function<void(int)> backtrace = [&] (int pos) {
+        ans.push_back(candidate);
+        for (int i=pos; i<nums.size(); i++) {
+            candidate.push_back(nums[i]);
+            backtrace(i+1); // go to the next
+            candidate.pop_back();
         }
     };
     backtrace(0);
@@ -225,20 +229,20 @@ vector<vector<int>> Solution::subsets_78(vector<int>& nums) {
         ]
 */
 vector<vector<int>> Solution::subsets_90(vector<int>& nums) {
-    std::sort(nums.begin(), nums.end());
-    int sz = nums.size();
-    vector<int> buffer; buffer.reserve(sz);
+    // preprocess `nums` so the elements in each subset are in non-descending order
+    std::sort(nums.begin(), nums.end(), std::less<int>());
+    vector<int> candidate; candidate.reserve(nums.size());
     vector<vector<int>> ans;
-    function<void(int)> backtrace = [&] (int u) {
-        ans.push_back(buffer);
-        for (int i=u; i<sz; ++i) {
-            // the same number can ONLY be used once at each depth
-            if (i>u && nums[i-1] == nums[i]) {
+    std::function<void(int)> backtrace = [&] (int pos) {
+        ans.push_back(candidate);
+        for (int i=pos; i<nums.size(); i++) {
+            // skip duplicates at each depth
+            if (i>pos && nums[i]==nums[i-1]) {
                 continue;
             }
-            buffer.push_back(nums[i]);
-            backtrace(i+1);
-            buffer.pop_back();
+            candidate.push_back(nums[i]);
+            backtrace(i+1); // go to the next
+            candidate.pop_back();
         }
     };
     backtrace(0);
@@ -251,12 +255,26 @@ void letterCombinations_scaffold(string input, string expectedResult) {
     vector<string> actual = ss.letterCombinations(input);
     vector<string> expected = stringTo1DArray<string>(expectedResult);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual:";
+        SPDLOG_ERROR("Case({}, {}) failed, actual:", input, expectedResult);
         for (const auto& s: actual) {
-            util::Log(logERROR) << s;
+            SPDLOG_ERROR(s);
+        }
+    }
+}
+
+
+void combine_scaffold(int input1, int input2, string expectedResult) {
+    Solution ss;
+    vector<vector<int>> actual = ss.combine(input1, input2);
+    vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
+    if (actual == expected) {
+        SPDLOG_INFO("Case({}, {}, {}) passed", input1, input2, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, {}) failed, actual: ", input1, input2, expectedResult);
+        for (const auto& s: actual) {
+            SPDLOG_ERROR(numberVectorToString(s));
         }
     }
 }
@@ -271,17 +289,16 @@ void combinationSum_scaffold(string input1, int input2, string expectedResult, i
     } else if (func == 40) {
         actual = ss.combinationSum_40(candidates, input2);
     } else {
-        util::Log(logERROR) << "argument error, func can only be value in [39|40]";
+        SPDLOG_ERROR("func_no can only be values in [39, 40], actual: {}", func);
         return;
     }
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, {}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual:";
+        SPDLOG_ERROR("Case({}, {}, {}) failed, actual: ", input1, input2, expectedResult);
         for (const auto& s: actual) {
-            util::Log(logERROR) << numberVectorToString(s);
+            SPDLOG_ERROR(numberVectorToString(s));
         }
     }
 }
@@ -292,27 +309,12 @@ void combinationSum_216_scaffold(int input1, int input2, string expectedResult) 
     vector<vector<int>> actual = ss.combinationSum_216(input1, input2);
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, {}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual:";
+        SPDLOG_ERROR("Case({}, {}, {}) failed, actual: ", input1, input2, expectedResult);
         for (const auto& s: actual) {
-            util::Log(logERROR) << numberVectorToString(s);
+            SPDLOG_ERROR(numberVectorToString(s));
         }
-    }
-}
-
-
-void combine_scaffold(int input1, int input2, string expectedResult) {
-    Solution ss;
-    vector<vector<int>> actual = ss.combine(input1, input2);
-    vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
-    if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
-    } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual:";
-        for (const auto& s: actual) util::Log(logERROR) << numberVectorToString(s);
     }
 }
 
@@ -329,59 +331,56 @@ void subsets_scaffold(string input, string expectedResult, bool contain_duplicat
     
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", contain_duplicate: " << contain_duplicate <<  ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, {}) passed", input, expectedResult, contain_duplicate);
     } else {
-        util::Log(logINFO) << "Case(" << input << ", contain_duplicate: " << contain_duplicate <<  ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual:";
+        SPDLOG_ERROR("Case({}, {}, {}) failed, actual: ", input, expectedResult, contain_duplicate);
         for (const auto& s: actual) {
-            util::Log(logERROR) << numberVectorToString(s);
+            SPDLOG_ERROR(numberVectorToString(s));
         }
     }
 }
 
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
-    util::Log(logESSENTIAL) << "Running letterCombinations tests:";
+    SPDLOG_WARN("Running letterCombinations tests:");
     TIMER_START(letterCombinations);
     letterCombinations_scaffold("23", "[ad,ae,af,bd,be,bf,cd,ce,cf]");
     TIMER_STOP(letterCombinations);
-    util::Log(logESSENTIAL) << "letterCombinations using " << TIMER_MSEC(letterCombinations) << " milliseconds";
+    SPDLOG_WARN("letterCombinations using {} ms", TIMER_MSEC(letterCombinations));
 
-    util::Log(logESSENTIAL) << "Running combinationSum_39 tests:";
+    SPDLOG_WARN("Running combine tests:");
+    TIMER_START(combine);
+    combine_scaffold(4, 2, "[[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]]");
+    combine_scaffold(3, 2, "[[1,2],[1,3],[2,3]]");
+    combine_scaffold(2, 2, "[[1,2]]");
+    TIMER_STOP(combine);
+    SPDLOG_WARN("combine using {} ms", TIMER_MSEC(combine));
+
+    SPDLOG_WARN("Running combinationSum_39 tests:");
     TIMER_START(combinationSum_39);
     combinationSum_scaffold("[2,3,6,7]", 7, "[[2,2,3], [7]]", 39);
     combinationSum_scaffold("[2,3,5]", 8, "[[2,2,2,2], [2,3,3], [3,5]]", 39);
     TIMER_STOP(combinationSum_39);
-    util::Log(logESSENTIAL) << "combinationSum_39 using " << TIMER_MSEC(combinationSum_39) << " milliseconds";
+    SPDLOG_WARN("combinationSum_39 using {} ms", TIMER_MSEC(combinationSum_39));
 
-    util::Log(logESSENTIAL) << "Running combinationSum_40 tests:";
+    SPDLOG_WARN("Running combinationSum_40 tests:");
     TIMER_START(combinationSum_40);
     combinationSum_scaffold("[2,3,6,7]", 7, "[[7]]", 40);
     combinationSum_scaffold("[2,3,5,6,7]", 7, "[[2,5], [7]]", 40);
     combinationSum_scaffold("[10, 1, 2, 7, 6, 1, 5]", 8, "[[1, 1, 6], [1, 2, 5], [1, 7], [2, 6]]", 40);
     combinationSum_scaffold("[2,5,2,1,2]", 5, "[[1,2,2],[5]]", 40);
     TIMER_STOP(combinationSum_40);
-    util::Log(logESSENTIAL) << "combinationSum_40 using " << TIMER_MSEC(combinationSum_40) << " milliseconds";
+    SPDLOG_WARN("combinationSum_40 using {} ms", TIMER_MSEC(combinationSum_40));
 
-    util::Log(logESSENTIAL) << "Running combinationSum_216 tests:";
+    SPDLOG_WARN("Running combinationSum_216 tests:");
     TIMER_START(combinationSum_216);
     combinationSum_216_scaffold(3, 7, "[[1,2,4]]");
     combinationSum_216_scaffold(3, 9, "[[1,2,6], [1,3,5], [2,3,4]]");
     combinationSum_216_scaffold(4, 1, "[]");
     TIMER_STOP(combinationSum_216);
-    util::Log(logESSENTIAL) << "combinationSum_216 using " << TIMER_MSEC(combinationSum_216) << " milliseconds";
+    SPDLOG_WARN("combinationSum_216 using {} ms", TIMER_MSEC(combinationSum_216));
 
-    util::Log(logESSENTIAL) << "Running combine tests:";
-    TIMER_START(combine);
-    combine_scaffold(4, 2, "[[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]]");
-    combine_scaffold(3, 2, "[[1,2],[1,3],[2,3]]");
-    combine_scaffold(2, 2, "[[1,2]]");
-    TIMER_STOP(combine);
-    util::Log(logESSENTIAL) << "combine using " << TIMER_MSEC(combine) << " milliseconds";
-
-    util::Log(logESSENTIAL) << "Running subsets tests:";
+    SPDLOG_WARN("Running subsets tests:");
     TIMER_START(subsets);
     subsets_scaffold("[1,2,3]", "[[],[1],[1,2],[1,2,3],[1,3],[2],[2,3],[3]]", false);
     subsets_scaffold("[1,2,3,4]", "[[],[1],[1,2],[1,2,3],[1,2,3,4],[1,2,4],[1,3],[1,3,4],[1,4],[2],[2,3],[2,3,4],[2,4],[3],[3,4],[4]]", false);
@@ -390,5 +389,5 @@ int main() {
     subsets_scaffold("[1,1,1]", "[[],[1],[1,1],[1,1,1]]", true);
     subsets_scaffold("[1,2,2]", "[[],[1],[1,2],[1,2,2],[2],[2,2]]", true);
     TIMER_STOP(subsets);
-    util::Log(logESSENTIAL) << "subsets using " << TIMER_MSEC(subsets) << " milliseconds";
+    SPDLOG_WARN("subsets using {} ms", TIMER_MSEC(subsets));
 }

@@ -132,11 +132,11 @@ target_link_libraries(bs_kth_smallest_pair_dis)
 
 add_executable(backtrace_combination backtrace_combination.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_combination PUBLIC cxx_auto_type)
-target_link_libraries(backtrace_combination)
+target_link_libraries(backtrace_combination spdlog::spdlog_header_only)
 
 add_executable(backtrace_permutation backtrace_permutation.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_permutation PUBLIC cxx_auto_type)
-target_link_libraries(backtrace_permutation)
+target_link_libraries(backtrace_permutation spdlog::spdlog_header_only)
 
 add_executable(backtrace_generate_parenthesis backtrace_generate_parenthesis.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_generate_parenthesis PUBLIC cxx_auto_type)
