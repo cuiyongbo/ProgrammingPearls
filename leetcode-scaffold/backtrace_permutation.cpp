@@ -131,10 +131,6 @@ vector<string> Solution::letterCasePermutation(string input) {
 /*
     Given an array of strings words, return the smallest string that contains each string in words as a substring. If there are multiple valid strings of the smallest length, return any of them.
     You may assume that no string in words is a substring of another string in words.
-
-    Method 1: 
-    enumerate every permutation, check if a certain permutaion satisfies the requirement, time complexity: O(n!), n = A.size()
-    NOT WORK, we don't need to concatenate words[i] to format a super string, actually we need to crash two string instead of just concatenating them
     
     Method 2: 
     DP: g[i][j] is the cost of appending word[j] after word[i], or weight of edge[i][j].
@@ -150,53 +146,46 @@ vector<string> Solution::letterCasePermutation(string input) {
     Time complexity: O(n^2 * 2^n)
     Space complexity: O(n * 2^n)
 */
-string Solution::shortestSuperstring(vector<string>& A) {
-
-{ // naive method
-    std::sort(A.begin(), A.end(), [] (const string& l, const string& r) {
-                                        return l.size() < r.size();});
-    string ans;
-    string path;
-    int sz = A.size();
-    vector<bool> used(sz, false);
-
-    auto is_super_string = [&] (const string& path) {
-        for (int i=0; i<sz; ++i) {
-            if (!used[i] && path.find(A[i]) == string::npos) {
-                return false;
+string Solution::shortestSuperstring(vector<string>& words) {
+    auto calculateOverlap = [] (const string &a, const string &b) {
+        int maxOverlap = 0;
+        int lenA = a.size();
+        int lenB = b.size();
+        // Try to find maximum overlap by shifting string b
+        for (int i = 1; i <= min(lenA, lenB); i++) {
+            if (a.substr(lenA - i) == b.substr(0, i)) {
+                maxOverlap = i;
             }
+            // we cannot break here, since the pair we compare is (a[lenA-i:], b[0:i])
         }
-        return true;
+        return maxOverlap;
     };
-
-    function<bool(int)> backtrace = [&] (int cur) {
-        if (is_super_string(path)) {
-            ans = path;
-            return true;
+    while (words.size() > 1) {
+        int maxOverlap = -1;
+        int l, r; // indices of the pair with maximum overlap
+        string combinedStr;
+        for (int i = 0; i < words.size(); i++) {
+            for (int j = i + 1; j < words.size(); j++) {
+                int overlap1 = calculateOverlap(words[i], words[j]);
+                int overlap2 = calculateOverlap(words[j], words[i]);
+                if (overlap1 > maxOverlap) {
+                    maxOverlap = overlap1;
+                    l = i;
+                    r = j;
+                    combinedStr = words[l] + words[r].substr(overlap1); // don't take this out of if scope
+                }
+                if (overlap2 > maxOverlap) {
+                    maxOverlap = overlap2;
+                    l = j;
+                    r = i;
+                    combinedStr = words[l] + words[r].substr(overlap2);
+                }
+            }
         }
-        for (int i=0; i<sz; ++i) {
-            if (used[i]) {
-                continue;
-            }
-            if (!ans.empty() && path.size()+A[i].size() > ans.size()) { // prune useless branches
-                continue;
-            }
-            used[i] = true;
-            path.append(A[i]);
-            if (backtrace(cur+1)) {
-                return true;
-            }
-            path.resize(path.size() - A[i].size());
-            used[i] = false;
-        }
-        return false;
-    };
-    backtrace(0);
-    return ans;
-}
-
-
-
+        words[l] = combinedStr; // combine the strings with maximum overlap
+        words.erase(words.begin() + r); // remove the used string
+    }
+    return words[0];
 }
 
 
@@ -316,8 +305,6 @@ void numSquarefulPerms_scaffold(string input, int expectedResult) {
 
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
     SPDLOG_WARN("Running permute tests:");
     TIMER_START(permute);
     permute_scaffold("[1,2,3]", "[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]", false);
@@ -336,13 +323,6 @@ int main() {
     TIMER_STOP(letterCasePermutation);
     SPDLOG_WARN("letterCasePermutation using {} ms", TIMER_MSEC(letterCasePermutation));
 
-    SPDLOG_WARN("Running shortestSuperstring tests:");
-    TIMER_START(shortestSuperstring);
-    shortestSuperstring_scaffold("[alex, loves, leetcode]", "alexlovesleetcode");
-    shortestSuperstring_scaffold("[catg, ctaagt, gcta, ttca, atgcatc]", "gctaagttcatgcatc");
-    TIMER_STOP(shortestSuperstring);
-    SPDLOG_WARN("shortestSuperstring using {} ms", TIMER_MSEC(shortestSuperstring));
-
     SPDLOG_WARN("Running numSquarefulPerms tests:");
     TIMER_START(numSquarefulPerms);
     numSquarefulPerms_scaffold("[1,8,8,1]", 3);
@@ -350,11 +330,12 @@ int main() {
     numSquarefulPerms_scaffold("[1,8,17]", 2);
     TIMER_STOP(numSquarefulPerms);
     SPDLOG_WARN("numSquarefulPerms using {} ms", TIMER_MSEC(numSquarefulPerms));
+
+    SPDLOG_WARN("Running shortestSuperstring tests:");
+    TIMER_START(shortestSuperstring);
+    shortestSuperstring_scaffold("[alex, loves, leetcode]", "alexlovesleetcode");
+    shortestSuperstring_scaffold("[catg, ctaagt, gcta, ttca, atgcatc]", "gctaagttcatgcatc");
+    shortestSuperstring_scaffold("[cat, dog, ogd, catsdog]", "catsdogd");
+    TIMER_STOP(shortestSuperstring);
+    SPDLOG_WARN("shortestSuperstring using {} ms", TIMER_MSEC(shortestSuperstring));
 }
-
-
-/*
-1,8,1,8
-1,8,8,1
-8,1,8,1
-*/

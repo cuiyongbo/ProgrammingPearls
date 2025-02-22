@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 21, 23, 147, 148 */
 
@@ -45,13 +44,13 @@ ListNode* Solution::mergeKLists(std::vector<ListNode*>& lists) {
     };
     std::priority_queue<ListNode*, std::vector<ListNode*>, decltype(cmp)> pq(cmp);
     for (auto t: lists) {
-        if (t!=nullptr) {
+        if (t != nullptr) {
             pq.push(t);
         }
     }
     while (!pq.empty()) {
         auto t = pq.top(); pq.pop();
-        p->next = t; p = p->next;
+        p->next = t; p = p->next; // push_back
         if (t->next != nullptr) {
             pq.push(t->next);
         }
@@ -66,17 +65,19 @@ ListNode* Solution::insertionSortList(ListNode* head) {
 */
     ListNode dummy;
     while (head != nullptr) {
-        ListNode* p = &dummy;
-        ListNode* q = p->next;
-        while (q != nullptr && q->val <= head->val) {
-            p = q;
+        ListNode* tmp = head->next;
+        ListNode* q = dummy.next;
+        ListNode* p = &dummy; // previous node of q
+        while (q != nullptr) {
+            // head should be inserted before q
+            if (head->val < q->val) {
+                break;
+            }
+            p = q; // update p as the previous node of q->next
             q = q->next;
         }
-        ListNode* tmp = head->next;
-        head->next = nullptr; // cut head out from original list
-        p->next = head; // insert head between p and q
-        head->next = q;
-        head = tmp; // update head
+        p->next = head; head->next = q;
+        head = tmp;
     }
     return dummy.next;
 }
@@ -101,20 +102,18 @@ ListNode* Solution::sortList(ListNode* head) {
     if (head == nullptr || head->next == nullptr) { // trivial case
         return head;
     }
-    // List contains two nodes at least
     ListNode* fast = head;
     ListNode* slow = head;
     ListNode* p = slow;
     while (fast != nullptr) {
         fast = fast->next;
-        if (fast == nullptr) {
-            break;
+        if (fast != nullptr) {
+            fast = fast->next;
         }
-        fast = fast->next;
         p = slow;
         slow = slow->next;
     }
-    p->next = nullptr; // divide List into two pieces
+    p->next = nullptr; // IMPORTANT: split original list into two pieces
     ListNode* l = sortList(head);
     ListNode* r = sortList(slow);
     return mergeTwoLists(l, r);
@@ -124,108 +123,130 @@ ListNode* Solution::sortList(ListNode* head) {
 void mergeTwoLists_scaffold(std::string input1, std::string input2, std::string expectedResult) {
     ListNode* l1 = stringToListNode(input1);
     ListNode* l2 = stringToListNode(input2);
-
     Solution ss;
     ListNode* ans = ss.mergeTwoLists(l1, l2);
     ListNode* expected = stringToListNode(expectedResult);
     if (list_equal(ans, expected)) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, {}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << expectedResult << ") failed";
+        SPDLOG_ERROR("Case({}, {}, {}) failed", input1, input2, expectedResult);
     }
 }
 
-void mergeKLists_scaffold(std::vector<string>& input, std::string expectedResult) {
-    std::vector<ListNode*> lists;
-    lists.reserve(input.size());
-    for (auto& s: input) {
-        lists.push_back(stringToListNode(s));
-    }
 
+void mergeKLists_scaffold(std::string input, std::string expectedResult) {
+    vector<vector<int>> arrs = stringTo2DArray<int>(input);
+    std::vector<ListNode*> lists;
+    lists.reserve(arrs.size());
+    for (auto& s: arrs) {
+        lists.push_back(vectorToListNode(s));
+    }
     Solution ss;
     ListNode* ans = ss.mergeKLists(lists);
     ListNode* expected = stringToListNode(expectedResult);
     if (list_equal(ans, expected)) {
-        util::Log(logINFO) << "Case(" << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << expectedResult << ") failed";
+        SPDLOG_ERROR("Case({}, {}) failed", input, expectedResult);
     }
 }
 
-void insertionSortList_scaffold(std::string input1, std::string expectedResult) {
-    ListNode* l1 = stringToListNode(input1);
+
+void insertionSortList_scaffold(std::string input, std::string expectedResult) {
+    ListNode* l1 = stringToListNode(input);
     ListNode* l3 = stringToListNode(expectedResult);
     Solution ss;
     ListNode* ans = ss.insertionSortList(l1);
     if (list_equal(ans, l3)) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << expectedResult << ") failed";
+        SPDLOG_ERROR("Case({}, {}) failed", input, expectedResult);
     }
 }
 
-void sortList_scaffold(std::string input1, std::string expectedResult) {
-    ListNode* l1 = stringToListNode(input1);
+
+void sortList_scaffold(std::string input, std::string expectedResult) {
+    ListNode* l1 = stringToListNode(input);
     ListNode* l3 = stringToListNode(expectedResult);
     Solution ss;
     ListNode* ans = ss.sortList(l1);
     if (list_equal(ans, l3)) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << expectedResult << ") failed";
+        SPDLOG_ERROR("Case({}, {}) failed", input, expectedResult);
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running mergeTwoLists tests:";
+void verbose_sortList_tests(int array_size) {
+    //std::random_device rd;
+    //std::mt19937 g(rd());
+    std::mt19937 g(12345); // for reproducibility
+    vector<int> vi;
+    generateTestArray(vi, array_size, false, false);
+    for (int i=0; i<1000; i++) {
+        int n = rand() % array_size;
+        std::shuffle(vi.begin(), vi.begin()+n, g);
+        Solution ss;
+        ListNode* l1 = vectorToListNode(vi);
+        ListNode* ans = ss.sortList(l1);
+        std::sort(vi.begin(), vi.end(), std::less<int>());
+        ListNode* l2 = vectorToListNode(vi);
+        if (list_equal(ans, l2)) {
+            //SPDLOG_INFO("Case(array_size={}, shuffle={}) passed", array_size, n);
+        } else {
+            SPDLOG_ERROR("Case(array_size={}, shuffle={}) failed", array_size, n);
+        }
+    }
+}
+
+
+int main(int argc, char* argv[]) {
+    SPDLOG_WARN("Running mergeTwoLists tests:");
     TIMER_START(mergeTwoLists);
     mergeTwoLists_scaffold("[]", "[]", "[]");
     mergeTwoLists_scaffold("[1]", "[2,3]", "[1,2,3]");
     mergeTwoLists_scaffold("[1,2,3,4,5]", "[]", "[1,2,3,4,5]");
     mergeTwoLists_scaffold("[1,2,3,4,5,6,7,8,9,10]", "[5,6]", "[1,2,3,4,5,5,6,6,7,8,9,10]");
     TIMER_STOP(mergeTwoLists);
-    util::Log(logESSENTIAL) << "mergeTwoLists: " << TIMER_MSEC(mergeTwoLists) << " milliseconds.";
+    SPDLOG_WARN("mergeTwoLists using {} ms", TIMER_MSEC(mergeTwoLists));
 
-    util::Log(logESSENTIAL) << "Running mergeKLists tests:";
+    SPDLOG_WARN("Running mergeKLists tests:");
     TIMER_START(mergeKLists);
-
-    std::vector<string> input;
-    mergeKLists_scaffold(input, "[]");
-
-    input.clear();
-    input.push_back("[1]");
-    input.push_back("[2,3]");
-    mergeKLists_scaffold(input, "[1,2,3]");
-
-    input.clear();
-    input.push_back("[1]");
-    input.push_back("[2,3]");
-    input.push_back("[]");
-    input.push_back("[1,2,3,4,5]");
-    mergeKLists_scaffold(input, "[1,1,2,2,3,3,4,5]");
-
+    mergeKLists_scaffold("[]", "[]");
+    mergeKLists_scaffold("[[1],[2,3]]", "[1,2,3]");
+    mergeKLists_scaffold("[[1],[2,3],[],[1,2,3,4,5]]", "[1,1,2,2,3,3,4,5]");
     TIMER_STOP(mergeKLists);
-    util::Log(logESSENTIAL) << "mergeKLists: " << TIMER_MSEC(mergeKLists) << " milliseconds.";
+    SPDLOG_WARN("mergeKLists using {} ms", TIMER_MSEC(mergeKLists));
 
+    SPDLOG_WARN("Running insertionSortList tests:");
     TIMER_START(insertionSortList);
-    util::Log(logESSENTIAL) << "Running insertionSortList tests:";
     insertionSortList_scaffold("[3,1,2]", "[1,2,3]");
     insertionSortList_scaffold("[1,2,-3,4,0,5]", "[-3,0,1,2,4,5]");
     insertionSortList_scaffold("[10,9,8,7,6,5,4,3,2,1]", "[1,2,3,4,5,6,7,8,9,10]");
     insertionSortList_scaffold("[2,2]", "[2,2]");
     insertionSortList_scaffold("[1,2,3,4]", "[1,2,3,4]");
     TIMER_STOP(insertionSortList);
-    util::Log(logESSENTIAL) << "insertionSortList: " << TIMER_MSEC(insertionSortList) << " milliseconds.";
+    SPDLOG_WARN("insertionSortList using {} ms", TIMER_MSEC(insertionSortList));
 
+    int array_size = 1000;
+    if (argc > 1) {
+        array_size = std::atoi(argv[1]);
+        if (array_size <= 0) {
+            SPDLOG_WARN("Usage: {} [arrary_size]", argv[0]);
+            SPDLOG_WARN("\tarrary_size must be positive, default to 100 if unspecified");
+            return -1;
+        }
+    }
+
+    SPDLOG_WARN("Running mergeSortList tests:");
     TIMER_START(mergeSortList);
-    util::Log(logESSENTIAL) << "Running mergeSortList tests:";
     sortList_scaffold("[3,1,2]", "[1,2,3]");
     sortList_scaffold("[1,2,-3,4,0,5]", "[-3,0,1,2,4,5]");
     sortList_scaffold("[10,9,8,7,6,5,4,3,2,1]", "[1,2,3,4,5,6,7,8,9,10]");
     sortList_scaffold("[2,2]", "[2,2]");
     sortList_scaffold("[1,2,3,4]", "[1,2,3,4]");
+    verbose_sortList_tests(array_size);
     TIMER_STOP(mergeSortList);
-    util::Log(logESSENTIAL) << "mergeSortList: " << TIMER_MSEC(mergeSortList) << " milliseconds.";
+    SPDLOG_WARN("mergeSortList using {} ms", TIMER_MSEC(mergeSortList));
 }

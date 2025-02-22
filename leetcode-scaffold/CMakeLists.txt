@@ -339,11 +339,11 @@ target_link_libraries(list_traversal PRIVATE spdlog::spdlog_header_only)
 
 add_executable(list_cycle list_cycle.cpp ${PUB_UTIL_FILES})
 target_compile_features(list_cycle PUBLIC cxx_auto_type)
-target_link_libraries(list_cycle)
+target_link_libraries(list_cycle PRIVATE spdlog::spdlog_header_only)
 
 add_executable(list_sort list_sort.cpp ${PUB_UTIL_FILES})
 target_compile_features(list_sort PUBLIC cxx_auto_type)
-target_link_libraries(list_sort)
+target_link_libraries(list_sort PRIVATE spdlog::spdlog_header_only)
 
 add_executable(singly_linked_list_tester singly_linked_list_tester.cpp ${PUB_UTIL_FILES})
 target_compile_features(singly_linked_list_tester PUBLIC cxx_auto_type)

@@ -168,6 +168,9 @@ std::vector<std::vector<T>> stringTo2DArray(std::string input) {
     typedef T value_type;
     std::vector<std::vector<value_type>> output;
     trimTrailingSpaces(input);
+    if (input.size() <= 2) {
+        return output;
+    }
     input = input.substr(1, input.length() - 2);
     size_t pos = 0;
 	while (pos < input.size()) {
