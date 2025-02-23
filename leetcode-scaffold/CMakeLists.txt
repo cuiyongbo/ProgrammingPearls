@@ -140,19 +140,19 @@ target_link_libraries(backtrace_permutation spdlog::spdlog_header_only)
 
 add_executable(backtrace_generate_parenthesis backtrace_generate_parenthesis.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_generate_parenthesis PUBLIC cxx_auto_type)
-target_link_libraries(backtrace_generate_parenthesis)
+target_link_libraries(backtrace_generate_parenthesis spdlog::spdlog_header_only)
 
 add_executable(backtrace_sudoku_solver backtrace_sudoku_solver.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_sudoku_solver PUBLIC cxx_auto_type)
-target_link_libraries(backtrace_sudoku_solver)
+target_link_libraries(backtrace_sudoku_solver spdlog::spdlog_header_only)
 
 add_executable(backtrace_word_search backtrace_word_search.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_word_search PUBLIC cxx_auto_type)
-target_link_libraries(backtrace_word_search)
+target_link_libraries(backtrace_word_search spdlog::spdlog_header_only)
 
 add_executable(backtrace_word_ladder backtrace_word_ladder.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_word_ladder PUBLIC cxx_auto_type)
-target_link_libraries(backtrace_word_ladder)
+target_link_libraries(backtrace_word_ladder spdlog::spdlog_header_only)
 
 add_executable(backtrace_01_matrix backtrace_01_matrix.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_01_matrix PUBLIC cxx_auto_type)
@@ -160,7 +160,7 @@ target_link_libraries(backtrace_01_matrix spdlog::spdlog_header_only)
 
 add_executable(backtrace_partition_array backtrace_partition_array.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_partition_array PUBLIC cxx_auto_type)
-target_link_libraries(backtrace_partition_array)
+target_link_libraries(backtrace_partition_array spdlog::spdlog_header_only)
 
 # ADVANCE TOPICS
 
@@ -194,11 +194,11 @@ target_link_libraries(advanced_topics_range_sum_query)
 
 add_executable(lru_cache lru_cache.cpp ${PUB_UTIL_FILES})
 target_compile_features(lru_cache PUBLIC cxx_std_20)
-target_link_libraries(lru_cache)
+target_link_libraries(lru_cache PRIVATE spdlog::spdlog_header_only)
 
 add_executable(lfu_cache lfu_cache.cpp ${PUB_UTIL_FILES})
 target_compile_features(lfu_cache PUBLIC cxx_auto_type)
-target_link_libraries(lfu_cache)
+target_link_libraries(lfu_cache PRIVATE spdlog::spdlog_header_only)
 
 # TWO POINTERS
 

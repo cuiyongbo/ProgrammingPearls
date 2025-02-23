@@ -44,50 +44,61 @@ private:
         -----------------------
 */
 void Solution::solveSudoku(vector<vector<char>>& board) {
-    int rows = board.size();
-    int columns = board[0].size();
-    auto is_valid = [&] (int r, int c, char t) {
-        for (int i=0; i<columns; ++i) { // row
-            if (i!=c && board[r][i] == t) {
-                return false;
-            }
-        }
-        for (int i=0; i<rows; ++i) { // column
-            if (i!=r && board[i][c] == t) {
-                return false;
-            }
-        }
-        for (int i=r/3*3; i<r/3*3+3; ++i) { // subgrid
-            for (int j=c/3*3; j<c/3*3+3; ++j) {
-                if (i!=r && j!=c && board[i][j] == t) {
+    auto is_valid = [&](int r, int c) {
+        // row
+        for (int i=0; i<9; i++) {
+            if (i != c) {
+                if (board[r][i] == board[r][c]) {
                     return false;
+                }
+            }
+        }
+        // column
+        for (int i=0; i<9; i++) {
+            if (i != r) {
+                if (board[i][c] == board[r][c]) {
+                    return false;
+                }
+            }
+        }
+        //subgrid
+        int sr = r/3*3;
+        int sc = c/3*3;
+        for (int i=sr; i<sr+3; i++) {
+            for (int j=sc; j<sc+3; j++) {
+                if (i!=r || j!=c) {
+                    if (board[i][j] == board[r][c]) {
+                        return false;
+                    }
                 }
             }
         }
         return true;
     };
-    function<bool(int, int)> backtrace = [&] (int row, int column) {
-        if (row == rows) {
+
+    function<bool(int, int)> backtrace = [&] (int r, int c) {
+        if (r == 9) {
             return true;
         }
-        if (column == columns) {
-            return backtrace(row+1, 0);
+        if (c == 9) {
+            return backtrace(r+1, 0);
         }
-        if (board[row][column] != '.') {
-            return backtrace(row, column+1);
+        if (board[r][c] != '.') {
+            return backtrace(r, c+1);
         }
-        for (int i=1; i<10; ++i) {
-            if (is_valid(row, column, '0'+i)) {
-                board[row][column] = '0' + i;
-                if (backtrace(row, column+1)) {
+        for (int i=1; i<10; i++) {
+            board[r][c] = i+'0';
+            if (is_valid(r, c)) {
+                if (backtrace(r, c+1)) {
                     return true;
                 }
-                board[row][column] = '.';
             }
+            board[r][c] = '.';
         }
         return false;
     };
     backtrace(0, 0);
+    return;
 }
 
 
@@ -102,6 +113,7 @@ bool Solution::isValidQueen(vector<string>& board, int r, int c) {
         }
     }
     // check uniqueness alone each diagonal
+    // we take (r, c) as one end of each of the four diagonals: upper left, down right, down left, uppper right
     int i=r, j=c;
     while (i>=0 && j>=0) { // upper left
         if (board[i][j] == 'Q') {
@@ -143,16 +155,17 @@ bool Solution::isValidQueen(vector<string>& board, int r, int c) {
 vector<vector<string>> Solution::solveNQueens(int n) {
     vector<vector<string>> ans;
     vector<string> board(n, string(n, '.'));
-    function<void(int)> backtrace = [&](int r) {
+    function<void(int r)> backtrace = [&](int r) {
         if (r == n) {
             ans.push_back(board);
             return;
         }
-        for (int i=0; i<n; i++) {
-            if (isValidQueen(board, r, i)) {
-                board[r][i] = 'Q';
+        for (int c=0; c<n; c++) {
+            // prune invalid branches
+            if (isValidQueen(board, r, c)) {
+                board[r][c] = 'Q';
                 backtrace(r+1);
-                board[r][i] = '.';
+                board[r][c] = '.';
             }
         }
     };
@@ -191,12 +204,11 @@ void solveSudoku_scaffold(string input, string expectedResult) {
     vector<vector<char>> expected = stringTo2DArray<char>(expectedResult);
     ss.solveSudoku(board);
     if (board == expected) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual: ";
-        for(const auto& s: board) {
-            util::Log(logERROR) << numberVectorToString(s);
+        SPDLOG_ERROR("Case({}, {}) failed, actual:", input, expectedResult);
+        for (const auto& s: board) {
+            SPDLOG_ERROR(numberVectorToString(s));
         }
     }
 }
@@ -206,20 +218,15 @@ void solveNQueens_scaffold(int input, string expectedResult) {
     Solution ss;
     vector<vector<string>> expected = stringTo2DArray<string>(expectedResult);
     vector<vector<string>> board = ss.solveNQueens(input);
-    if(board.size() == expected.size()) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+    if (board.size() == expected.size()) {
+        SPDLOG_INFO("Case({}, {}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Expected Result size: " << expected.size();
-        util::Log(logERROR) << "Actual: " << board.size();
-
+        SPDLOG_ERROR("Case({}, {}) failed, expected Result size: {}, actual: {}", input, expectedResult, expected.size(), board.size());
         int id = 0;
-        for(const auto& s: board) 
-        {
-            util::Log(logESSENTIAL) << "Solution " << ++id;
-            for(const auto& r: s)
-            {
-                util::Log(logERROR) << r;
+        for (const auto& s: board) {
+            std::cout << "Solution " << ++id << endl;
+            for (const auto& r: s) {
+                std::cout << r << endl;
             }
         }
     }
@@ -230,20 +237,16 @@ void totalNQueens_scaffold(int input, int expectedResult) {
     Solution ss;
     int actual = ss.totalNQueens(input);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}) failed, actual: {}", input, expectedResult, actual);
     }
 }
 
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
-    util::Log(logESSENTIAL) << "Running solveSudoku tests: ";
+    SPDLOG_WARN("Running solveSudoku tests:");
     TIMER_START(solveSudoku);
-
     string board = R"([
         [5,3,.,.,7,.,.,.,.],
         [6,.,.,1,9,5,.,.,.],
@@ -254,7 +257,6 @@ int main() {
         [.,6,.,.,.,.,2,8,.],
         [.,.,.,4,1,9,.,.,5],
         [.,.,.,.,8,.,.,7,9]])";
-
     string expectedResult = R"([
         [5,3,4,6,7,8,9,1,2],
         [6,7,2,1,9,5,3,4,8],
@@ -265,14 +267,12 @@ int main() {
         [9,6,1,5,3,7,2,8,4],
         [2,8,7,4,1,9,6,3,5],
         [3,4,5,2,8,6,1,7,9]])";
-
     solveSudoku_scaffold(board, expectedResult);
     TIMER_STOP(solveSudoku);
-    util::Log(logESSENTIAL) << "solveSudoku using " << TIMER_MSEC(solveSudoku) << " milliseconds"; 
+    SPDLOG_WARN("solveSudoku using {} ms", TIMER_MSEC(solveSudoku));
 
-    util::Log(logESSENTIAL) << "Running solveNQueens tests: ";
+    SPDLOG_WARN("Running solveNQueens tests:");
     TIMER_START(solveNQueens);
-
     expectedResult = R"([
         [.Q..,  
         ...Q,
@@ -283,20 +283,19 @@ int main() {
          ...Q,
          .Q..]
     ])";
-
     solveNQueens_scaffold(4, expectedResult);
     solveNQueens_scaffold(1, "[[Q]]");
     solveNQueens_scaffold(2, "[]");
     solveNQueens_scaffold(3, "[]");
     TIMER_STOP(solveNQueens);
-    util::Log(logESSENTIAL) << "solveNQueens using " << TIMER_MSEC(solveNQueens) << " milliseconds"; 
+    SPDLOG_WARN("solveNQueens using {} ms", TIMER_MSEC(solveNQueens));
 
-    util::Log(logESSENTIAL) << "Running totalNQueens tests: ";
+    SPDLOG_WARN("Running totalNQueens tests:");
     TIMER_START(totalNQueens);
     totalNQueens_scaffold(4, 2);
     totalNQueens_scaffold(1, 1);
     totalNQueens_scaffold(2, 0);
     totalNQueens_scaffold(3, 0);
     TIMER_STOP(totalNQueens);
-    util::Log(logESSENTIAL) << "totalNQueens using " << TIMER_MSEC(totalNQueens) << " milliseconds"; 
+    SPDLOG_WARN("totalNQueens using {} ms", TIMER_MSEC(totalNQueens));
 }

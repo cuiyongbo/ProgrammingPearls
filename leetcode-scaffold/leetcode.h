@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <iterator>
+#include <list>
 #include <vector>
 #include <queue>
 #include <stack>
@@ -21,6 +22,7 @@
 #include <typeinfo>
 #include <memory>
 #include <thread>
+#include <mutex>
 
 #include "util/log.h"
 #include "util/timing_util.h"

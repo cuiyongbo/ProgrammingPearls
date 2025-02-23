@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <list>
 #include <cassert>
+#include <mutex>
 #include <shared_mutex>
 
 using namespace std;
@@ -47,6 +48,7 @@ Explanation
 
 namespace std_implementation {
 
+/*
 class LRUCache {
 public:
     LRUCache(int cap) {
@@ -86,7 +88,64 @@ private:
     unordered_map<int, list<pair<int, int>>::iterator> m_node_map;
     list<pair<int, int>> m_nodes;
     int m_capacity;
+};*/
+
+
+class LRUCache
+{
+private:
+    std::mutex m_mutex;
+    int m_cap;
+    std::list<pair<int, int>> m_nodes;
+    std::map<int, list<pair<int, int>>::iterator> m_node_map;
+    /* data */
+public:
+    LRUCache(int cap) {m_cap = cap;}
+    ~LRUCache() {}
+    int get(int key);
+    void put(int key, int value);
+    void put_without_lock(int key, int value);
+    void display();
 };
+
+void LRUCache::put(int key, int value) {
+    std::unique_lock<std::mutex> guard(m_mutex);
+    put_without_lock(key, value);
+}
+
+void LRUCache::put_without_lock(int key, int value) {
+    if (m_node_map.count(key)) { // key already exists
+        m_nodes.erase(m_node_map[key]);
+        m_node_map.erase(key);
+    } else { // key doesn't exist
+        if (m_nodes.size() == m_cap) {
+            auto b = m_nodes.back();
+            m_node_map.erase(b.first);
+            m_nodes.pop_back();
+        }
+    }
+    m_nodes.push_front(std::make_pair(key, value));
+    m_node_map[key] = m_nodes.begin();
+}
+
+int LRUCache::get(int key) {
+    std::unique_lock<std::mutex> guard(m_mutex);
+    auto it = m_node_map.find(key);
+    if (it == m_node_map.end()) {
+        return -1;
+    }
+    m_nodes.splice(m_nodes.begin(), m_nodes, it->second); // move key to the front of m_nodes
+    return it->second->second;
+}
+
+void LRUCache::display() {
+    std::unique_lock<std::mutex> guard(m_mutex);
+    for (auto it: m_nodes) {
+        printf("(%d,%d)", it.first, it.second);
+    }
+    printf("\n");
+}
+
 }
 
 namespace thread_safe_implementation {
@@ -97,12 +156,12 @@ public:
     }
 
     int get(int key) {
-        std::shared_lock lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         auto it = m_node_map.find(key);
         if (it == m_node_map.end()) {
             return -1;
         } else {
-            m_nodes.splice(m_nodes.begin(), m_nodes, it->second);
+            m_nodes.splice(m_nodes.begin(), m_nodes, it->second); // move key to the front of m_nodes
             return it->second->second;
         }
     }
@@ -144,8 +203,8 @@ private:
 }
 
 int main() {
-    //using std_implementation::LRUCache;
-    using thread_safe_implementation::LRUCache;
+    using std_implementation::LRUCache;
+    //using thread_safe_implementation::LRUCache;
     LRUCache lru(3);
     int p = lru.get(1);
     assert(p == -1);
@@ -153,12 +212,16 @@ int main() {
     lru.put(2, 20);
     p = lru.get(1);
     assert(p == 10);
-    lru.display();
+    lru.display(); // (1,10)(2,20)
     lru.put(3, 30);
-    lru.put(4, 40);
-    lru.display();
-    lru.put(2, 22);
-    lru.display();
+    lru.put(4, 40); // (2,20) would be evicted
+    lru.display();  // (4,40)(3,30)(1,10)
+    lru.put(2, 22); // (1,10) would be evicted
+    lru.display();  // (2,22)(4,40)(3,30)
     p = lru.get(2);
     assert(p == 22);
+    lru.display();  // (2,22)(4,40)(3,30)
+    p = lru.get(2);
+    assert(p == 22);
+    lru.display();  // (2,22)(4,40)(3,30)
 }
