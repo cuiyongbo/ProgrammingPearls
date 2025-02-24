@@ -16,6 +16,7 @@ public:
     std::vector<std::vector<int>> verticalTraversal(TreeNode* root);
 };
 
+// traversal order: left -> root -> right
 std::vector<int> Solution::inOrderTraversal_recursion(TreeNode* root) {
     std::vector<int> ans;
     std::function<void(TreeNode*)> dfs = [&] (TreeNode* root) {
@@ -29,6 +30,7 @@ std::vector<int> Solution::inOrderTraversal_recursion(TreeNode* root) {
     return ans;
 }
 
+// traversal order: root -> left -> right
 std::vector<int> Solution::preOrderTraversal_recursion(TreeNode* root) {
     std::vector<int> ans;
     std::function<void(TreeNode*)> dfs = [&] (TreeNode* root) {
@@ -42,6 +44,7 @@ std::vector<int> Solution::preOrderTraversal_recursion(TreeNode* root) {
     return ans;
 }
 
+// traversal order: left -> right -> root
 std::vector<int> Solution::postOrderTraversal_recursion(TreeNode* root) {
     std::vector<int> ans;
     std::function<void(TreeNode*)> dfs = [&] (TreeNode* root) {
@@ -55,6 +58,7 @@ std::vector<int> Solution::postOrderTraversal_recursion(TreeNode* root) {
     return ans;
 }
 
+// traversal order: left -> root -> right
 std::vector<int> Solution::inOrderTraversal_iteration(TreeNode* root) {
     std::vector<int> ans;
     std::stack<TreeNode*> st;
@@ -65,42 +69,55 @@ std::vector<int> Solution::inOrderTraversal_iteration(TreeNode* root) {
             p = p->left; // left
         }
         auto t = st.top(); st.pop();
+        // t->left == nullptr
         ans.push_back(t->val); // root
         p = t->right; // right
     }
     return ans;
 }
 
+// traversal order: root -> left -> right
 std::vector<int> Solution::preOrderTraversal_iteration(TreeNode* root) {
     std::vector<int> ans;
     std::stack<TreeNode*> st;
-    st.push(root);
+    if (root != nullptr) {
+        st.push(root);
+    }
     while (!st.empty()) {
         auto t = st.top(); st.pop();
-        if (t == nullptr) {
-            continue;
+        ans.push_back(t->val); // root
+        // stack: last in first out
+        // we need push right child first
+        if (t->right != nullptr) {
+            st.push(t->right);
         }
-        ans.push_back(t->val);
-        st.push(t->right);
-        st.push(t->left);
+        if (t->left != nullptr) {
+            st.push(t->left);
+        }
     }
-    return ans;
+    return ans;    
 }
 
 // Literally, left->right->root is the inversion of root->right->left
 std::vector<int> Solution::postOrderTraversal_iteration(TreeNode* root) {
     std::vector<int> ans;
     std::stack<TreeNode*> st;
-    st.push(root);
+    if (root != nullptr) {
+        st.push(root);
+    }
     while (!st.empty()) {
         auto t = st.top(); st.pop();
-        if (t == nullptr) {
-            continue;
+        ans.push_back(t->val); // root
+        // stack: last in first out
+        // we need push left child first
+        if (t->left != nullptr) {
+            st.push(t->left);
         }
-        ans.push_back(t->val);
-        st.push(t->left);
-        st.push(t->right);
+        if (t->right != nullptr) {
+            st.push(t->right);
+        }
     }
+    // reverse [root->right->left] order to get [left->right->root] order
     std::reverse(ans.begin(), ans.end());
     return ans;
 }
@@ -140,34 +157,57 @@ Example 1:
     Output: [[4],[2],[1,5,6],[3],[7]]
 */
 
-{ // for normal binary tree
-    typedef std::pair<int, int> Coordinate; //(x, y)
-    std::map<Coordinate, std::vector<int>> mp; // coordinate: elements
-    std::function<void(TreeNode*, Coordinate)> dfs = [&] (TreeNode* node, Coordinate coor) {
+{
+    struct element_t {
+        int row;
+        int column;
+        int val;
+        element_t(int r, int c, int v) {
+            row = r;
+            column = c;
+            val = v;
+        }
+        // it has to be decorated with `const`
+        bool operator<(const element_t& b) const {
+            if (this->column < b.column) {
+                return true;
+            } else if (this->column == b.column) {
+                return this->val < b.val;
+            } else {
+                return false;
+            }
+        }
+    };
+    vector<element_t> buffer;
+    function<void(TreeNode*, int, int)> dfs = [&](TreeNode* node, int r, int c) {
         if (node == nullptr) {
             return;
         }
-        mp[coor].push_back(node->val);
-        dfs(node->left, {coor.first-1, coor.second+1});
-        dfs(node->right, {coor.first+1, coor.second+1});
+        dfs(node->left, r+1, c-1);
+        buffer.emplace_back(r, c, node->val);
+        dfs(node->right, r+1, c+1);
     };
-    dfs(root, {0, 0});
-    int last_x = mp.begin()->first.first;
-    std::vector<std::vector<int>> ans;
-    std::vector<int> buffer;
-    for (auto& it: mp) {
-        std::sort(it.second.begin(), it.second.end());
-        if (it.first.first != last_x) {
-            last_x = it.first.first;
-            ans.push_back(buffer);
-            buffer.clear();
+    dfs(root, 0, 0);
+    //SPDLOG_WARN("buffer.size={}", buffer.size());
+    std::sort(buffer.begin(), buffer.end());
+    vector<vector<int>> ans;
+    int cur = INT32_MIN;
+    vector<int> tmp;
+    for (auto n: buffer) {
+        if (n.column != cur) {
+            cur = n.column;
+            if (!tmp.empty()) {
+                ans.push_back(tmp);
+                tmp.clear();
+            }
         }
-        buffer.insert(buffer.end(), it.second.begin(), it.second.end());
+        tmp.push_back(n.val);
     }
-    ans.push_back(buffer);
+    if (!tmp.empty()) {
+        ans.push_back(tmp);
+    }
     return ans;
 }
-
 
 { // if root is a binary search tree    
     typedef std::pair<int, int> Coordinate;
@@ -232,31 +272,32 @@ void treeTraversal_scaffold(int test_array_scale, BinaryTreeTraversalType type) 
         for (int j=0; j<n; ++j) {
             vi.push_back(rand());
         }
-
         TreeNode* root = vectorToTreeNode(vi);
         auto ans1 = std::invoke(couples[type].first, ss, root); // have to use c++17
         auto ans2 = std::invoke(couples[type].second, ss, root);
         if(ans1 != ans2) {
-            util::Log(logERROR) << "Case(test_array_scale<" << test_array_scale 
-                << ">, array_size<" << n << ">, "  << BinaryTreeTraversalType_toString(type) << ") failed";
+            SPDLOG_ERROR("Case(test_array_scale={}, array_size={}, type={}) failed.", test_array_scale, n, BinaryTreeTraversalType_toString(type));
+            return;
         }
     }
+    SPDLOG_INFO("Case(test_array_scale={}, type={}) passed.", test_array_scale, BinaryTreeTraversalType_toString(type));
 }
+
 
 void leafSimilar_scaffold(std::string input1, std::string input2, bool expectedResult) {
     TreeNode* t1 = stringToTreeNode(input1);
     TreeNode* t2 = stringToTreeNode(input2);
     std::unique_ptr<TreeNode> guard1(t1);
     std::unique_ptr<TreeNode> guard2(t2);
-
     Solution ss;
     bool actual = ss.leafSimilar(t1, t2);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << expectedResult << ") passed.";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed.", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << expectedResult << ") failed.";
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed.", input1, input2, expectedResult);
     }
 }
+
 
 void verticalTraversal_scaffold(std::string input1, std::string input2) {
     TreeNode* t1 = stringToTreeNode(input1);
@@ -271,19 +312,22 @@ void verticalTraversal_scaffold(std::string input1, std::string input2) {
         std::sort(p.begin(), p.end());
     }
     if (expected == actual) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ") passed.";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed.", input1, input2);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ") failed. Actual: ";
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed.", input1, input2);
+        std::cout << "Actual: ";
         for (auto& t: actual) {
-            util::Log(logERROR) << numberVectorToString(t);
+            std::cout << numberVectorToString(t);
         }
+        std::cout << std::endl;
     }
 }
+
 
 int main(int argc, char* argv[]) {
     util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running leafSimilar tests:";
+    SPDLOG_WARN("Running leafSimilar tests:");
     TIMER_START(leafSimilar);
     leafSimilar_scaffold("[1]", "[1]", true);
     leafSimilar_scaffold("[1]", "[2]", false);
@@ -292,16 +336,17 @@ int main(int argc, char* argv[]) {
     leafSimilar_scaffold("[3,5,1,6,2,9,8,null,null,7,4]", "[3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]", true);
     leafSimilar_scaffold("[3,5,1,6,2,9,8,null,null,4,7]", "[3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]", false);
     TIMER_STOP(leafSimilar);
-    util::Log(logESSENTIAL) << "Running leafSimilar tests uses " << TIMER_MSEC(leafSimilar) << "ms.";
+    SPDLOG_WARN("leafSimilar tests using {} ms", TIMER_MSEC(leafSimilar)); 
 
-    util::Log(logESSENTIAL) << "Running verticalTraversal tests:";
+    SPDLOG_WARN("Running verticalTraversal tests:");
     TIMER_START(verticalTraversal);
     verticalTraversal_scaffold("[3,9,20,null,null,15,7]", "[[9],[3,15],[20],[7]]");
     verticalTraversal_scaffold("[1,2,3,4,5,6,7]", "[[4],[2],[1,5,6],[3],[7]]");
+    verticalTraversal_scaffold("[1,2,3,4,5,6,7,8,9]", "[[8][4][2,9][1,5,6][3][7]]");
     TIMER_STOP(verticalTraversal);
-    util::Log(logESSENTIAL) << "verticalTraversal tests using " << TIMER_MSEC(verticalTraversal) << "ms.";
+    SPDLOG_WARN("verticalTraversal tests using {} ms", TIMER_MSEC(verticalTraversal)); 
 
-    int test_array_scale = 100;
+    int test_array_scale = 1000;
     if (argc > 1) {
         test_array_scale = std::atoi(argv[1]);
         if (test_array_scale <= 0) {
@@ -310,13 +355,12 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    util::Log(logESSENTIAL) << "Running traversal tests:";
+    SPDLOG_WARN("Running traversal tests:");
     TIMER_START(treeTraversal_test);
     treeTraversal_scaffold(test_array_scale, BinaryTreeTraversalType_preorder);
     treeTraversal_scaffold(test_array_scale, BinaryTreeTraversalType_inorder);
     treeTraversal_scaffold(test_array_scale, BinaryTreeTraversalType_postorder);
     TIMER_STOP(treeTraversal_test);
-    util::Log(logESSENTIAL) << "traversal tests using " << TIMER_MSEC(treeTraversal_test) << " milliseconds";
-    
+    SPDLOG_WARN("traversal tests using {} ms", TIMER_MSEC(treeTraversal_test)); 
     return 0;
 }

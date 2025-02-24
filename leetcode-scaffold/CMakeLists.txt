@@ -297,39 +297,39 @@ target_link_libraries(dp_misc_exercises)
 add_executable(binary_tree_dfs_traversal binary_tree_dfs_traversal.cpp ${PUB_UTIL_FILES})
 #target_compile_features(binary_tree_dfs_traversal PUBLIC cxx_auto_type)
 target_compile_features(binary_tree_dfs_traversal PUBLIC cxx_std_17)
-target_link_libraries(binary_tree_dfs_traversal)
+target_link_libraries(binary_tree_dfs_traversal spdlog::spdlog_header_only)
 
 add_executable(binary_tree_level_order_traversal binary_tree_level_order_traversal.cpp ${PUB_UTIL_FILES})
 target_compile_features(binary_tree_level_order_traversal PUBLIC cxx_auto_type)
-target_link_libraries(binary_tree_level_order_traversal)
+target_link_libraries(binary_tree_level_order_traversal spdlog::spdlog_header_only)
 
 add_executable(binary_tree_depth binary_tree_depth.cpp ${PUB_UTIL_FILES})
 target_compile_features(binary_tree_depth PUBLIC cxx_auto_type)
-target_link_libraries(binary_tree_depth)
+target_link_libraries(binary_tree_depth spdlog::spdlog_header_only)
 
 add_executable(binary_tree_lca binary_tree_lca.cpp ${PUB_UTIL_FILES})
 target_compile_features(binary_tree_lca PUBLIC cxx_auto_type)
-target_link_libraries(binary_tree_lca)
+target_link_libraries(binary_tree_lca spdlog::spdlog_header_only)
 
 add_executable(binary_tree_is_subtree binary_tree_is_subtree.cpp ${PUB_UTIL_FILES})
 target_compile_features(binary_tree_is_subtree PUBLIC cxx_auto_type)
-target_link_libraries(binary_tree_is_subtree)
+target_link_libraries(binary_tree_is_subtree spdlog::spdlog_header_only)
 
 add_executable(binary_tree_prune_tree binary_tree_prune_tree.cpp ${PUB_UTIL_FILES})
 target_compile_features(binary_tree_prune_tree PUBLIC cxx_auto_type)
-target_link_libraries(binary_tree_prune_tree)
+target_link_libraries(binary_tree_prune_tree spdlog::spdlog_header_only)
 
 add_executable(binary_tree_path_sum binary_tree_path_sum.cpp ${PUB_UTIL_FILES})
 target_compile_features(binary_tree_path_sum PUBLIC cxx_auto_type)
-target_link_libraries(binary_tree_path_sum)
+target_link_libraries(binary_tree_path_sum spdlog::spdlog_header_only)
 
 add_executable(binary_tree_serialization_and_deserializaiton binary_tree_serialization_and_deserializaiton.cpp ${PUB_UTIL_FILES})
 target_compile_features(binary_tree_serialization_and_deserializaiton PUBLIC cxx_auto_type)
-target_link_libraries(binary_tree_serialization_and_deserializaiton)
+target_link_libraries(binary_tree_serialization_and_deserializaiton spdlog::spdlog_header_only)
 
 add_executable(binary_tree_misc_exercises binary_tree_misc_exercises.cpp ${PUB_UTIL_FILES})
 target_compile_features(binary_tree_misc_exercises PUBLIC cxx_auto_type)
-target_link_libraries(binary_tree_misc_exercises)
+target_link_libraries(binary_tree_misc_exercises spdlog::spdlog_header_only)
 
 # LIST
 

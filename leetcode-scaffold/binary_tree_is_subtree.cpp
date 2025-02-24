@@ -17,6 +17,19 @@ bool Solution::isSameTree(TreeNode* l, TreeNode* r) {
     Two binary trees are considered the same if they are structurally identical and the nodes have the same value.
 */
 
+{ // recursive solution
+    if (l==nullptr && r==nullptr) { // trivial case
+        return true;
+    } else if (l==nullptr || r==nullptr) { // trivial case
+        return false;
+    } else if (l->val != r->val) { // trivial case
+        return false;
+    } else {
+        return isSameTree(l->left, r->left) && isSameTree(l->right, r->right);
+    }
+}
+
+
 { // iterative solution
     std::queue<TreeNode*> q;
     q.push(l); q.push(r);
@@ -35,18 +48,6 @@ bool Solution::isSameTree(TreeNode* l, TreeNode* r) {
         }
     }
     return true;
-}
-
-{ // recursive solution
-    if (l == nullptr && r == nullptr) { // trivial case
-        return true;
-    } else if (l == nullptr || r == nullptr) { // trivial case
-        return false;
-    } else {
-        return l->val == r->val &&
-                isSameTree(l->left, r->left) &&
-                isSameTree(l->right, r->right);
-    }
 }
 
 }
@@ -82,22 +83,23 @@ if (0) { // recursive solution
 
 }
 
+
 bool Solution::isSymmetric(TreeNode* root) {
 /*
     Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
     For example, this binary tree [1,2,2,3,4,4,3] is symmetric.
 */
 
-if (0) { // recursive solution
-    std::function<bool(TreeNode*, TreeNode*)> dfs = [&] (TreeNode* l, TreeNode* r) {
-        if (l == nullptr && r == nullptr) {
+if (1) { // recursive solution
+    function<bool(TreeNode*, TreeNode*)> dfs = [&] (TreeNode* l, TreeNode* r) {
+        if (l==nullptr && r==nullptr) {
             return true;
-        } else if (l == nullptr || r == nullptr) {
+        } else if (l==nullptr || r==nullptr) {
+            return false;
+        } else if (l->val != r->val) {
             return false;
         } else {
-            return l->val == r->val &&
-                    dfs(l->left, r->right) && 
-                    dfs(l->right, r->left);
+            return dfs(l->left, r->right) && dfs(r->left, l->right);
         }
     };
 
@@ -136,18 +138,19 @@ if (0) { // recursive solution
 
 }
 
+
 void isSymmetric_scaffold(std::string input1, bool expected) {
     TreeNode* root = stringToTreeNode(input1);
     std::unique_ptr<TreeNode> guard(root);
-    bool ans = false;
     Solution ss;
-    ans = ss.isSymmetric(root);
-    if (ans == expected) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << expected << ") passed.";
+    bool actual = ss.isSymmetric(root);
+    if (actual == expected) {
+        SPDLOG_INFO( "Case({}, expected={}) passed", input1, expected);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << expected << ") failed.";
+        SPDLOG_ERROR( "Case({}, expected={}) failed. actual={}", input1, expected, actual);
     }
 }
+
 
 void isSameTree_scaffold(std::string input1, std::string input2) {
     TreeNode* t1 = stringToTreeNode(input1);
@@ -158,11 +161,12 @@ void isSameTree_scaffold(std::string input1, std::string input2) {
     bool actual = ss.isSameTree(t1, t2);
     bool expected = input1 == input2;
     if (expected == actual) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ") passed.";
+        SPDLOG_INFO( "Case({}, {}) passed", input1, input2);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ") failed.";
+        SPDLOG_ERROR( "Case({}, {}) failed. expected={}, actual={}", input1, input2, expected, actual);
     }
 }
+
 
 void isSubtree_scaffold(std::string input1, std::string input2, bool expected) {
     TreeNode* t1 = stringToTreeNode(input1);
@@ -172,15 +176,15 @@ void isSubtree_scaffold(std::string input1, std::string input2, bool expected) {
     Solution ss;
     bool actual = ss.isSubtree(t1, t2);
     if (expected == actual) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ") passed.";
+        SPDLOG_INFO( "Case({}, {}) passed", input1, input2);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ") failed.";
+        SPDLOG_ERROR( "Case({}, {}) failed. expected={}, actual={}", input1, input2, expected, actual);
     }
 }
 
+
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-    util::Log(logESSENTIAL) << "Running isSameTree tests:";
+    SPDLOG_WARN("Running isSameTree tests:");
     TIMER_START(isSameTree);
     isSameTree_scaffold("[]", "[]");
     isSameTree_scaffold("[3,4,5,1,2]", "[4,1,2]");
@@ -189,9 +193,9 @@ int main() {
     isSameTree_scaffold("[1,2]", "[1,null,2]");
     isSameTree_scaffold("[1,2,1]", "[1,1,2]");
     TIMER_STOP(isSameTree);
-    util::Log(logESSENTIAL) << "isSameTree tests using " << TIMER_MSEC(isSameTree) << "ms.";
+    SPDLOG_WARN("isSameTree tests using {} ms", TIMER_MSEC(isSameTree));
 
-    util::Log(logESSENTIAL) << "Running isSubtree tests:";
+    SPDLOG_WARN("Running isSubtree tests:");
     TIMER_START(isSubtree);
     isSubtree_scaffold("[]", "[]", true);
     isSubtree_scaffold("[4,1,2]", "[4,1,2]", true);
@@ -200,15 +204,15 @@ int main() {
     isSubtree_scaffold("[1,2]", "[1,null,2]", false);
     isSubtree_scaffold("[1,2,1]", "[1,1,2]", false);
     TIMER_STOP(isSubtree);
-    util::Log(logESSENTIAL) << "isSubtree tests using " << TIMER_MSEC(isSubtree) << "ms.";
+    SPDLOG_WARN("isSubtree tests using {} ms", TIMER_MSEC(isSubtree));
 
-    util::Log(logESSENTIAL) << "Running isSymmetric tests:";
+    SPDLOG_WARN("Running isSymmetric tests:");
     TIMER_START(isSymmetric);
     isSymmetric_scaffold("[1,2,2,3,4,4,3]", true);
     isSymmetric_scaffold("[1,2,2,null,3,null,3]", false);
     isSymmetric_scaffold("[1,2,2,null,3,4]", false);
     TIMER_STOP(isSymmetric);
-    util::Log(logESSENTIAL) << "isSymmetric tests using " << TIMER_MSEC(isSymmetric) << "ms.";
+    SPDLOG_WARN("isSymmetric tests using {} ms", TIMER_MSEC(isSymmetric));
 
     return 0;
 }
