@@ -34,6 +34,7 @@ bool Solution::exist(const vector<vector<char>>& board, const string& word) {
             return false;
         }
         used[r][c] = true;
+        // IMPORTANT: we have to perform test outside the loop
         for (auto& d: directions) {
             int nr = r + d.first;
             int nc = c + d.second;
@@ -46,6 +47,7 @@ bool Solution::exist(const vector<vector<char>>& board, const string& word) {
     };
     for (int r=0; r<rows; ++r) {
         for (int c=0; c<columns; ++c) {
+            // we haven't test word[0] yet
             if (backtrace(r, c, 0)) {
                 return true;
             }
@@ -77,9 +79,9 @@ void exist_scaffold(string input1, string input2, bool expectedResult) {
     vector<vector<char>> board = stringTo2DArray<char>(input1);
     bool actual = ss.exist(board, input2);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, Actual: {}", input1, input2, expectedResult, actual);
     }
 }
 
@@ -93,29 +95,25 @@ void findWords_scaffold(string input1, string input2, string expectedResult) {
     std::sort(actual.begin(), actual.end());
     std::sort(expected.begin(), expected.end());
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual: ";
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, Actual:", input1, input2, expectedResult);
         for(const auto& s: actual) {
-            util::Log(logERROR) << s;
+            std::cout << s << std::endl;
         }
+        std::cout << std::endl;
     }
 }
 
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
-    util::Log(logESSENTIAL) << "Running exist tests: ";
+    SPDLOG_WARN("Running exist tests: ");
     TIMER_START(exist);
-
     string board = R"([
         [A,B,C,E],
         [S,F,C,S],
         [A,D,E,E]
     ])";
-
     exist_scaffold(board, "ABCCED", true);
     exist_scaffold(board, "SEE", true);
     exist_scaffold(board, "ABCB", false);
@@ -126,22 +124,18 @@ int main() {
     exist_scaffold(board, "EEE", false);
     exist_scaffold("[[E]]", "E", true);
     exist_scaffold("[[H,E,L,L,O]]", "HELLO", true);
-
     TIMER_STOP(exist);
-    util::Log(logESSENTIAL) << "exist using " << TIMER_MSEC(exist) << " milliseconds"; 
+    SPDLOG_WARN("exist using {} ms", TIMER_MSEC(exist));
 
-    util::Log(logESSENTIAL) << "Running findWords tests: ";
+    SPDLOG_WARN("Running findWords tests: ");
     TIMER_START(findWords);
-
     board = R"([
       [o,a,a,n],
       [e,t,a,e],
       [i,h,k,r],
       [i,f,l,v]
     ])";
-
     findWords_scaffold(board, "[oath,pea,eat,rain]", "[eat,oath]");
-
     TIMER_STOP(findWords);
-    util::Log(logESSENTIAL) << "findWords using " << TIMER_MSEC(findWords) << " milliseconds"; 
+    SPDLOG_WARN("findWords using {} ms", TIMER_MSEC(findWords));
 }

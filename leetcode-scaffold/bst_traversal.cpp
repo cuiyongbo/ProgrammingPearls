@@ -64,48 +64,44 @@ int Solution::getMinimumDifference(TreeNode* root) {
 
 void isValidBST_scaffold(std::string input, bool expectedResult) {
     TreeNode* root = stringToTreeNode(input);
-
     Solution ss;
     bool actual = ss.isValidBST(root);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case (" << input << ", expected <" << expectedResult << ">) passed";
+        SPDLOG_INFO("Case ({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case (" << input << ", expected<" << expectedResult << ">) failed, actual: " << actual;
+        SPDLOG_ERROR("Case ({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
 
 
 void getMinimumDifference_scaffold(std::string input, int expectedResult) {
     TreeNode* root = stringToTreeNode(input);
-
     Solution ss;
     int actual = ss.getMinimumDifference(root);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case (" << input << ", expected: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case ({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case (" << input << ", expected: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case ({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
 
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
-    util::Log(logESSENTIAL) << "Running isValidBST tests:";
+    SPDLOG_WARN("Running isValidBST tests:");
     TIMER_START(isValidBST);
     isValidBST_scaffold("[1,2,3]", false);
     isValidBST_scaffold("[2,1,3]", true);
     isValidBST_scaffold("[5,1,4,null,null,3,6]", false);
     isValidBST_scaffold("[4,3,5,null,2]", false);
     TIMER_STOP(isValidBST);
-    util::Log(logESSENTIAL) << "isValidBST using " << TIMER_MSEC(isValidBST) << "ms.";
+    SPDLOG_WARN("isValidBST tests use {} ms", TIMER_MSEC(isValidBST));
 
-    util::Log(logESSENTIAL) << "Running getMinimumDifference tests:";
+    SPDLOG_WARN("Running getMinimumDifference tests:");
     TIMER_START(getMinimumDifference);
     getMinimumDifference_scaffold("[2,1,3]", 1);
     getMinimumDifference_scaffold("[5,2,6,0,4,null,8]", 1);
     getMinimumDifference_scaffold("[4,2,6,1,3]", 1);
     getMinimumDifference_scaffold("[1,0,48,null,null,12,49]", 1);
     TIMER_STOP(getMinimumDifference);
-    util::Log(logESSENTIAL) << "getMinimumDifference using " << TIMER_MSEC(getMinimumDifference) << "ms.";
+    SPDLOG_WARN("getMinimumDifference tests use {} ms", TIMER_MSEC(getMinimumDifference));
 }

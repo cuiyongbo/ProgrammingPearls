@@ -40,8 +40,11 @@ std::vector<int> Solution::findFrequentTreeSum(TreeNode* root) {
     }
     int frequency = 0;
     std::map<int, int> mp; // value, frequency
-    // return the sum of subtree rooted at node, postorder traversal
+    // return the sum of subtree rooted at node, traverse a tree in post-order
     std::function<int(TreeNode*)> dfs = [&] (TreeNode* node) {
+        if (node == nullptr) {
+            return 0;
+        }
         int s = node->val;
         if (node->left != nullptr) {
             s+= dfs(node->left);
@@ -77,30 +80,31 @@ int Solution::minCameraCover(TreeNode* root) {
         Output: 2
         Explanation: At least two cameras are needed to monitor all nodes of the tree.
 */
-
     enum State {
         None,  // undefined status
         Camera, // a camera will be installed in node
         Covered // either left or right child has a camera installed
     };
     int ans = 0;
-    // return the state of node, performing postorder traversal
+    // return the State of node, traversing the subtree rooted in node in post-order
     std::function<State(TreeNode*)> dfs = [&] (TreeNode* node) {
-        if (node == nullptr) { // null node will always be covered
-            return Covered;
+        // null node will always be covered
+        if (node == nullptr) {
+            return State::Covered;
         }
         auto l = dfs(node->left);
         auto r = dfs(node->right);
-        if (l == Camera || r == Camera) {
-            return Covered;
-        } else if (l == None || r == None) {
+        if (l==State::Camera || r==State::Camera) {
+            return State::Covered;
+        } else if (l==State::None || r==State::None) {
             ans++;
-            return Camera;
+            return State::Camera;
         } else {
-            return None;
+            return State::None;
         }
     };
-    if (dfs(root) == None) { // for case [0]
+    if (dfs(root) == State::None) {
+        // for case [0]
         ans++;
     }
     return ans;
@@ -120,8 +124,38 @@ int Solution::rob(TreeNode* root) {
         \   \ 
         3   1
 */
+{
     // optimization: add memoization
+    map<TreeNode*, int> mp;
+    // post-order traversal usage
+    // return the maximum amount of money the thief can rob in subtree rooted at node
+    std::function<int(TreeNode*)> dfs = [&] (TreeNode* node) {
+        if (node == nullptr) { // trivial case
+            return 0;
+        }
+        if (mp.count(node)) {
+            return mp[node];
+        }
+        int p1 = node->val;
+        if (node->left != nullptr) {
+            p1 += rob(node->left->left);
+            p1 += rob(node->left->right);
+        }
+        if (node->right != nullptr) {
+            p1 += rob(node->right->left);
+            p1 += rob(node->right->right);
+        }
+        int p2 = rob(node->left) + rob(node->right);
+        mp[node] = max(p1, // how much money the thief could rob if he robbed node
+                p2 // how much money the thief could rob if he didn't rob node
+            );
+        return mp[node];
+    };
+    return dfs(root);
+}
 
+
+{ // naive solution
     if (root == nullptr) { // trivial case
         return 0;
     }
@@ -138,6 +172,9 @@ int Solution::rob(TreeNode* root) {
     return std::max(p1, // money the thieft can get if he has robbed at root
                 p2); // money the thieft can get if he has not
 }
+
+}
+
 
 int Solution::distributeCoins(TreeNode* root) {
 /*
@@ -160,18 +197,18 @@ int Solution::distributeCoins(TreeNode* root) {
 
     Compute the balance of left/right subtree, ans += abs(balance(left)) + abs(balance(right))
 */
-
     int ans = 0;
-    typedef std::pair<int, int> result_type; // number of nodes of the subtree, number of coins of the subtree
-    // return number of nodes and coins of the subtree rooted at node with postorder traversal
-    std::function<result_type(TreeNode*)> dfs = [&] (TreeNode* node) {
+    using element_t = std::pair<int, int>; // number of nodes in the subtree, number of coins in the subtree
+    // traverse the subtree rooted at node in post-order
+    std::function<element_t(TreeNode*)> dfs = [&] (TreeNode* node) {
         if (node == nullptr) {
-            return result_type{0, 0};
+            return element_t(0, 0);
         }
         auto l = dfs(node->left);
         auto r = dfs(node->right);
-        ans += (std::abs(l.first-l.second) + std::abs(r.first-r.second));
-        return result_type{l.first+r.first+1, l.second+r.second+node->val};
+        ans += abs(l.first-l.second);
+        ans += abs(r.first-r.second);
+        return element_t(l.first+r.first+1, l.second+r.second+node->val);
     };
     dfs(root);
     return ans;
@@ -186,64 +223,67 @@ void findFrequentTreeSum_scaffold(std::string input, std::string expected) {
     std::sort(actual.begin(), actual.end());
     std::sort(expectedResult.begin(), expectedResult.end());
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << expected << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expected);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << expected << ") failed, actual: " << numberVectorToString(actual);
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed. actual: {}", input, expected, numberVectorToString(actual));
     }
 }
+
 
 void minCameraCover_scaffold(std::string input, int expected) {
     Solution ss;
     TreeNode* root = stringToTreeNode(input);
     int actual = ss.minCameraCover(root);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", " << expected << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expected);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << expected << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed. actual: {}", input, expected, actual);
     }
 }
+
 
 void rob_scaffold(std::string input, int expected) {
     Solution ss;
     TreeNode* root = stringToTreeNode(input);
     int actual = ss.rob(root);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", " << expected << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expected);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << expected << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed. actual: {}", input, expected, actual);
     }
 }
+
 
 void distributeCoins_scaffold(std::string input, int expected) {
     Solution ss;
     TreeNode* root = stringToTreeNode(input);
     int actual = ss.distributeCoins(root);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", " << expected << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expected);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << expected << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed. actual: {}", input, expected, actual);
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running findFrequentTreeSum tests:";
+int main() {
+    SPDLOG_WARN("Running findFrequentTreeSum tests:");
     TIMER_START(findFrequentTreeSum);
     findFrequentTreeSum_scaffold("[5,2,-3]", "[4,2,-3]");
     findFrequentTreeSum_scaffold("[5,2,-5]", "[2]");
     TIMER_STOP(findFrequentTreeSum);
-    util::Log(logESSENTIAL) << "findFrequentTreeSum tests use " << TIMER_MSEC(findFrequentTreeSum) << "ms";
+    SPDLOG_WARN("findFrequentTreeSum tests use {} ms", TIMER_MSEC(findFrequentTreeSum));
 
-    util::Log(logESSENTIAL) << "Running minCameraCover tests:";
+    SPDLOG_WARN("Running minCameraCover tests:");
     TIMER_START(minCameraCover);
     minCameraCover_scaffold("[0,0,null,0,0]", 1);
     minCameraCover_scaffold("[0,0,null,0,null,0,null,null,0]", 2);
     minCameraCover_scaffold("[0]", 1);
+    minCameraCover_scaffold("[]", 0);
     TIMER_STOP(minCameraCover);
-    util::Log(logESSENTIAL) << "minCameraCover tests use " << TIMER_MSEC(minCameraCover) << "ms";
+    SPDLOG_WARN("minCameraCover tests use {} ms", TIMER_MSEC(minCameraCover));
 
-    util::Log(logESSENTIAL) << "Running rob tests:";
+    SPDLOG_WARN("Running rob tests:");
     TIMER_START(rob);
     rob_scaffold("[0,0,null,0,0]", 0);
     rob_scaffold("[0,0,null,0,null,0,null,null,0]", 0);
@@ -251,15 +291,15 @@ int main() {
     rob_scaffold("[3,2,3,null,3, null,1]", 7);
     rob_scaffold("[3,4,5,1,3,null,1]", 9);
     TIMER_STOP(rob);
-    util::Log(logESSENTIAL) << "rob tests use " << TIMER_MSEC(rob) << "ms";
+    SPDLOG_WARN("rob tests use {} ms", TIMER_MSEC(rob));
 
-    util::Log(logESSENTIAL) << "Running distributeCoins tests:";
+    SPDLOG_WARN("Running distributeCoins tests:");
     TIMER_START(distributeCoins);
     distributeCoins_scaffold("[3,0,0]", 2);
     distributeCoins_scaffold("[0,3,0]", 3);
     distributeCoins_scaffold("[1,0,2]", 2);
     distributeCoins_scaffold("[1,0,0,null,3]", 4);
     TIMER_STOP(distributeCoins);
-    util::Log(logESSENTIAL) << "distributeCoins tests use " << TIMER_MSEC(distributeCoins) << "ms";
+    SPDLOG_WARN("distributeCoins tests use {} ms", TIMER_MSEC(distributeCoins));
     
 }

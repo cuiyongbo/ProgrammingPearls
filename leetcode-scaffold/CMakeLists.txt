@@ -359,11 +359,11 @@ target_link_libraries(quick_sort_tester)
 
 add_executable(bst_traversal bst_traversal.cpp ${PUB_UTIL_FILES})
 target_compile_features(bst_traversal PUBLIC cxx_auto_type)
-target_link_libraries(bst_traversal)
+target_link_libraries(bst_traversal PRIVATE spdlog::spdlog_header_only)
 
 add_executable(bst_search bst_search.cpp ${PUB_UTIL_FILES})
 target_compile_features(bst_search PUBLIC cxx_auto_type)
-target_link_libraries(bst_search)
+target_link_libraries(bst_search PRIVATE spdlog::spdlog_header_only)
 
 add_executable(array_sort array_sort.cpp ${PUB_UTIL_FILES})
 target_compile_features(array_sort PUBLIC cxx_auto_type)
