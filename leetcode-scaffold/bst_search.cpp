@@ -10,6 +10,7 @@ public:
     TreeNode* searchBST(TreeNode* root, int val);
     TreeNode* insertIntoBST(TreeNode* root, int val);
     int kthSmallest(TreeNode* root, int k);
+    int kthLargest(TreeNode* root, int k);
     void recoverTree(TreeNode* root);
     TreeNode* sortedArrayToBST(vector<int>& nums);
     vector<int> findMode(TreeNode* root);
@@ -73,18 +74,17 @@ TreeNode* Solution::insertIntoBST(TreeNode* root, int val) {
     Hint: The answer is the value of kth node when performing inoder traversal
 */
 int Solution::kthSmallest(TreeNode* root, int k) {
-
 { // recursive solution
     int ans = 0;
-    int i = 0; // number of nodes we have traversed so far
+    int idx = 0; // number of nodes we have traversed so far
     std::function<void(TreeNode*)> inorder_traversal = [&] (TreeNode* node) {
-        if (node == nullptr) {
+        if (node == nullptr) { // we must omit null node when counting idx
             return;
         }
         inorder_traversal(node->left);
-        if (++i == k) {
+        if (++idx == k) { // you must increase idx when traversing root node
             ans = node->val;
-            return;
+            return; // no need to traverse further nodes
         }
         inorder_traversal(node->right);
     };
@@ -115,6 +115,31 @@ int Solution::kthSmallest(TreeNode* root, int k) {
 
 }
 
+
+/*
+    Given a binary search tree, write a function to find the kth largest element in it.
+    Note that You may assume k is always valid, 1 ≤ k ≤ BST’s total elements.
+*/
+int Solution::kthLargest(TreeNode* root, int k) {
+    // what if we need to find the kth largest element in the tree?
+    // we can get a sequence in ascending order when we traverse the tree in left->root->right order
+    // then we can get a sequence in descending order when we traverse the tree in right->root->left order
+    int ans = 0;
+    int idx = 0;
+    std::function<void(TreeNode*)> dfs = [&] (TreeNode* node) {
+        if (node == nullptr) {
+            return;
+        }
+        dfs(node->right);
+        if (++idx == k) {
+            ans = node->val;
+            return;
+        }
+        dfs(node->left);
+    };
+    dfs(root);
+    return ans;
+}
 
 /*
     Two elements of a binary search tree (BST) are swapped by mistake. Recover the tree without changing its structure.
@@ -158,6 +183,7 @@ void Solution::recoverTree(TreeNode* root) {
     For this problem, a height-balanced binary tree is defined as a binary tree in which the depth of the two subtrees of every node never differ by more than 1.
 */
 TreeNode* Solution::sortedArrayToBST(vector<int>& nums) {
+    // l, r are inclusive
     std::function<TreeNode*(int, int)> dfs = [&] (int l, int r) {
         if (l > r) { // trivial case
             return (TreeNode*)nullptr;
@@ -168,11 +194,6 @@ TreeNode* Solution::sortedArrayToBST(vector<int>& nums) {
         node->right = dfs(m+1, r);
         return node;
     };
-    
-    //TreeNode* root = dfs(0, nums.size()-1);
-    //printBinaryTree(root);
-    //return root;
-
     return dfs(0, nums.size()-1);
 }
 
@@ -182,11 +203,34 @@ TreeNode* Solution::sortedArrayToBST(vector<int>& nums) {
 */
 vector<int> Solution::findMode(TreeNode* root) {
 
-{ // naive method
+if (0) { // naive method
+    map<int, int> mp; // node, frequency
+    int max_frequency = 0;
+    std::function<void(TreeNode*)> dfs = [&] (TreeNode* node) {
+        if (node==nullptr) {
+            return;
+        }
+        dfs(node->left);
+        mp[node->val]++;
+        max_frequency = max(max_frequency, mp[node->val]);
+        dfs(node->right);
+    };
+    dfs(root);
+    vector<int> ans;
+    for (auto n: mp) {
+        if (n.second == max_frequency) {
+            ans.push_back(n.first);
+        }
+    }
+    return ans;
+}
+
+{ // optimal solution
     int cur_freq = 0;
     int max_freq = 0;
-    TreeNode* predecessor = nullptr;
     vector<int> ans;
+    TreeNode* predecessor = nullptr;
+    // traversal subtree rooted at node in in-order
     std::function<void(TreeNode*)> dfs  = [&] (TreeNode* node) {
         if (node == nullptr) {
             return;
@@ -194,6 +238,8 @@ vector<int> Solution::findMode(TreeNode* root) {
 
         dfs(node->left);
 
+        // we increase cur_freq counter before testing it with max_freq
+        // so when the node->val changes, the previous node has already been tested
         if (predecessor != nullptr && predecessor->val == node->val) {
             cur_freq++;
         } else {
@@ -236,92 +282,96 @@ vector<int> Solution::findMode(TreeNode* root) {
 */
 TreeNode* Solution::deleteNode(TreeNode* root, int key) {
 
-{ // naive solution
+{
+    // 1. find the node to be deleted
     TreeNode* x = root;
-    TreeNode* px = nullptr;
-    while (x != nullptr && x->val != key) {
-        px = x;
-        if (x->val > key) {
+    TreeNode* px = nullptr; // the parent of x
+    while (x != nullptr) {
+        if (x->val == key) {
+            break;
+        } else if (x->val > key) {
+            px = x;
             x = x->left;
         } else {
+            px = x;
             x = x->right;
         }
     }
-
-    if (x == nullptr) { // key doesn't exist in the tree
+    // key is not found, or root is null
+    if (x == nullptr) {
         return root;
     }
-
-    if (px == nullptr) { // key resides in root node
-        if (x->left == nullptr || x->right == nullptr) { // root has one null child at least
-            // return the non-null child as the new root, it doesn't matter whether both children are null or not
-            return (x->left != nullptr) ? x->left : x->right;
-        } else { // neither children of root are null
+    // 2. delete the node if found
+    // key is one of tree nodes
+    if (px == nullptr) { // x is root;
+        if (x->left==nullptr || x->right==nullptr) { // at least one child is null
+            return x->left!=nullptr ? x->left : x->right;
+        } else { // both children are non-null
+            // find the successor of x
             TreeNode* xl = x->left;
             TreeNode* xr = x->right;
-
-            // find the successor of x: xs
-            TreeNode* xs = x->right; // successor of x
+            TreeNode* xs = x->right;
             TreeNode* pxs = nullptr; // parent of xs
             while (xs->left != nullptr) {
                 pxs = xs;
                 xs = xs->left;
             }
+            assert(xs->left == nullptr);
             if (xs == xr) {
-                // if x->right is the successor of x, we just change the parent of x->left
-                xs->left = xl; 
+                // replace root with xs
+                xs->left = xl;
+                return xs;
             } else {
-                // replace successor's place with successor->right
-                pxs->left = xs->right;
-                // replace root's place with successor
+                // replace xs's position with xs->right
+                pxs->left = xs->right; xs->right = nullptr;
+                // replace root with xs
                 xs->left = xl; xs->right = xr;
+                return xs;
             }
-            return xs;          
         }
-    } else {
-        if (x->is_leaf()) { // x is a leaf
+    } else { // x is non-root
+        if (x->left==nullptr && x->right==nullptr) { // x is a leaf node
             if (px->left == x) {
                 px->left = nullptr;
             } else {
                 px->right = nullptr;
             }
-        } else if (x->left == nullptr || x->right == nullptr) { // x has only one non-null child
-            TreeNode* residual = (x->left != nullptr) ? x->left : x->right;
-            if (px->left == residual) {
-                px->left = residual;
+        } else if (x->left==nullptr || x->right==nullptr) { // at least one child is null
+            TreeNode* residule = x->left!=nullptr ? x->left : x->right;
+            if (px->left == x) {
+                px->left = residule;
             } else {
-                px->right = residual;
+                px->right = residule;
             }
-        } else { // neither children of x is null
+        } else { // both children are non-null
+            // find the successor of x
             TreeNode* xl = x->left;
             TreeNode* xr = x->right;
-
-            // find the successor of x: xs
-            TreeNode* xs = x->right; // successor of x
+            TreeNode* xs = x->right;
             TreeNode* pxs = nullptr; // parent of xs
             while (xs->left != nullptr) {
                 pxs = xs;
                 xs = xs->left;
             }
+            assert(xs->left == nullptr);
             if (xs == xr) {
-                // replace x's place with its succesor
+                // replace x's position with xs
                 if (px->left == x) {
                     px->left = xs;
                 } else {
                     px->right = xs;
                 }
-                xs->left = xl; 
+                xs->left = xl;
             } else {
-                // replace successor's place with successor->right
+                // replace xs's position with xs->right
                 pxs->left = xs->right; xs->right = nullptr;
-                // replace x's place with its succesor
-                if (px->left ==  x) {
+                // replace x's position with xs
+                if (px->left == x) {
                     px->left = xs;
                 } else {
                     px->right = xs;
                 }
-                xs->left = xl;
-                xs->right = xr;
+                xs->left = xl; xs->right = xr;
             }
         }
         return root;
@@ -385,53 +435,66 @@ TreeNode* Solution::deleteNode(TreeNode* root, int key) {
 
 void searchBST_scaffold(string input, int val, bool expectedResult) {
     TreeNode* root = stringToTreeNode(input);
-
     Solution ss;
     TreeNode* actual = ss.searchBST(root, val);
     if ((actual != nullptr) == expectedResult) {
-        util::Log(logINFO) << "Case (" << input  << ", " << val << ", expected: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input, val, expectedResult);
     } else {
-        util::Log(logERROR) << "Case (" << input  << ", " << val << ", expected: " << expectedResult << ") failed";
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed", input, val, expectedResult);
     }
 }
+
 
 void insertIntoBST_scaffold(string input, int val, string expectedResult) {
     TreeNode* root = stringToTreeNode(input);
     TreeNode* expected = stringToTreeNode(expectedResult);
-
     Solution ss;
     TreeNode* actual = ss.insertIntoBST(root, val);
     if (binaryTree_equal(actual, expected)) {
-        util::Log(logINFO) << "Case (" << input  << ", " << val << ", expected: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input, val, expectedResult);
     } else {
-        util::Log(logERROR) << "Case (" << input  << ", " << val << ", expected: " << expectedResult << ") failed";
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed", input, val, expectedResult);
     }
 }
+
 
 void kthSmallest_scaffold(string input, int k, int expectedResult) {
     TreeNode* root = stringToTreeNode(input);
-
     Solution ss;
     int actual = ss.kthSmallest(root, k);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case (" << input  << ", " << k << ", expected: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input, k, expectedResult);
     } else {
-        util::Log(logERROR) << "Case (" << input  << ", " << k << ", expected: " << expectedResult << ") failed, actual: "  << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input, k, expectedResult, actual);
     }
 }
+
+
+void kthLargest_scaffold(string input, int k, int expectedResult) {
+    TreeNode* root = stringToTreeNode(input);
+    Solution ss;
+    int actual = ss.kthLargest(root, k);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input, k, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input, k, expectedResult, actual);
+    }
+}
+
 
 void recoverTree_scaffold(string input, string expectedResult) {
     TreeNode* root = stringToTreeNode(input);
     TreeNode* expected = stringToTreeNode(expectedResult);
-
     Solution ss;
     ss.recoverTree(root);
     if (binaryTree_equal(root, expected)) {
-        util::Log(logINFO) << "Case (" << input  << ", expected: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case (" << input  << ", expected: " << expectedResult << ") failed";
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed. actual:", input, expectedResult);
+        printBinaryTree(root);
     }
 }
+
 
 void sortedArrayToBST_scaffold(string input, string expectedResult) {
     Solution ss;
@@ -439,12 +502,13 @@ void sortedArrayToBST_scaffold(string input, string expectedResult) {
     TreeNode* root = ss.sortedArrayToBST(vi);
     TreeNode* expected = stringToTreeNode(expectedResult);
     if (binaryTree_equal(root, expected)) {
-        util::Log(logINFO) << "Case (" << input  << ", expected: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case (" << input  << ", expected: " << expectedResult << ") failed, actual:";
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed. actual:", input, expectedResult);
         printBinaryTree(root);
     }
 }
+
 
 void findMode_scaffold(string input, string expectedResult) {
     Solution ss;
@@ -452,22 +516,22 @@ void findMode_scaffold(string input, string expectedResult) {
     auto expected = stringTo1DArray<int>(expectedResult);
     vector<int> actual = ss.findMode(root);
     if (actual == expected) {
-        util::Log(logINFO) << "Case (" << input << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case (" << input << ", " << expectedResult << ") failed, actual: " << numberVectorToString(actual);
+    SPDLOG_ERROR("Case({}, expectedResult={}) failed. actual: {}", input, expectedResult, numberVectorToString(actual));
     }
 }
+
 
 void deleteNode_scaffold(string input, int k, string expectedResult) {
     TreeNode* root = stringToTreeNode(input);
     TreeNode* expected = stringToTreeNode(expectedResult);
-
     Solution ss;
     TreeNode* actual = ss.deleteNode(root, k);
     if (binaryTree_equal(actual, expected)) {
-        util::Log(logINFO) << "Case(" << input << ", " << k << ", " << expectedResult << ") passed"; 
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input, k, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << k << ", " << expectedResult << ") failed";
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed", input, k, expectedResult);
         cout << "actual: ";
         printBinaryTree(actual);
         cout << "expected: ";
@@ -475,27 +539,33 @@ void deleteNode_scaffold(string input, int k, string expectedResult) {
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running searchBST tests:";
+int main() {
+    SPDLOG_WARN("Running searchBST tests:");
     TIMER_START(searchBST);
-    searchBST_scaffold("[1,2,3]", 1, true);
+    searchBST_scaffold("[2,1,3]", 1, true);
+    searchBST_scaffold("[2,1,3]", 2, true);
+    searchBST_scaffold("[2,1,3]", 3, true);
+    searchBST_scaffold("[4,2,7,1,3]", 4, true);
+    searchBST_scaffold("[4,2,7,1,3]", 2, true);
+    searchBST_scaffold("[4,2,7,1,3]", 7, true);
     searchBST_scaffold("[4,2,7,1,3]", 1, true);
+    searchBST_scaffold("[4,2,7,1,3]", 3, true);
     searchBST_scaffold("[4,2,7,1,3]", 8, false);
     searchBST_scaffold("[4,2,7,1,3]", 5, false);
     searchBST_scaffold("[4,2,7,1,3]", 0, false);
     TIMER_STOP(searchBST);
-    util::Log(logESSENTIAL) << "searchBST using " << TIMER_MSEC(searchBST) << " milliseconds.";
+    SPDLOG_WARN("searchBST tests use {} ms", TIMER_MSEC(searchBST));
 
-    util::Log(logESSENTIAL) << "Running insertIntoBST tests:";
+    SPDLOG_WARN("Running insertIntoBST tests:");
     TIMER_START(insertIntoBST);
     insertIntoBST_scaffold("[4,2,7,1,3]", 5, "[4,2,7,1,3,5]");
+    insertIntoBST_scaffold("[4,2,7,1,3]", 9, "[4,2,7,1,3,null,9]");
     insertIntoBST_scaffold("[6,2,7,1,3]", 5, "[6,2,7,1,3,null,null,null,null,null,5]");
     TIMER_STOP(insertIntoBST);
-    util::Log(logESSENTIAL) << "insertIntoBST using " << TIMER_MSEC(insertIntoBST) << " milliseconds.";
+    SPDLOG_WARN("insertIntoBST tests use {} ms", TIMER_MSEC(insertIntoBST));
 
-    util::Log(logESSENTIAL) << "Running kthSmallest tests:";
+    SPDLOG_WARN("Running kthSmallest tests:");
     TIMER_START(kthSmallest);
     kthSmallest_scaffold("[2,1]", 1, 1);
     kthSmallest_scaffold("[4,2,7,1,3]", 1, 1);
@@ -503,22 +573,39 @@ int main() {
     kthSmallest_scaffold("[6,2,7,1,3]", 5, 7);
     kthSmallest_scaffold("[3,1,4,null,2]", 1, 1);
     kthSmallest_scaffold("[5,3,6,2,4,null,null,1]", 1, 1);
+    kthSmallest_scaffold("[5,3,6,2,4,null,null,1]", 2, 2);
     kthSmallest_scaffold("[5,3,6,2,4,null,null,1]", 3, 3);
+    kthSmallest_scaffold("[5,3,6,2,4,null,null,1]", 4, 4);
+    kthSmallest_scaffold("[5,3,6,2,4,null,null,1]", 5, 5);
+    kthSmallest_scaffold("[5,3,6,2,4,null,null,1]", 6, 6);
     TIMER_STOP(kthSmallest);
-    util::Log(logESSENTIAL) << "kthSmallest using " << TIMER_MSEC(kthSmallest) << " milliseconds.";
+    SPDLOG_WARN("kthSmallest tests use {} ms", TIMER_MSEC(kthSmallest));
 
-    util::Log(logESSENTIAL) << "Running recoverTree tests:";
+    SPDLOG_WARN("Running kthLargest tests:");
+    TIMER_START(kthLargest);
+    kthLargest_scaffold("[5,3,6,2,4,null,null,1]", 1, 6);
+    kthLargest_scaffold("[5,3,6,2,4,null,null,1]", 2, 5);
+    kthLargest_scaffold("[5,3,6,2,4,null,null,1]", 3, 4);
+    kthLargest_scaffold("[5,3,6,2,4,null,null,1]", 4, 3);
+    kthLargest_scaffold("[5,3,6,2,4,null,null,1]", 5, 2);
+    kthLargest_scaffold("[5,3,6,2,4,null,null,1]", 6, 1);
+    TIMER_STOP(kthLargest);
+    SPDLOG_WARN("kthLargest tests use {} ms", TIMER_MSEC(kthLargest));
+
+    SPDLOG_WARN("Running recoverTree tests:");
     TIMER_START(recoverTree);
     recoverTree_scaffold("[1]", "[1]");
     recoverTree_scaffold("[1,2]", "[2,1]");
+    recoverTree_scaffold("[1,2,3]", "[2,1,3]");
+    recoverTree_scaffold("[2,3,1]", "[2,1,3]");
     recoverTree_scaffold("[5,3,6,2,1,null,null,4]", "[5,3,6,2,4,null,null,1]");
     recoverTree_scaffold("[5,3,2,6,4,null,null,1]", "[5,3,6,2,4,null,null,1]");
     recoverTree_scaffold("[5,2,6,3,4,null,null,1]", "[5,3,6,2,4,null,null,1]");
     recoverTree_scaffold("[7,1,5,null,null,4,2]", "[2,1,5,null,null,4,7]");
     TIMER_STOP(recoverTree);
-    util::Log(logESSENTIAL) << "recoverTree using " << TIMER_MSEC(recoverTree) << " milliseconds.";
+    SPDLOG_WARN("recoverTree tests use {} ms", TIMER_MSEC(recoverTree));
 
-    util::Log(logESSENTIAL) << "Running sortedArrayToBST tests:";
+    SPDLOG_WARN("Running sortedArrayToBST tests:");
     TIMER_START(sortedArrayToBST);
     sortedArrayToBST_scaffold("[1]", "[1]");
     sortedArrayToBST_scaffold("[1,2]", "[1,null,2]");
@@ -528,17 +615,17 @@ int main() {
     //sortedArrayToBST_scaffold("[1,2,3,4,5]", "[3,2,5,1,null,4]");
     //sortedArrayToBST_scaffold("[-10,-3,0,5,9]", "[0,-3,9,-10,null,5]");
     TIMER_STOP(sortedArrayToBST);
-    util::Log(logESSENTIAL) << "sortedArrayToBST using " << TIMER_MSEC(sortedArrayToBST) << " milliseconds.";
+    SPDLOG_WARN("sortedArrayToBST tests use {} ms", TIMER_MSEC(sortedArrayToBST));
 
-    util::Log(logESSENTIAL) << "Running findMode tests:";
+    SPDLOG_WARN("Running findMode tests:");
     TIMER_START(findMode);
     findMode_scaffold("[1,null,2,2]", "[2]");
     findMode_scaffold("[1,2,4,null,null,3,4,null,3]", "[3,4]");
     findMode_scaffold("[1,null,2]", "[1,2]");
     TIMER_STOP(findMode);
-    util::Log(logESSENTIAL) << "findMode using " << TIMER_MSEC(findMode) << " milliseconds.";
+    SPDLOG_WARN("findMode tests use {} ms", TIMER_MSEC(findMode));
 
-    util::Log(logESSENTIAL) << "Running deleteNode tests:";
+    SPDLOG_WARN("Running deleteNode tests:");
     TIMER_START(deleteNode);
     deleteNode_scaffold("[5,3,6,2,4,null,7]", 3, "[5,4,6,2,null,null,7]");
     deleteNode_scaffold("[5,3,12,2,4,8,17,null,null,null,null,null,9]", 5, "[8,3,12,2,4,9,17]");
@@ -556,5 +643,5 @@ int main() {
     deleteNode_scaffold("[4,1,6,0,2,5,8,null,null,null,3,null,null,7]", 1, "[4,2,6,0,3,5,8,null,null,null,null,null,null,7]"); // node with two non-null children
     deleteNode_scaffold("[4,1,6,0,2,5,8,null,null,null,3,null,null,7]", 6, "[4,1,7,0,2,5,8,null,null,null,3]"); // node with two non-null children
     TIMER_STOP(deleteNode);
-    util::Log(logESSENTIAL) << "deleteNode using " << TIMER_MSEC(deleteNode) << " milliseconds.";
+    SPDLOG_WARN("deleteNode tests use {} ms", TIMER_MSEC(deleteNode));
 }

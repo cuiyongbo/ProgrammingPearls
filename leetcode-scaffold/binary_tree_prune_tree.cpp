@@ -20,8 +20,9 @@ TreeNode* Solution::pruneTree(TreeNode* root) {
         Input: [1,null,0,0,1]
         Output: [1,null,0,null,1]
 */
-
-{ // recursive version, postorder traversal
+    // return the tree root at node with 0 nodes removed
+    // traverse the tree in post-order
+{    
     std::function<TreeNode*(TreeNode*)> dfs = [&] (TreeNode* node) {
         if (node == nullptr) {
             return node;
@@ -76,7 +77,6 @@ TreeNode* Solution::trimBST(TreeNode* root, int L, int R) {
     trim the tree so that all its elements lies in [low, high].
     You might need to change the root of the tree, so the result should return the new root of the trimmed binary search tree.
 */
-
     if (root == nullptr) { // trivial case
         return nullptr;
     } else if (root->val > R) {
@@ -100,10 +100,9 @@ TreeNode* Solution::removeLeafNodes(TreeNode* root, int target) {
         Input: root = [1,2,3,2,null,2,4], target = 2
         Output: [1,null,3,null,4]
 */
-
     if (root == nullptr) { // trivial case
         return root;
-    } else { // postorder traversal
+    } else { // post-order traversal
         root->left = removeLeafNodes(root->left, target);
         root->right = removeLeafNodes(root->right, target);
         if (root->is_leaf() && root->val == target) {
@@ -117,57 +116,59 @@ TreeNode* Solution::removeLeafNodes(TreeNode* root, int target) {
 void prune_tree_scaffold(std::string input1, std::string input2) {
     TreeNode* t1 = stringToTreeNode(input1);
     TreeNode* t2 = stringToTreeNode(input2);
-
     Solution ss;
     TreeNode* ans = ss.pruneTree(t1);
     if (binaryTree_equal(ans, t2)) {
-        util::UnbufferedLog(logINFO) << "Case(" << input1 << ", " << input2 << ") passed.";
+        SPDLOG_INFO("Case({}, {}) passed", input1, input2);
     } else {
-        util::UnbufferedLog(logERROR) << "Case(" << input1 << ", " << input2 << ") failed.";
+        SPDLOG_ERROR("Case({}, {}) failed. actual: ", input1, input2);
         printBinaryTree(ans);
     }
 }
 
+
 void trim_bst_scaffold(std::string input1, int L, int R, std::string input2) {
     TreeNode* t1 = stringToTreeNode(input1);
     TreeNode* t2 = stringToTreeNode(input2);
-
     Solution ss;
     TreeNode* ans = ss.trimBST(t1, L, R);
     if (binaryTree_equal(ans, t2)) {
-        util::UnbufferedLog(logINFO) << "Case(" << input1 << ", " << input2 << ") passed.";
+        SPDLOG_INFO("Case({}, {}, {}, {}) passed", input1, L, R, input2);
     } else {
-        util::UnbufferedLog(logERROR) << "Case(" << input1 << ", " << input2 << ") failed.";
+        SPDLOG_ERROR("Case({}, {}, {}, {}) failed. actual:", input1, L, R, input2);
+        printBinaryTree(ans);
     }
 }
+
 
 void remove_leaf_scaffold(std::string input1, int target, std::string input2) {
     TreeNode* t1 = stringToTreeNode(input1);
     TreeNode* t2 = stringToTreeNode(input2);
-
     Solution ss;
     TreeNode* ans = ss.removeLeafNodes(t1, target);
     if (binaryTree_equal(ans, t2)) {
-        util::UnbufferedLog(logINFO) << "Case(" << input1 << ", " << input2 << ") passed.";
+        SPDLOG_INFO("Case({}, {}, {}) passed", input1, target, input2);
     } else {
-        util::UnbufferedLog(logERROR) << "Case(" << input1 << ", " << input2 << ") failed.";
+        SPDLOG_ERROR("Case({}, {}, {}) failed. actual: ", input1, target, input2);
+        printBinaryTree(ans);
     }
 }
 
-int main()
-{
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running prune_tree tests:";
+int main() {
+    SPDLOG_WARN("Running prune_tree tests:");
     TIMER_START(prune_tree);
     prune_tree_scaffold("[1,0,1,0,0,0,1]", "[1,null,1,null,1]");
     prune_tree_scaffold("[1,null,0,0,1]", "[1,null,0,null,1]");
     prune_tree_scaffold("[1,0,1,0,0,0,1]", "[1,null,1,null,1]");
     prune_tree_scaffold("[1,1,0,1,1,0,1,0]", "[1,1,0,1,1,null,1]");
+    prune_tree_scaffold("[0]", "[]");
+    prune_tree_scaffold("[0,0]", "[]");
+    prune_tree_scaffold("[0,0,0]", "[]");
     TIMER_STOP(prune_tree);
-    util::Log(logESSENTIAL) << "Running prune_tree tests uses " << TIMER_MSEC(prune_tree) << "ms.";
+    SPDLOG_WARN("prune_tree tests use {} ms", TIMER_MSEC(prune_tree));
 
-    util::Log(logESSENTIAL) << "Running trim_bst tests:";
+    SPDLOG_WARN("Running trim_bst tests:");
     TIMER_START(trim_bst);
     trim_bst_scaffold("[1,0,2]", 0, 2, "[1,0,2]");
     trim_bst_scaffold("[1,0,2]", 1, 2, "[1,null,2]");
@@ -176,14 +177,14 @@ int main()
     trim_bst_scaffold("[1,null,2]", 1, 3, "[1,null,2]");
     trim_bst_scaffold("[1,null,2]", 2, 4, "[2]");
     TIMER_STOP(trim_bst);
-    util::Log(logESSENTIAL) << "Running trim_bst tests uses " << TIMER_MSEC(trim_bst) << "ms.";
+    SPDLOG_WARN("trim_bst tests use {} ms", TIMER_MSEC(trim_bst));
 
-    util::Log(logESSENTIAL) << "Running remove_leaf tests:";
+    SPDLOG_WARN("Running remove_leaf tests:");
     TIMER_START(remove_leaf);
     remove_leaf_scaffold("[1,3,3,3,2]", 3, "[1,3,null,null,2]");
     remove_leaf_scaffold("[1,2,3,2,null,2,4]", 2, "[1,null,3,null,4]");
     remove_leaf_scaffold("[1,2,null,2,null,2]", 2, "[1]");
     remove_leaf_scaffold("[1,1,1]", 1, "[]");
     TIMER_STOP(remove_leaf);
-    util::Log(logESSENTIAL) << "Running remove_leaf tests uses " << TIMER_MSEC(remove_leaf) << "ms.";
+    SPDLOG_WARN("remove_leaf tests use {} ms", TIMER_MSEC(remove_leaf));
 }
