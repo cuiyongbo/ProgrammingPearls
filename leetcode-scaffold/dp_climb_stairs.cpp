@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 70, 746, 1137 */
 
@@ -11,6 +10,7 @@ public:
     int minCostClimbingStairs(vector<int>& cost);
     int tribonacci(int n);
 };
+
 
 int Solution::climbStairs(int n) {
 /*
@@ -31,11 +31,11 @@ int Solution::climbStairs(int n) {
         3. 2 steps + 1 step
 */
 
-{ // navie solution
+if (0) { // navie solution
     // dp[n] means ways to get n steps
     // Solution: dp[n] = dp[n-1] + dp[n-2]
     vector<int> dp(n+1, 0);
-    dp[0] = 1; dp[1] = 1;
+    dp[0] = 1; dp[1] = 1; // trivial cases
     for (int i=2; i<=n; ++i) {
         dp[i] = dp[i-1] + dp[i-2];
     }
@@ -54,10 +54,11 @@ int Solution::climbStairs(int n) {
 
 }
 
+
 int Solution::minCostClimbingStairs(vector<int>& cost) {
 /*
     On a staircase, the i-th step has some non-negative cost cost[i] assigned (0-indexed). Once you pay the cost, you can either climb 1 or 2 steps.
-    You need to find minimum cost to reach the top of the floor (**past the last stair**), and you can either start from the step with index 0, or the step with index 1.
+    You need to find minimum cost to reach the top of the floor (**you have to past the last stair**), and you can either start from the step with index 0, or the step with index 1.
     Example 1:
         Input: cost = [10, 15, 20]
         Output: 15
@@ -67,13 +68,12 @@ int Solution::minCostClimbingStairs(vector<int>& cost) {
         Output: 6
         Explanation: Cheapest is start on cost[0], and only step on 1s, skipping cost[3].
 */
-
 if (0) { // naive solution
     // dp[i] means minCost to reach i
     // Solution: dp[i] = min(dp[i-1]+cost[i-1], dp[i-2]+cost[i-2])
     int n = cost.size();
     vector<int> dp(n+1, 0);
-    dp[0] = 0; dp[1] = 0;
+    dp[0] = 0; dp[1] = 0; // trivial cases
     for (int i=2; i<=n; ++i) {
         dp[i] = min(dp[i-1]+cost[i-1], dp[i-2]+cost[i-2]);
     }
@@ -97,11 +97,11 @@ int Solution::tribonacci(int n) {
 /*
     The Tribonacci sequence Tn is defined as follows: T0 = 0, T1 = 1, T2 = 1, and T(n+3) = T(n) + T(n+1) + T(n+2) for n >= 0. Given n, return the value of T(n).
 */
-
 { // solution with optimization of space usage
     int t[4] = {0, 1, 1, 0};
     for (int i=3; i<=n; ++i) {
         t[3] = t[0] + t[1] + t[2];
+        // shift t to left by one
         t[0] = t[1];
         t[1] = t[2];
         t[2] = t[3];
@@ -112,61 +112,63 @@ int Solution::tribonacci(int n) {
 
 }
 
+
 void climbStairs_scaffold(int input, int expectedResult) {
     Solution ss;
     int actual = ss.climbStairs(input);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
+
 
 void minCostClimbingStairs_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<int> costs = stringTo1DArray<int>(input);
     int actual = ss.minCostClimbingStairs(costs);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
+
 
 void tribonacci_scaffold(int input, int expectedResult) {
     Solution ss;
     int actual = ss.tribonacci(input);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running climbStairs tests:";
+int main() {
+    SPDLOG_WARN("Running climbStairs tests:");
     TIMER_START(climbStairs);
     climbStairs_scaffold(2, 2);
     climbStairs_scaffold(3, 3);
     climbStairs_scaffold(4, 5);
     TIMER_STOP(climbStairs);
-    util::Log(logESSENTIAL) << "climbStairs using " << TIMER_MSEC(climbStairs) << " milliseconds";
+    SPDLOG_WARN("climbStairs tests use {} ms", TIMER_MSEC(climbStairs));
 
-    util::Log(logESSENTIAL) << "Running minCostClimbingStairs tests:";
+    SPDLOG_WARN("Running minCostClimbingStairs tests:");
     TIMER_START(minCostClimbingStairs);
     minCostClimbingStairs_scaffold("[10, 15, 20]", 15);
     minCostClimbingStairs_scaffold("[1, 100, 1, 1, 1, 100, 1, 1, 100, 1]", 6);
     TIMER_STOP(minCostClimbingStairs);
-    util::Log(logESSENTIAL) << "minCostClimbingStairs using " << TIMER_MSEC(minCostClimbingStairs) << " milliseconds";
+    SPDLOG_WARN("minCostClimbingStairs tests use {} ms", TIMER_MSEC(minCostClimbingStairs));
 
-    util::Log(logESSENTIAL) << "Running tribonacci tests:";
+    SPDLOG_WARN("Running tribonacci tests:");
     TIMER_START(tribonacci);
     tribonacci_scaffold(2, 1);
     tribonacci_scaffold(3, 2);
     tribonacci_scaffold(4, 4);
     tribonacci_scaffold(25, 1389537);
     TIMER_STOP(tribonacci);
-    util::Log(logESSENTIAL) << "tribonacci using " << TIMER_MSEC(tribonacci) << " milliseconds";
+    SPDLOG_WARN("tribonacci tests use {} ms", TIMER_MSEC(tribonacci));
 }

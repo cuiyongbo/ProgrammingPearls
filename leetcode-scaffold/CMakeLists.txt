@@ -230,67 +230,67 @@ target_link_libraries(two_pointers_median_finder)
 
 add_executable(dp_longest_common_subsequence dp_longest_common_subsequence.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_longest_common_subsequence PUBLIC cxx_auto_type)
-target_link_libraries(dp_longest_common_subsequence)
+target_link_libraries(dp_longest_common_subsequence PRIVATE spdlog::spdlog_header_only)
 
 add_executable(dp_range_query dp_range_query.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_range_query PUBLIC cxx_auto_type)
-target_link_libraries(dp_range_query)
+target_link_libraries(dp_range_query spdlog::spdlog_header_only)
 
 add_executable(dp_climb_stairs dp_climb_stairs.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_climb_stairs PUBLIC cxx_auto_type)
-target_link_libraries(dp_climb_stairs)
+target_link_libraries(dp_climb_stairs spdlog::spdlog_header_only)
 
 add_executable(dp_max_subarray dp_max_subarray.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_max_subarray PUBLIC cxx_auto_type)
-target_link_libraries(dp_max_subarray)
+target_link_libraries(dp_max_subarray spdlog::spdlog_header_only)
 
 add_executable(dp_unique_paths dp_unique_paths.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_unique_paths PUBLIC cxx_auto_type)
-target_link_libraries(dp_unique_paths)
+target_link_libraries(dp_unique_paths spdlog::spdlog_header_only)
 
 add_executable(dp_max_rectangle dp_max_rectangle.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_max_rectangle PUBLIC cxx_auto_type)
-target_link_libraries(dp_max_rectangle)
+target_link_libraries(dp_max_rectangle spdlog::spdlog_header_only)
 
 add_executable(dp_house_robber dp_house_robber.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_house_robber PUBLIC cxx_auto_type)
-target_link_libraries(dp_house_robber)
+target_link_libraries(dp_house_robber spdlog::spdlog_header_only)
 
 add_executable(dp_perfect_squares dp_perfect_squares.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_perfect_squares PUBLIC cxx_auto_type)
-target_link_libraries(dp_perfect_squares)
+target_link_libraries(dp_perfect_squares spdlog::spdlog_header_only)
 
 add_executable(dp_word_break dp_word_break.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_word_break PUBLIC cxx_auto_type)
-target_link_libraries(dp_word_break)
+target_link_libraries(dp_word_break spdlog::spdlog_header_only)
 
 add_executable(dp_longest_increasing_subsequence dp_longest_increasing_subsequence.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_longest_increasing_subsequence PUBLIC cxx_auto_type)
-target_link_libraries(dp_longest_increasing_subsequence)
+target_link_libraries(dp_longest_increasing_subsequence spdlog::spdlog_header_only)
 
 add_executable(dp_unique_bst dp_unique_bst.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_unique_bst PUBLIC cxx_auto_type)
-target_link_libraries(dp_unique_bst)
+target_link_libraries(dp_unique_bst spdlog::spdlog_header_only)
 
 add_executable(dp_min_shelf_height dp_min_shelf_height.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_min_shelf_height PUBLIC cxx_auto_type)
-target_link_libraries(dp_min_shelf_height)
+target_link_libraries(dp_min_shelf_height spdlog::spdlog_header_only)
 
 add_executable(dp_palindrome_partition dp_palindrome_partition.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_palindrome_partition PUBLIC cxx_auto_type)
-target_link_libraries(dp_palindrome_partition)
+target_link_libraries(dp_palindrome_partition spdlog::spdlog_header_only)
 
 add_executable(dp_edit_distance dp_edit_distance.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_edit_distance PUBLIC cxx_auto_type)
-target_link_libraries(dp_edit_distance)
+target_link_libraries(dp_edit_distance spdlog::spdlog_header_only)
 
 add_executable(dp_cut_rod dp_cut_rod.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_cut_rod PUBLIC cxx_auto_type)
-target_link_libraries(dp_cut_rod)
+target_link_libraries(dp_cut_rod spdlog::spdlog_header_only)
 
 add_executable(dp_misc_exercises dp_misc_exercises.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_misc_exercises PUBLIC cxx_auto_type)
-target_link_libraries(dp_misc_exercises)
+target_link_libraries(dp_misc_exercises spdlog::spdlog_header_only)
 
 # BINARY TREE 
 

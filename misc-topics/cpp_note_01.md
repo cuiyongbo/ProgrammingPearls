@@ -202,4 +202,80 @@ In C++, understanding the concepts of lvalues and rvalues is crucial for graspin
 - **Use lvalue references** (`T&`) to pass objects that you might modify without copying.
 - **Use rvalue references** (`T&&`) to implement move semantics or perfect forwarding, allowing your program to transfer resources from temporaries efficiently.
 
+Q: in CMakeList.txt what does the PRIVATE mean in `target_link_libraries(prog_name PRIVATE libs)`
+In CMake, the `target_link_libraries` command is used to specify libraries or other targets that a target (such as an executable or another library) depends on. The command manages dependencies and linking for both static and shared libraries.
+
+The `PRIVATE`, `PUBLIC`, and `INTERFACE` keywords specify thescope" or "visibility" of the linked library. They control how the properties of the linked libraries are propagated to consumers of the target. Here’s what each term means:
+
+### PRIVATE
+
+When you specify `PRIVATE`, it means that the specified libraries should only be used by the target you are currently defining (in this case, `prog_name`). The `PRIVATE` dependency is not propagated to other targets that link against `prog_name`.
+
+```cmake
+target_link_libraries(prog_name PRIVATE libs)
+```
+
+- The `libs` will be linked with `prog_name`.
+- Any target that links `prog_name` will not inherit the linkage to `libs`.
+
+### PUBLIC
+
+When you use `PUBLIC`, it means that the linked libraries are both required for the target you are currently defining and should be propagated to any target that links against your target.
+
+```cmake
+target_link_libraries(prog_name PUBLIC libs)
+```
+
+- The `libs` will be linked with `prog_name`.
+- Any target that links `prog_name` will also link with `libs`.
+
+### INTERFACE
+
+`INTERFACE` is used when the specified libraries are not needed by the target you are currently defining but should be propagated to targets that link against your target.
+
+```cmake
+target_link_libraries(prog_name INTERFACE libs)
+```
+
+- The `libs` will not be linked with `prog_name`.
+- Any target that links `prog_name` will link with `libs`.
+
+### Summary of Usage
+
+- **PRIVATE**: The dependency is only for the target itself.
+- **PUBLIC**: The dependency is for the target and any other target linking against it.
+- **INTERFACE**: The dependency is only for the targets that link against the current target, not the current target itself.
+
+### Example
+
+Here’s a concrete example to illustrate:
+
+```cmake
+# Define a library target
+add_library(my_lib src/my_lib.cpp)
+
+# Define some executable target that uses my_lib
+add_executable(my_executable src/main.cpp)
+
+# Link my_lib to my_executable with PRIVATE visibility
+target_link_libraries(my_executable PRIVATE my_lib)
+```
+
+In this example:
+- `my_lib` will be linked with `my_executable`.
+- Other targets that link against `my_executable` will **not** inherit the `my_lib` dependency.
+
+If you change `PRIVATE` to `PUBLIC`:
+
+```cmake
+target_link_libraries(my_executable PUBLIC my_lib)
+```
+
+In this case:
+- `my_lib` will be linked with `my_executable`.
+- Other targets that link against `my_executable` will **inherit** the `my_lib` dependency.
+
+Choosing the right visibility (`PRIVATE`, `PUBLIC`, `INTERFACE`) helps manage dependencies more cleanly and ensures that only the necessary dependencies are propagated, reducing potential conflicts and unnecessary linkage.
+
+
 ```

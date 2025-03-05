@@ -18,7 +18,7 @@ Table of Contents:
 
 ## what is triton
 
-Developed by nvidia, Triton is a software toolkit to deploy and serve machine learning models. the model may be trained with different machine learning frameworks, such as tensorflow, pytorch. and may be in different formats, such as SavedModel for tensorflow, torchscript for pytorch, or other format such as ONNX, TensorRT. you can serve one or more models in one triton server, and you can even orchestrate how multiple models work
+Developed by nvidia, Triton is a software toolkit to deploy and serve machine learning models. the model may be trained with different machine learning frameworks, such as tensorflow, pytorch. and may be in different formats, such as SavedModel for tensorflow, torchscript for pytorch, or other format such as ONNX, TensorRT. you can serve one or more models in one triton server, and you can also orchestrate how multiple models work
 together to solve tasks which may be difficult for one model, such as detecting objects in images, generate images from texts.
 
 TODO: add mermaid images about triton system
@@ -27,7 +27,7 @@ TODO: add mermaid images about triton system
 ## git repos
 
 * [triton-inference-server](https://github.com/triton-inference-server)
-    * [triton-inference-server/common: proto, ModelConfig](https://github.com/triton-inference-server/common)
+    * [triton-inference-server/common: proto definition, ModelConfig](https://github.com/triton-inference-server/common)
     * [triton-inference-server/backend](https://github.com/triton-inference-server/backend)
     * [python_backend](https://github.com/triton-inference-server/python_backend)
 
@@ -261,6 +261,9 @@ flowchart LR
     id1 --> id2 --> id3
 ```
 
+**Note**: TRITONBACKEND_Backend, TRITONBACKEND_Model, TRITONBACKEND_ModelInstance don't use C++ inheritance mechanism, instead they are interfaces exported by shared object and implemented by specified backend.
+
+
 * [how to implement a custom backend?](https://github.com/triton-inference-server/backend/tree/main/examples#readme)
 
 **Note:** when compiling a backend, you must specify the same branch with the tritonserver image, otherwise tritonserver will coredump when loading it.
@@ -286,7 +289,7 @@ set `backend: "python"` in `config.pbtxt`, and you may configure others as docum
 
 * write a model handler called `model.py` for each model version
 
-similar to C++ template class, there is a template class called `TritonPythonModel`, and impement `initialize, execute, finalize` methods
+similar to C++ abstract classes, there is a class called `TritonPythonModel` with `initialize, execute, finalize` methods
 
 ```python
 # refer to `/opt/tritonserver/backends/python/triton_python_backend_utils.py`
@@ -388,21 +391,23 @@ Stub::RunCommand()
         py::list py_request_list = LoadRequestsFromSharedMemory(request_batch_shm_ptr);
         ScopedDefer execute_finalize([this] { stub_message_queue_->Pop(); });
         ScopedDefer _([this, &execute_response] { SendIPCMessage(execute_response); });
-        py::object execute_return = model_instance_.attr("execute")(py_request_list);
+        py::object execute_return = model_instance_.attr("execute")(py_request_list); // call TritonPythonModel::execute
 ```
 
 ## [model ensemble](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/architecture.html#ensemble-models)
 
 in some scenario you need to request multiple models for one task, of course you can request model one by one, either serially or simultaneously.
-however, you can do this more elegantly by making one request and letting triton to request multiple models during inference. this is often more efficiently since it reuqires less network passes, less intermediate variables. refer to [bge_ensemble_model](./model-store/bge_ensemble_model) for an ensemble to prcess nlp task. ensemble is only an abstraction, and there is no physical instance bound with it.
-and you don't need to code a `model.py` since triton schedules the models according to `ensemble_scheduling` in `config.pbtxt`.
+however, you can do this more elegantly by making one request and letting triton to request multiple models during inference. this is often more efficient because of less network passes, less intermediate variables. refer to [bge_ensemble_model](./model-store/bge_ensemble_model) for an ensemble to process nlp task. ensemble is only an abstraction, and there is no physical instance bound with it.
+and you don't need to write a `model.py` since triton schedules models according to `ensemble_scheduling` in `config.pbtxt`.
 
 following is an ensemble example to perform object detection in an image:
 
 ```protobuffer
 name: "ensemble_model"
-platform: "ensemble"
+platform: "ensemble" # it must be ensemble
 max_batch_size: 1
+
+# input/output definations as usually
 input [
   {
     name: "IMAGE"
@@ -422,8 +427,9 @@ output [
     dims: [ 3, 224, 224 ]
   }
 ]
-# note that ensemble_scheduling.step order doesn't descide the execution order of internal models
-# inside the models run as a DAG(directed acyclic graph)
+
+# note that `ensemble_scheduling.step` order doesn't descide the execution order of internal models
+# actually the models run as a DAG(directed acyclic graph) during executation
 ensemble_scheduling { 
   step [
     {
@@ -459,7 +465,7 @@ ensemble_scheduling {
       }
       output_map {
         key: "SEGMENTATION_OUTPUT"
-        value: "SEGMENTATION" # output for the last model should be mapped to the ensemble outputs
+        value: "SEGMENTATION" # outputs for the last model should be mapped to the ensemble outputs
       }
     }
   ]
@@ -472,13 +478,13 @@ remember that
 
 > Ensemble models are an abstraction Triton uses to execute a user-defined pipeline of models. Since there is no physical instance associated with an ensemble model,
 > the `instance_group` field can not be specified for it.
-> However, each composing model that makes up an ensemble can specify `instance_group` in its config file and individually support parallel execution
+> However, each composing model can specify `instance_group` in its config file and support parallel execution
 > as described above when the ensemble receives multiple requests.
 
 
 ## [Business Logic Scripting](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/python_backend/README.html#business-logic-scripting)
 
-compared to model ensemble, Business Logic Scripting (BLS for short) allows you to control how internel models will be executed. you may add condition flow control(if-else, loop control) during inference: Execute a model only when the outputs of former model satisfy some condition, or modify the outputs of internal models etc. unlike ensemble which is just an abstraction and no physical instance bond with it,
+compared to model ensemble, Business Logic Scripting (BLS for short) allows you to control how internel models will be executed. you may add condition flow control(if-else, loop control) during inference: Execute a model only when the outputs of former models satisfy some condition, or modify the outputs of internal models etc. unlike ensemble which is just an abstraction and no physical instance bond with it,
 BLS model has bond instances and you need to code a `mode.py` to tell triton how to perform inference.
 
 
@@ -497,7 +503,7 @@ import torch
 import triton_python_backend_utils as pb_utils
 class TritonPythonModel:
     def execute(self, requests):
-        input0= pb_utils.get_input_tensor_by_name(request,"INPUT0")
+        input0 = pb_utils.get_input_tensor_by_name(request,"INPUT0")
         # We have converted a Python backend tensor to a PyTorch tensor without making any copies.
         pytorch_tensor = torch.utils.dlpack.from_dlpack(input0.to_dlpack())
 
@@ -508,7 +514,7 @@ class TritonPythonModel:
     def execute(self,requests):
         pytorch_tensor=torch.tensor([1, 2, 3], device='cuda')
         # Create a Python backend tensor from the DLPack encoding of a PyTorch tensor.
-        input0= pb_utils.Tensor.from_dlpack("INPUT0", torch.utils.dlpack.to_dlpack(pytorch_tensor))
+        input0 = pb_utils.Tensor.from_dlpack("INPUT0", torch.utils.dlpack.to_dlpack(pytorch_tensor))
 ```
 
 * PYTHON BACKEND PB Tensor Placement
