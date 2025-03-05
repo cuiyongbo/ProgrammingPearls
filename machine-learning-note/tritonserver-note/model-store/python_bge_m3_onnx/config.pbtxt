@@ -43,21 +43,6 @@ output [
     dims: [1024]
   },
   {
-    name: "token_ids"
-    data_type: TYPE_UINT32
-    dims: [-1]
-  },
-  {
-    name: "token_weights"
-    data_type: TYPE_FP32
-    dims: [-1]
-  },
-  {
-    name: "tokens"
-    data_type: TYPE_STRING
-    dims: [-1]
-  },
-  {
     name: "sparse_vecs"
     data_type: TYPE_STRING
     dims: [1]

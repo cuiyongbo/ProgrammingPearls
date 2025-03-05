@@ -146,22 +146,12 @@ class TritonPythonModel:
                 input_list = [s.decode("utf-8") for s in input_list]
                 inputs = self.tokenizer(input_list, padding=True, truncation=True, return_tensors="np")
                 outputs = self.model.run(None, input_feed=dict(inputs), run_options=self.session_run_opts)
-                token_array = [self.tokenizer.convert_ids_to_tokens(r) for r in outputs[1]]
                 total_tokens = np.sum(inputs["attention_mask"], axis=1, keepdims=True)
                 sparse_vecs = self._process_token_weights(outputs)
                 inference_response = pb_utils.InferenceResponse(
                     output_tensors=[
                         pb_utils.Tensor(
                             "dense_vecs", outputs[0],
-                        ),
-                        pb_utils.Tensor(
-                            "token_ids", outputs[1],
-                        ),
-                        pb_utils.Tensor(
-                            "token_weights", outputs[2],
-                        ),
-                        pb_utils.Tensor(
-                            "tokens", np.array(token_array, dtype=np.object_),
                         ),
                         pb_utils.Tensor(
                             "sparse_vecs", np.array(sparse_vecs, dtype=np.object_),

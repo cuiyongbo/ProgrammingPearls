@@ -110,23 +110,23 @@ target_link_libraries(graph_coloring)
 
 add_executable(bs_search_insert_pos bs_search_insert_pos.cpp ${PUB_UTIL_FILES})
 target_compile_features(bs_search_insert_pos PUBLIC cxx_auto_type)
-target_link_libraries(bs_search_insert_pos)
+target_link_libraries(bs_search_insert_pos PRIVATE spdlog::spdlog_header_only)
 
 add_executable(bs_search_in_rotated_sorted_array bs_search_in_rotated_sorted_array.cpp ${PUB_UTIL_FILES})
 target_compile_features(bs_search_in_rotated_sorted_array PUBLIC cxx_auto_type)
-target_link_libraries(bs_search_in_rotated_sorted_array)
+target_link_libraries(bs_search_in_rotated_sorted_array PRIVATE spdlog::spdlog_header_only)
 
 add_executable(bs_matrix_search bs_matrix_search.cpp ${PUB_UTIL_FILES})
 target_compile_features(bs_matrix_search PUBLIC cxx_auto_type)
-target_link_libraries(bs_matrix_search)
+target_link_libraries(bs_matrix_search PRIVATE spdlog::spdlog_header_only)
 
 add_executable(bs_sqrt bs_sqrt.cpp ${PUB_UTIL_FILES})
 target_compile_features(bs_sqrt PUBLIC cxx_auto_type)
-target_link_libraries(bs_sqrt)
+target_link_libraries(bs_sqrt PRIVATE spdlog::spdlog_header_only)
 
 add_executable(bs_kth_smallest_pair_dis bs_kth_smallest_pair_dis.cpp ${PUB_UTIL_FILES})
 target_compile_features(bs_kth_smallest_pair_dis PUBLIC cxx_auto_type)
-target_link_libraries(bs_kth_smallest_pair_dis)
+target_link_libraries(bs_kth_smallest_pair_dis PRIVATE spdlog::spdlog_header_only)
 
 # BACKTRACE
 

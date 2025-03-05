@@ -54,16 +54,13 @@ def profile_model(model_name, input_tensors):
   for i in range(model_inference_num):
     _ = triton_client.infer(model_name, inputs=input_tensors)
   duration = time.time() - start
-  print("profile_model({}), batch size: {}, input txt length: {}, avg latency: {} ms".format(model_name, model_infer_batch_size, model_input_txt_len, duration/model_inference_num*1000))
+  print("profile_model({}), batch_size: {}, input_txt_len: {}, avg_latency: {} ms".format(model_name, model_infer_batch_size, model_input_txt_len, duration/model_inference_num*1000))
   time.sleep(5)
   
 
-profile_model("bge_ensemble_model", input_tensors)
-
-profile_model("bge_bls_model", input_tensors)
-
+#profile_model("bge_ensemble_model", input_tensors)
+#profile_model("bge_bls_model", input_tensors)
 profile_model("python_bge_m3_onnx", input_tensors)
-
 profile_model("python_bge_large_zh_onnx", input_tensors)
 
 
@@ -73,7 +70,7 @@ def profile_mixed_model(input_tensors):
     _ = triton_client.infer("python_bge_m3_onnx", inputs=input_tensors)
     _ = triton_client.infer("python_bge_large_zh_onnx", inputs=input_tensors)
   duration = time.time() - start
-  print("profile_model({}), batch size: {}, input txt length: {}, avg latency: {} ms".format("mixed_model", model_infer_batch_size, model_input_txt_len, duration/model_inference_num*1000))
+  print("profile_model({}), batch_size: {}, input_txt_len: {}, avg_latency: {} ms".format("mixed_model", model_infer_batch_size, model_input_txt_len, duration/model_inference_num*1000))
   time.sleep(5)
 
 
@@ -87,17 +84,17 @@ tritonserver --model-store=./cyb-test-models
 
 '''
 # python3 compare_bge_bls_vs_ensemble_model.py 
-profile_model(bge_ensemble_model), batch size: 1, input txt length: 500, avg latency: 26.700286865234375 ms
-profile_model(bge_bls_model), batch size: 1, input txt length: 500, avg latency: 27.92264699935913 ms
-profile_model(python_bge_m3_onnx), batch size: 1, input txt length: 500, avg latency: 14.781500101089478 ms
-profile_model(python_bge_large_zh_onnx), batch size: 1, input txt length: 500, avg latency: 18.743945360183716 ms
-profile_model(mixed_model), batch size: 1, input txt length: 500, avg latency: 33.48376989364624 ms
+profile_model(bge_ensemble_model), batch_size: 1, input_txt_len: 500, avg_latency: 26.700286865234375 ms
+profile_model(bge_bls_model), batch_size: 1, input_txt_len: 500, avg_latency: 27.92264699935913 ms
+profile_model(python_bge_m3_onnx), batch_size: 1, input_txt_len: 500, avg_latency: 14.781500101089478 ms
+profile_model(python_bge_large_zh_onnx), batch_size: 1, input_txt_len: 500, avg_latency: 18.743945360183716 ms
+profile_model(mixed_model), batch_size: 1, input_txt_len: 500, avg_latency: 33.48376989364624 ms
 # python3 compare_bge_bls_vs_ensemble_model.py 
-profile_model(bge_ensemble_model), batch size: 1, input txt length: 500, avg latency: 26.568719148635864 ms
-profile_model(bge_bls_model), batch size: 1, input txt length: 500, avg latency: 27.597312927246094 ms
-profile_model(python_bge_m3_onnx), batch size: 1, input txt length: 500, avg latency: 14.76930856704712 ms
-profile_model(python_bge_large_zh_onnx), batch size: 1, input txt length: 500, avg latency: 18.640384674072266 ms
-profile_model(mixed_model), batch size: 1, input txt length: 500, avg latency: 33.53838086128235 ms
+profile_model(bge_ensemble_model), batch_size: 1, input_txt_len: 500, avg_latency: 26.568719148635864 ms
+profile_model(bge_bls_model), batch_size: 1, input_txt_len: 500, avg_latency: 27.597312927246094 ms
+profile_model(python_bge_m3_onnx), batch_size: 1, input_txt_len: 500, avg_latency: 14.76930856704712 ms
+profile_model(python_bge_large_zh_onnx), batch_size: 1, input_txt_len: 500, avg_latency: 18.640384674072266 ms
+profile_model(mixed_model), batch_size: 1, input_txt_len: 500, avg_latency: 33.53838086128235 ms
 
 GPU 利用率 88%, model instance num: 1
 # python3 model_loat_test.py --model=bge_bls_model --num_thread=12

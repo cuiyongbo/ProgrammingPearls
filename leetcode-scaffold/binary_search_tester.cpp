@@ -54,7 +54,7 @@ void binarySearchTester(int arraySize) {
     auto worker = [&] (const vector<int>& input, int key) {
         bool found = false;
         int l = 0;
-        int r = input.size() - 1;
+        int r = input.size() - 1; // r is inclusive
         while (l <= r) {
             int m = (l+r)/2;
             if (input[m] == key) {
@@ -88,15 +88,16 @@ void binarySearchTester(int arraySize) {
     }
 }
 
+// return the first element that is greater or equal to key, array must be sorted in advance
 void lowerBoundSearchTester(int arraySize) {
     auto worker = [&](const vector<int>& input, int key) {
-        int l=0;
-        int r = input.size();
+        int l = 0;
+        int r = input.size(); // r is not inclusive
         while (l < r) {
             int m = (l+r)/2;
             if (input[m] < key) {
                 l = m+1;
-            } else {
+            } else { // when input[m] == key, we move r to left to find the leftmost element is greater than or equal to key
                 r = m;
             }
         }
@@ -123,13 +124,14 @@ void lowerBoundSearchTester(int arraySize) {
     }
 }
 
+// return the first element that is greater than key, array must be sorted in advance
 void upperBoundSearchTester(int arraySize) {
     auto worker = [&](const vector<int>& input, int key) {
         int l=0;
-        int r = input.size();
+        int r = input.size(); // r is not inclusive
         while (l < r) {
             int m = (l+r)/2;
-            if (input[m] <= key) {
+            if (input[m] <= key) { // when input[m] == key, we move l to right to find the leftmost element is greater than key
                 l = m+1;
             } else {
                 r = m;

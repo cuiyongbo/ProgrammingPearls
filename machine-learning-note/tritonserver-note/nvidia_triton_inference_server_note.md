@@ -5,15 +5,15 @@ we refer Triton Inference Server as triton for short in the following doc.
 Table of Contents:
 
 - [Nvidia Triton Inference Server](#nvidia-triton-inference-server)
-  - [what is triton](#what-is-triton)
-  - [git repos](#git-repos)
-  - [how to start tritonserver with NGC](#how-to-start-tritonserver-with-ngc)
-  - [how to prepare model repository](#how-to-prepare-model-repository)
-  - [triton backend](#triton-backend)
-    - [python\_backend](#python_backend)
-  - [model ensemble](#model-ensemble)
-  - [Business Logic Scripting](#business-logic-scripting)
-  - [FAQs](#faqs)
+    - [what is triton](#what-is-triton)
+    - [git repos](#git-repos)
+    - [how to start tritonserver with NGC](#how-to-start-tritonserver-with-ngc)
+    - [how to prepare model repository](#how-to-prepare-model-repository)
+    - [triton backend](#triton-backend)
+        - [python\_backend](#python_backend)
+    - [model ensemble](#model-ensemble)
+    - [Business Logic Scripting](#business-logic-scripting)
+    - [FAQs](#faqs)
 
 
 ## what is triton

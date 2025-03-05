@@ -60,20 +60,18 @@ TreeNode* BinaryTreeTextCodec::deserialize(string data) {
 void BinaryTreeTextCodec_scaffold(string input, string expectedResult) {
     BinaryTreeTextCodec codec;
     TreeNode* expected = stringToTreeNode(expectedResult);
-
     TreeNode* actual = codec.deserialize(input);
     if(!binaryTree_equal(actual, expected)) {
-        util::Log(logERROR) << "BinaryTreeTextCodec::deserialize failed";
+        SPDLOG_ERROR("BinaryTreeTextCodec::deserialize failed");
         return;
     }
-
     string s = codec.serialize(actual);
     util::Log(logESSENTIAL) << s;
     if(s != input) {
-        util::Log(logERROR) << "BinaryTreeTextCodec::serialize failed";
+        SPDLOG_ERROR("BinaryTreeTextCodec::serialize failed");
         return;
     }
-    util::Log(logESSENTIAL) << "BinaryTreeTextCodec " << input << " test passed";
+    SPDLOG_INFO("BinaryTreeTextCodec tests ({}) passed", input);
 }
 
 /*
@@ -103,16 +101,17 @@ string BSTCodec::serialize(TreeNode* root) {
     if(root != nullptr) {
         s.push(root);
     }
+    // pre-order traversal
     while(!s.empty()) {
         auto t = s.top(); s.pop();
+        ans.append(reinterpret_cast<const char*>(&t->val), sizeof(t->val));
+        // stack: last-in, first-out
         if(t->right != nullptr) {
             s.push(t->right);
         }
         if(t->left != nullptr) {
             s.push(t->left);
         }
-        ans.append(reinterpret_cast<const char*>(&t->val), sizeof(t->val));
-        // util::Log(logINFO) << t->val;
     }
     return ans;
 }
@@ -126,12 +125,10 @@ TreeNode* BSTCodec::deserialize_workhorse(string& str, int& pos, int curMin, int
     if(pos >= str.size()) {
         return nullptr;
     }
-
     int val = *reinterpret_cast<const int*>(str.data() + pos);
     if(val < curMin || val > curMax) {
         return nullptr;
     }
-
     pos += sizeof(val);
     TreeNode* root = new TreeNode(val);
     root->left = deserialize_workhorse(str, pos, curMin, val);
@@ -141,21 +138,17 @@ TreeNode* BSTCodec::deserialize_workhorse(string& str, int& pos, int curMin, int
 
 void BSTCodec_scaffold(string input) {
     TreeNode* root = stringToTreeNode(input);
-    
     BSTCodec codec;
     string encoded_str = codec.serialize(root);
     TreeNode* decoded_tree = codec.deserialize(encoded_str);
     if(binaryTree_equal(root, decoded_tree)) {
-        util::Log(logESSENTIAL) << "BSTCodec test passed";
+        SPDLOG_INFO("BSTCodec test passed");
     } else {
-        util::Log(logERROR) << "BSTCodec test failed";
+        SPDLOG_ERROR("BSTCodec test failed");
     }
 }
 
-int main()
-{
-    util::LogPolicy::GetInstance().Unmute();
-
+int main() {
     BinaryTreeTextCodec_scaffold("1 2 4 # # # 3 # #", "[1,2,3,4]");
     BSTCodec_scaffold("[5,2,6,1,4,null,8]");
     BSTCodec_scaffold("[5,2,6,null,4,null,8]");

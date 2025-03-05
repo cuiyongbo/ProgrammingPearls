@@ -21,6 +21,36 @@ public:
 */
 int Solution::search_33(std::vector<int>& nums, int target) {
 
+{
+    // l, r are inclusive
+    std::function<int(int, int)> dac = [&] (int l, int r) {
+        if (l > r) { // trivial case
+            return -1;
+        }
+        int m = (l+r)/2;
+        if (nums[m] == target) {
+            return m;
+        }
+        // nums[l:r] is sorted
+        if (nums[l] < nums[r]) {
+            if (nums[m] < target) { // target must reside in right part if it exists
+                l = m+1;
+            } else { // target must reside in left part if it exists
+                r = m-1;
+            }
+            return dac(l, r);
+        } else { // target may reside in either part, so we search both of them
+            int i = dac(l, m-1);
+            if (i == -1) {
+                i = dac(m+1, r);
+            }
+            return i;
+        }
+    };
+    return dac(0, nums.size()-1);
+}
+
+
 // iterative version
 {
     stack<pair<int, int>> st;
@@ -50,37 +80,6 @@ int Solution::search_33(std::vector<int>& nums, int target) {
     return -1;
 }
 
-// recursive version
-{
-    std::function<int(int, int)> dac = [&] (int l, int r) {
-        if (l > r) { // trivial case
-            return -1;
-        }
-
-        // l must be less or equal than r
-        int m = (l+r)/2;
-        if (nums[m] == target) {
-            return m;
-        }
-
-        if (nums[l] < nums[r]) { // nums[l:r] is sorted
-            // perform normal binary search
-            if (nums[m] < target) {
-                l = m+1;
-            } else { 
-                r = m-1;
-            }
-            return dac(l, r);
-        } else { // search both partitions
-            int i = dac(l, m-1);
-            if (i == -1) {
-                i = dac(m+1, r);
-            }
-            return i;
-        }
-    };
-    return dac(0, nums.size()-1);
-}
 }
 
 
@@ -91,6 +90,31 @@ int Solution::search_33(std::vector<int>& nums, int target) {
     The array may contain duplicates. Your algorithm's runtime complexity must be in the order of O(log n).
 */
 bool Solution::search_81(std::vector<int>& nums, int target) {
+
+{
+    std::function<bool(int, int)> dac = [&] (int l, int r) {
+        if (l > r) { // trivial case
+            return false;
+        }
+        // l must be less or equal than r
+        int m = (l+r)/2;
+        if (nums[m] == target) {
+            return true;
+        }
+        if (nums[l] < nums[r]) { // nums[l:r] is sorted
+            // perform normal binary search
+            if (nums[m] < target) {
+                l = m+1;
+            } else { 
+                r = m-1;
+            }
+            return dac(l, r);
+        } else {
+            return dac(l, m-1) || dac(m+1, r);
+        }
+    };
+    return dac(0, nums.size()-1);
+}
 
 // iterative version
 {
@@ -121,32 +145,6 @@ bool Solution::search_81(std::vector<int>& nums, int target) {
     return false;
 }
 
-// recursive version
-{
-    std::function<bool(int, int)> dac = [&] (int l, int r) {
-        if (l > r) { // trivial case
-            return false;
-        }
-        // l must be less or equal than r
-        int m = (l+r)/2;
-        if (nums[m] == target) {
-            return true;
-        }
-        if (nums[l] < nums[r]) { // nums[l:r] is sorted
-            // perform normal binary search
-            if (nums[m] < target) {
-                l = m+1;
-            } else { 
-                r = m-1;
-            }
-            return dac(l, r);
-        } else {
-            return dac(l, m-1) || dac(m+1, r);
-        }
-    };
-    return dac(0, nums.size()-1);
-}
-
 }
 
 
@@ -155,6 +153,23 @@ bool Solution::search_81(std::vector<int>& nums, int target) {
     (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2). Find the minimum element. You may assume no duplicate exists in the array.
 */
 int Solution::findMin(std::vector<int>& nums) {
+
+{
+    // l, r are inclusive
+    std::function<int(int, int)> dac = [&] (int l, int r) {
+        if (l==r) { // trivial case
+            return nums[l];
+        }
+        if (nums[l] < nums[r]) {
+            // nums[l:r] is sorted
+            return nums[l];
+        } else {
+            int m = (l+r)/2;
+            return std::min(dac(l, m), dac(m+1, r));
+        }
+    };
+    return dac(0, nums.size()-1);
+}
 
 // iterative version
 {
@@ -178,21 +193,6 @@ int Solution::findMin(std::vector<int>& nums) {
     return ans;
 }
 
-// recursive version
-{
-    std::function<int(int, int)> dac = [&] (int l, int r) {
-        if (l==r) { // trivial case
-            return nums[l];
-        }
-        if (nums[l] < nums[r]) { // nums[l:r] is sorted
-            return nums[l];
-        } else {
-            int m = (l+r)/2;
-            return std::min(dac(l, m), dac(m+1, r));
-        }
-    };
-    return dac(0, nums.size()-1);
-}
 }
 
 
@@ -212,13 +212,48 @@ int Solution::findMin(std::vector<int>& nums) {
 */
 int Solution::findPeakElement(std::vector<int>& nums) {
 
+// trick version
+{
+    if (nums.empty()) {
+        return -1;
+    }
+    int sz = nums.size();
+    if (sz == 1) {
+        return 0;
+    } else {
+        if (nums[0] > nums[1]) {
+            return 0;
+        } else if (nums[sz-1] > nums[sz-2]) {
+            return sz-1;
+        }
+        // l, r are inclusive
+        std::function<int(int, int)> dac = [&] (int l, int r) {
+            if (l > r) {
+                return -1;
+            }
+            int m = (l+r)/2;
+            if (nums[m]>nums[m-1] && nums[m]>nums[m+1]) {
+                return m;
+            }
+            int i = dac(l, m-1);
+            if (i == -1){
+                i = dac(m+1, r);
+            }
+            return i;
+        };
+        return dac(1, sz-2);
+    }
+}
+
 { // naive solution
     int sz = nums.size();
+    // l, r are inclusive
     function<int(int, int)> dac = [&] (int l, int r) {
         if (l>r) { // trivial case
             return -1;
         }
         int m = (l+r)/2;
+        // what if nums[0] or nums[sz-1] is INT32_MIN??
         //int left = (m==0) ? INT32_MIN : nums[m-1];
         //int right = (m==sz-1) ? INT32_MIN : nums[m+1];
         //if (nums[m]>left && nums[m]>right) {
@@ -235,58 +270,6 @@ int Solution::findPeakElement(std::vector<int>& nums) {
     return dac(0, sz-1);
 }
 
-{ // trick version
-    int sz = nums.size();
-    std::vector<int> twin(sz+2, INT32_MIN);
-    std::copy(nums.begin(), nums.end(), twin.begin()+1);
-    function<int(int, int)> dac = [&] (int l, int r) {
-        if (l>r) { // trivial case
-            return -1;
-        }
-        int m = (l+r)/2;
-        if (twin[m]>twin[m-1] && twin[m]>twin[m+1]) {
-            return m;
-        } else {
-            int i = dac(l, m-1);
-            if (i==-1) {
-                i = dac(m+1, r);
-            }
-            return i;
-        }
-    };
-    return dac(1, sz)-1;
-}
-
-{ // another trick version
-    int sz = nums.size();
-    // trival cases
-    if (sz == 1) {
-        return 0;
-    } else {
-        if (nums[0] > nums[1]) {
-            return 0;
-        }
-        if (nums[sz-2] < nums[sz-1]) {
-            return sz-1;
-        }
-    }
-    std::function<int(int, int)> dac = [&] (int l, int r) {
-        if (l>r) { //trivial case
-            return -1;
-        }
-        int m = (l+r)/2;
-        if (nums[m-1]<nums[m] && nums[m]>nums[m+1]) {
-            return m;
-        }
-        int ans = dac(l, m-1);
-        if (ans == -1) {
-            ans = dac(m+1, r);
-        }
-        return ans;
-    };
-    return dac(1, sz-2);
-}
-
 }
 
 
@@ -298,10 +281,11 @@ int Solution::findPeakElement(std::vector<int>& nums) {
 */
 int Solution::peakIndexInMountainArray(std::vector<int>& nums) {
 
-{ // iterative version solution
+{ // iterative version solution, a variant of upper_bound search
     // find the largest index `i`, where `nums[i]<nums[i+1]`
+    // find the first index `i`, where `nums[i]>nums[i+1]`
     int l = 0;
-    int r = nums.size();
+    int r = nums.size(); // r is not inclusive
     while (l < r) {
         int m = (l+r)/2;
         if (nums[m]<nums[m+1]) {
@@ -334,39 +318,42 @@ int Solution::peakIndexInMountainArray(std::vector<int>& nums) {
 
 }
 
+
 void search_33_scaffold(std::string input, int target, int expectedResult) {
     Solution ss;
     std::vector<int> nums = stringTo1DArray<int>(input);
     int actual = ss.search_33(nums, target);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input, target, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed, Actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input, target, expectedResult, actual);
     }
 }
+
 
 void search_81_scaffold(std::string input, int target, bool expectedResult) {
     Solution ss;
     std::vector<int> nums = stringTo1DArray<int>(input);
     bool actual = ss.search_81(nums, target);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input, target, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed, Actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input, target, expectedResult, actual);
     }
 }
+
 
 void findMin_scaffold(std::string input, int expectedResult) {
     Solution ss;
     std::vector<int> nums = stringTo1DArray<int>(input);
     int actual = ss.findMin(nums);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
+
 
 void findPeakElement_scaffold(std::string input, std::string expectedResult) {
     Solution ss;
@@ -374,28 +361,26 @@ void findPeakElement_scaffold(std::string input, std::string expectedResult) {
     std::vector<int> expected = stringTo1DArray<int>(expectedResult);
     int actual = ss.findPeakElement(nums);
     if (std::any_of(expected.begin(), expected.end(), [&](int n) {return n == actual;})) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
 
-void peakIndexInMountainArray_scaffold(std::string input, int expectedResult)
-{
+void peakIndexInMountainArray_scaffold(std::string input, int expectedResult) {
     Solution ss;
     std::vector<int> nums = stringTo1DArray<int>(input);
     int actual = ss.peakIndexInMountainArray(nums);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running search_33 tests:";
+int main() {
+    SPDLOG_WARN("Running search_33 tests:");
     TIMER_START(search_33);
     search_33_scaffold("[1,3,5,6]", 0, -1);
     search_33_scaffold("[1,3,5,6]", 1, 0);
@@ -415,9 +400,9 @@ int main() {
     search_33_scaffold("[4,5,6,7,0,1,2]", 8, -1);
     search_33_scaffold("[4,5,6,7,0,1,2]", -1, -1);
     TIMER_STOP(search_33);
-    util::Log(logESSENTIAL) << "search_33 using " << TIMER_MSEC(search_33) << " milliseconds";
+    SPDLOG_WARN("search_33 tests use {} ms",  TIMER_MSEC(search_33));
 
-    util::Log(logESSENTIAL) << "Running search_81 tests:";
+    SPDLOG_WARN("Running search_81 tests:");
     TIMER_START(search_81);
     search_81_scaffold("[1,3,5,6]", 0, false);
     search_81_scaffold("[1,3,5,6]", 1, true);
@@ -449,9 +434,9 @@ int main() {
     search_81_scaffold("[1,1,3,1]", 3, true);
     search_81_scaffold("[1,0,1,1,1]", 0, true);
     TIMER_STOP(search_81);
-    util::Log(logESSENTIAL) << "search_81 using " << TIMER_MSEC(search_81) << " milliseconds";
+    SPDLOG_WARN("search_81 tests use {} ms",  TIMER_MSEC(search_81));
 
-    util::Log(logESSENTIAL) << "Running findMin tests:";
+    SPDLOG_WARN("Running findMin tests:");
     TIMER_START(findMin);
     findMin_scaffold("[1,3,5,6]", 1);
     findMin_scaffold("[1,3,5]", 1);
@@ -459,19 +444,20 @@ int main() {
     findMin_scaffold("[2,5,6,0,0,1,2]", 0);
     findMin_scaffold("[1,1,3,1]", 1);
     findMin_scaffold("[2,2,2,0,1]", 0);
+    findMin_scaffold("[1,0,1,1,1]", 0);
     TIMER_STOP(findMin);
-    util::Log(logESSENTIAL) << "findMin using " << TIMER_MSEC(findMin) << " milliseconds";
+    SPDLOG_WARN("findMin tests use {} ms",  TIMER_MSEC(findMin));
 
-    util::Log(logESSENTIAL) << "Running findPeakElement tests:";
+    SPDLOG_WARN("Running findPeakElement tests:");
     TIMER_START(findPeakElement);
     findPeakElement_scaffold("[2,3]", "[1]");
     findPeakElement_scaffold("[1]", "[0]");
     findPeakElement_scaffold("[1,2,3,1]", "[2]");
     findPeakElement_scaffold("[1,2,1,3,5,6,4]", "[1,5]");
     TIMER_STOP(findPeakElement);
-    util::Log(logESSENTIAL) << "findPeakElement using " << TIMER_MSEC(findPeakElement) << " milliseconds";
+    SPDLOG_WARN("findPeakElement tests use {} ms",  TIMER_MSEC(findPeakElement));
 
-    util::Log(logESSENTIAL) << "Running peakIndexInMountainArray tests:";
+    SPDLOG_WARN("Running peakIndexInMountainArray tests:");
     TIMER_START(peakIndexInMountainArray);
     peakIndexInMountainArray_scaffold("[0,1,0]", 1);
     peakIndexInMountainArray_scaffold("[4,5,6,7,0,1]", 3);
@@ -483,5 +469,5 @@ int main() {
     peakIndexInMountainArray_scaffold("[0,5,10,5,2]", 2);
     peakIndexInMountainArray_scaffold("[0,5,5,10,2]", 3);
     TIMER_STOP(peakIndexInMountainArray);
-    util::Log(logESSENTIAL) << "peakIndexInMountainArray using " << TIMER_MSEC(peakIndexInMountainArray) << " milliseconds";
+    SPDLOG_WARN("peakIndexInMountainArray tests use {} ms",  TIMER_MSEC(peakIndexInMountainArray));
 }

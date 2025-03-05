@@ -11,6 +11,7 @@ public:
     std::vector<int> kthSmallestPrimeFraction(std::vector<int>& A, int K);
 };
 
+
 int Solution::smallestDistancePair(std::vector<int>& nums, int k) {
 /*
     Given an integer array, return the k-th smallest distance among all the pairs. The distance of a pair (A, B) is defined as the absolute difference between A and B.
@@ -29,9 +30,10 @@ if (0) { // naive solution, O(n^2)
     }
     int ans = 0;
     int count = 0;
+    // traverse the map by key in ascending order
     for (auto it: mp) {
         count += it.second;
-        if (count >= k) {
+        if (count >= k) { // lower bound
             ans = it.first;
             break;
         }
@@ -40,15 +42,16 @@ if (0) { // naive solution, O(n^2)
 }
 
 { // binary search, O(log(max(nums)-min(nums))*log(n)) + O(nlogn) -> O(nlogn)
+    // sorted the array in ascending order so than we can perform upper_bound search with it
     std::sort(nums.begin(), nums.end());
     int sz = nums.size();
-    auto calc_num_pairs = [&] (int distance_m) {
+    auto calc_num_pairs = [&] (int distance) {
         int ans = 0;
         for (int i=0; i<sz; ++i) {
-            int l=i+1, r=sz;
+            int l=i+1, r=sz; // r is not inclusive
             while (l < r) {
                 int m = (l+r)/2;
-                if (nums[m]-nums[i] <= distance_m) {
+                if (nums[m]-nums[i] <= distance) { // when diff==key we move l to right to find the leftmost element that is greater than key
                     l = m+1;
                 } else {
                     r = m;
@@ -59,15 +62,15 @@ if (0) { // naive solution, O(n^2)
         return ans;
     };
     int l = 0;
-    int r = nums[sz-1]-nums[0]+1;
+    int r = nums[sz-1]-nums[0]+1; // r is not inclusive
     while (l < r) {
-        int m = (r-l)/2+l;
-        // perform upper_bound serch to figure out the number of pairs whose distance is no larger than m
-        int total = calc_num_pairs(m);
+        int m = (r+l)/2;
+        // perform upper_bound search to figure out the number of pairs whose distance is no larger than m
+        int pair_num = calc_num_pairs(m);
         // perform lower_bound search to find the first m such that total is no less than k
-        if (total < k) {
+        if (pair_num < k) {
             l = m+1;
-        } else {
+        } else { // when diff==key we move r to left to find the leftmost element that is greater than or equal to key
             r = m;
         }
     }
@@ -75,6 +78,7 @@ if (0) { // naive solution, O(n^2)
 }
 
 }
+
 
 std::vector<int> Solution::kthSmallestPrimeFraction(std::vector<int>& nums, int k) {
 /*
@@ -114,14 +118,11 @@ std::vector<int> Solution::kthSmallestPrimeFraction(std::vector<int>& nums, int 
         return ans;
     };
 
-    int loops = 0;
     double l = 0;
     double r = 1.0;
     while (l < r) {
-        loops++;
         double m = (l+r)/2;
         int num_less = calc_num_less(m);
-        //printf("loop: %d, m: %f, num_less: %d, k: %d, ans: %d, %d\n", loops, m, num_less, k, ret[0], ret[1]);
         if (num_less < k) {
             l=m;
         } else if (num_less > k) {
@@ -129,9 +130,7 @@ std::vector<int> Solution::kthSmallestPrimeFraction(std::vector<int>& nums, int 
         } else {
             break;
         }
-        //std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
-    util::Log(logDEBUG) << "loop count: " << loops;
     return ret;
 }
 
@@ -173,16 +172,18 @@ std::vector<int> Solution::kthSmallestPrimeFraction(std::vector<int>& nums, int 
 
 }
 
+
 void smallestDistancePair_scaffold(string input, int target, int expectedResult) {
     Solution ss;
     std::vector<int> nums = stringTo1DArray<int>(input);
     int actual = ss.smallestDistancePair(nums, target);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input, target, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input, target, expectedResult, actual);
     }
 }
+
 
 void kthSmallestPrimeFraction_scaffold(string input, int target, string expectedResult) {
     Solution ss;
@@ -190,25 +191,24 @@ void kthSmallestPrimeFraction_scaffold(string input, int target, string expected
     std::vector<int> expected = stringTo1DArray<int>(expectedResult);
     std::vector<int> actual = ss.kthSmallestPrimeFraction(nums, target);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input, target, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed, actual: " << numberVectorToString(actual);
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input, target, expectedResult, numberVectorToString(actual));
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running smallestDistancePair tests:";
+int main() {
+    SPDLOG_WARN("Running smallestDistancePair tests:");
     TIMER_START(smallestDistancePair);
     smallestDistancePair_scaffold("[1,3,1]", 1, 0);
     smallestDistancePair_scaffold("[1,1,1]", 2, 0);
     smallestDistancePair_scaffold("[1,6,1]", 3, 5);
     smallestDistancePair_scaffold("[62,100,4]", 2, 58);
     TIMER_STOP(smallestDistancePair);
-    util::Log(logESSENTIAL) << "smallestDistancePair using " << TIMER_MSEC(smallestDistancePair) << " milliseconds";
+    SPDLOG_WARN("smallestDistancePair tests use {} ms", TIMER_MSEC(smallestDistancePair));
 
-    util::Log(logESSENTIAL) << "Running kthSmallestPrimeFraction tests:";
+    SPDLOG_WARN("Running kthSmallestPrimeFraction tests:");
     TIMER_START(kthSmallestPrimeFraction);
     kthSmallestPrimeFraction_scaffold("[1,7]", 1, "[1,7]");
     kthSmallestPrimeFraction_scaffold("[1,2,3,5]", 1, "[1,5]");
@@ -218,5 +218,5 @@ int main() {
     kthSmallestPrimeFraction_scaffold("[1,2,3,5]", 5, "[3,5]");
     kthSmallestPrimeFraction_scaffold("[1,2,3,5]", 6, "[2,3]");
     TIMER_STOP(kthSmallestPrimeFraction);
-    util::Log(logESSENTIAL) << "kthSmallestPrimeFraction using " << TIMER_MSEC(kthSmallestPrimeFraction) << " milliseconds";
+    SPDLOG_WARN("kthSmallestPrimeFraction tests use {} ms", TIMER_MSEC(kthSmallestPrimeFraction));
 }

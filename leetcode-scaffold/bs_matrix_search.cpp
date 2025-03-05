@@ -7,11 +7,11 @@ using namespace osrm;
 
 class Solution {
 public:
-    double findMedianSortedArrays(std::vector<int>& nums1, std::vector<int>& nums2);
-    bool searchMatrix(std::vector<std::vector<int>>& matrix, int target);
+    int findKthLargest(std::vector<int>& nums, int k);
     int kthSmallest(std::vector<std::vector<int>>& matrix, int k);
     int findKthNumber(int m, int n, int k);
-    int findKthLargest(std::vector<int>& nums, int k);
+    bool searchMatrix(std::vector<std::vector<int>>& matrix, int target);
+    double findMedianSortedArrays(std::vector<int>& nums1, std::vector<int>& nums2);
 };
 
 int Solution::findKthLargest(std::vector<int>& nums, int k) {
@@ -27,6 +27,11 @@ int Solution::findKthLargest(std::vector<int>& nums, int k) {
     Hint: you may use quicksort like algorithm to sort the array partially, then fetch the kth element
 */
 
+if (0) { // std solution
+    std::nth_element(nums.begin(), nums.begin()+k-1, nums.end(), std::greater<int>());
+    return nums[k-1];
+}
+
 { // iterative version
     auto partitioner = [&] (int l, int r) {
         int pivot = nums[r];
@@ -39,19 +44,18 @@ int Solution::findKthLargest(std::vector<int>& nums, int k) {
         swap(nums[++j], nums[r]);
         return j;
     };
-
-    int kth = k;
-    int l=0;
-    int r=nums.size()-1;
+    int kth = k; // save k for later use
+    int l = 0;
+    int r = nums.size()-1; // r is inclusive
     while (l<=r) {
         int m = partitioner(l, r);
         int count = m-l+1;
         if (count == k) {
             break;
-        } else if (count < k) {
+        } else if (count < k) { // target resides in right part
             l = m+1;
-            k = k - count;
-        } else {
+            k = k - count; // skip elements which are larger than target but may not necessarily be sorted
+        } else { // target resides in left part
             r = m-1;
             //k = k;
         }
@@ -86,11 +90,6 @@ int Solution::findKthLargest(std::vector<int>& nums, int k) {
     return nums[k-1];
 }
 
-{ // std solution
-    std::nth_element(nums.begin(), nums.begin()+k-1, nums.end(), std::greater<int>());
-    return nums[k-1];
-}
-
 }
 
 bool Solution::searchMatrix(std::vector<std::vector<int>>& matrix, int target) {
@@ -103,9 +102,10 @@ bool Solution::searchMatrix(std::vector<std::vector<int>>& matrix, int target) {
     int rows = matrix.size();
     int columns = matrix[0].size();
     int l = 0;
-    int r = rows*columns-1;
+    int r = rows*columns-1; // r is inclusive
     while (l <= r) {
         int m = (l+r)/2;
+        // convert m to (row,cloumn)
         int a = matrix[m/columns][m%columns];
         if (a == target) {
             return true;
@@ -118,6 +118,7 @@ bool Solution::searchMatrix(std::vector<std::vector<int>>& matrix, int target) {
     return false;
 }
 
+
 double Solution::findMedianSortedArrays(std::vector<int>& nums1, std::vector<int>& nums2) {
 /*
     There are two sorted arrays nums1 and nums2 of size m and n respectively.
@@ -127,6 +128,48 @@ double Solution::findMedianSortedArrays(std::vector<int>& nums1, std::vector<int
     Solution 2: use binary search to find the indices in both arrays, so that there would be ceil((n1+n2)/2) elements
     in the virtual left subarray split by the indices
 */
+
+{ // naive solution
+    vector<int> target_positions;
+    int total_count = nums1.size() + nums2.size();
+    if (total_count % 2 == 0) {
+        int k = total_count/2;
+        target_positions.push_back(k);
+        target_positions.push_back(k+1);
+
+    } else {
+        int k = (total_count+1)/2;
+        target_positions.push_back(k);
+    }
+    // perform upper_bound search to find the number of elements which are no larger than target
+    auto worker = [](const std::vector<int>& nums, int target) {
+        auto it = std::upper_bound(nums.begin(), nums.end(), target);
+        return std::distance(nums.begin(), it);
+    };
+    // perform lower_bound search to find the k-th element of the two arrays
+    auto find_kth_element = [&] (int k) {
+        int l = min(nums1.front(), nums2.front());
+        int r = max(nums1.back(), nums2.back()) + 1; // r is not inclusive
+        while (l<r) {
+            int m = (l+r)/2;
+            int count = 0;
+            count += worker(nums1, m);
+            count += worker(nums2, m);
+            if (count < k) {
+                l = m+1;
+            } else {
+                r = m;
+            }
+        }
+        return l;
+    };
+    double sum = 0;
+    for (auto k: target_positions) {
+        sum += find_kth_element(k);
+    }
+    return sum/target_positions.size();
+}
+
 
 {
     // for case: nums1=[2], nums2=[]
@@ -163,54 +206,6 @@ double Solution::findMedianSortedArrays(std::vector<int>& nums1, std::vector<int
     return 0;
 }
 
-{ // binary search, time complexity is (log(n1)+log(n2))* log(range) ==> log(n1*n2)
-    int n1 = nums1.size();
-    int n2 = nums2.size();
-    std::vector<int> pos;
-    double s = 0;
-    double ans = 0;
-    if ((n1+n2)%2 == 1) {
-        s = 1;
-        pos.push_back((n1+n2)/2+1);
-    } else {
-        s = 0.5;
-        pos.push_back((n1+n2)/2+1);
-        pos.push_back((n1+n2)/2);
-    }
-    auto calc_num_less_or_eq = [] (const std::vector<int>& nums, int mid) {
-        int l=0;
-        int r=nums.size();
-        while (l<r) {
-            int m=(l+r)/2;
-            if (nums[m] <= mid) {
-                l = m+1;
-            } else {
-                r = m;
-            }
-        }
-        return l;
-    };
-    while (!pos.empty()) {
-        int k = pos.back(); pos.pop_back();
-        int l = std::min(nums1[0], nums2[0]);
-        int r = std::max(nums1[n1-1], nums2[n2-1])+1;
-        while (l < r) {
-            int mid = (l+r)/2;
-            int num = 0;
-            num += calc_num_less_or_eq(nums1, mid);
-            num += calc_num_less_or_eq(nums2, mid);
-            if (num<k) {
-                l = mid+1;
-            } else {
-                r = mid;
-            }
-        }
-        ans = ans + l;
-    }
-    return ans*s;
-}
-
-
 }
 
 int Solution::kthSmallest(std::vector<std::vector<int>>& matrix, int k) {
@@ -223,6 +218,34 @@ int Solution::kthSmallest(std::vector<std::vector<int>>& matrix, int k) {
     Hint: using a min-heap/max-heap to keep the first k elements in the matrix
 */
 
+{
+    int rows = matrix.size();
+    int columns = matrix[0].size();
+    auto calc_num_no_larger = [&] (int target) {
+        int ans = 0;
+        for (int i=0; i<rows; i++) {
+            auto it = std::upper_bound(matrix[i].begin(), matrix[i].end(), target);
+            ans += std::distance(matrix[i].begin(), it);
+        }
+        return ans;
+    };
+    // perform lower_bound search to find the answer
+    int l = 0;
+    int r = matrix[rows-1][columns-1] + 1;
+    while (l<r) {
+        int m = (l+r)/2;
+        // perform upper_bound search to find the number of elements that are no larger than target in matrix
+        int num = calc_num_no_larger(m);
+        if (num < k) {
+            l = m+1;
+        } else {
+            r = m;
+        }
+    }
+    return l;
+}
+
+
 { // binary search solution
     int rows = matrix.size();
     int columns = matrix[0].size();
@@ -231,7 +254,7 @@ int Solution::kthSmallest(std::vector<std::vector<int>>& matrix, int k) {
         for (int i=0; i<rows; ++i) {
             int l=0;
             int r=columns;
-            // perform `upper_bound` search to find the number of values which are no less than `mid`
+            // perform `upper_bound` search to find the number of values which are greater than `mid`
             while (l < r) {
                 int m = (l+r)/2;
                 if (matrix[i][m] <= mid) {
@@ -299,7 +322,7 @@ int Solution::kthSmallest(std::vector<std::vector<int>>& matrix, int k) {
 
 }
 
-int Solution::findKthNumber(int m, int n, int k) {
+int Solution::findKthNumber(int rows, int columns, int k) {
 /*
 Nearly everyone has used the Multiplication Table. The multiplication table of size mxn is an integer matrix mat where mat[i][j] == i*j (1-indexed).
 Given three integers m, n, and k, return the kth smallest element in the mxn multiplication table.
@@ -315,38 +338,35 @@ Hint:
  1. solution as kthSmallest; 
  2. find the smallest element x in [1, m*n+1], such that there are k elements that are no larger than x
 */
-
-{ // binary_search solution
-    // since the virtual array has duplicates, we need to perform a `lower_bound` search to find the kth smallest member
     int l = 1;
-    int r = m*n+1;
-    while (l < r) {
-        int total = 0;
-        int mid = l + (r-l)/2;
-        for (int i=1; i<=m && total<k; ++i) {
-            total += std::min(mid/i, n); // number of values which are less or equal to `mid`
+    int r = rows*columns+1; // r is not inclusive
+    while (l<r) {
+        int total_count = 0;
+        int m = (l+r)/2;
+        for (int i=1; i<=rows; i++) {
+            total_count += std::min(m/i, columns);
         }
-        if (total < k) {
-            l = mid+1;
+        if (total_count < k) {
+            l = m+1;
         } else {
-            r = mid;
+            r = m;
         }
     }
     return l;
 }
 
-}
 
 void searchMatrix_scaffold(string input, int target, bool expectedResult) {
     Solution ss;
     std::vector<std::vector<int>> matrix = stringTo2DArray<int>(input);
     bool actual = ss.searchMatrix(matrix, target);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input, target, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input, target, expectedResult, actual);
     }
 }
+
 
 void findMedianSortedArrays_scaffold(string input1, string input2, double expectedResult) {
     Solution ss;
@@ -354,48 +374,52 @@ void findMedianSortedArrays_scaffold(string input1, string input2, double expect
     std::vector<int> nums2 = stringTo1DArray<int>(input2);
     double actual = ss.findMedianSortedArrays(nums1, nums2);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
     }
 }
+
 
 void kthSmallest_scaffold(string input, int target, int expectedResult) {
     Solution ss;
     std::vector<std::vector<int>> matrix = stringTo2DArray<int>(input);
     int actual = ss.kthSmallest(matrix, target);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input, target, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input, target, expectedResult, actual);
     }
 }
+
 
 void findKthNumber_scaffold(int input1, int input2, int k, int expectedResult) {
     Solution ss;
     int actual = ss.findKthNumber(input1, input2, k);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << k << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, {}, expectedResult={}) passed", input1, input1, k, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << k << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, {}, expectedResult={}) failed, actual: {}", input1, input1, k, expectedResult, actual);
     }
 }
+
 
 void findKthLargest_scaffold(string input1, int input2, int expectedResult) {
     Solution ss;
     std::vector<int> vi = stringTo1DArray<int>(input1);
     int actual = ss.findKthLargest(vi, input2);
     if(actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
     }
 }
+
 
 int main() {
     util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running searchMatrix tests:";
+    SPDLOG_WARN("Running searchMatrix tests:");
     TIMER_START(searchMatrix);
     searchMatrix_scaffold("[[1,3,5,7], [10, 11, 16, 20], [23, 30, 34, 50]]", 23, true);
     searchMatrix_scaffold("[[1,3,5,7], [10, 11, 16, 20], [23, 30, 34, 50]]", 16, true);
@@ -408,18 +432,18 @@ int main() {
     searchMatrix_scaffold("[[1,3,5,7], [10, 11, 16, 20], [23, 30, 34, 50]]", 6, false);
     searchMatrix_scaffold("[[1,3,5,7], [10, 11, 16, 20], [23, 30, 34, 50]]", 8, false);
     TIMER_STOP(searchMatrix);
-    util::Log(logESSENTIAL) << "searchMatrix using " << TIMER_MSEC(searchMatrix) << " milliseconds";
+    SPDLOG_WARN("searchMatrix tests use {} ms", TIMER_MSEC(searchMatrix));
 
-    util::Log(logESSENTIAL) << "Running findMedianSortedArrays tests:";
+    SPDLOG_WARN("Running findMedianSortedArrays tests:");
     TIMER_START(findMedianSortedArrays);
     findMedianSortedArrays_scaffold("[1,3]", "[2]", 2.0);
     findMedianSortedArrays_scaffold("[1,4]", "[2,3]", 2.5);
     findMedianSortedArrays_scaffold("[1,2]", "[3,4]", 2.5);
     findMedianSortedArrays_scaffold("[1,2]", "[3]", 2.0);
     TIMER_STOP(findMedianSortedArrays);
-    util::Log(logESSENTIAL) << "findMedianSortedArrays using " << TIMER_MSEC(findMedianSortedArrays) << " milliseconds";
+    SPDLOG_WARN("findMedianSortedArrays tests use {} ms", TIMER_MSEC(findMedianSortedArrays));
 
-    util::Log(logESSENTIAL) << "Running kthSmallest tests:";
+    SPDLOG_WARN("Running kthSmallest tests:");
     TIMER_START(kthSmallest);
     kthSmallest_scaffold("[[1,3,5,7], [10, 11, 16, 20], [23, 30, 34, 50]]", 4, 7);
     kthSmallest_scaffold("[[1,3,5,7], [10, 11, 16, 20], [23, 30, 34, 50]]", 7, 16);
@@ -427,9 +451,9 @@ int main() {
     kthSmallest_scaffold("[[1,5,9], [10,11,13], [12,13,15]]", 6, 12);
     kthSmallest_scaffold("[[1,5,9], [10,11,13], [12,13,15]]", 9, 15);
     TIMER_STOP(kthSmallest);
-    util::Log(logESSENTIAL) << "kthSmallest using " << TIMER_MSEC(kthSmallest) << " milliseconds";
+    SPDLOG_WARN("kthSmallest tests use {} ms", TIMER_MSEC(kthSmallest));
 
-    util::Log(logESSENTIAL) << "Running findKthNumber tests:";
+    SPDLOG_WARN("Running findKthNumber tests:");
     TIMER_START(findKthNumber);
     findKthNumber_scaffold(10, 1, 5, 5);
     findKthNumber_scaffold(3, 3, 5, 3);
@@ -438,9 +462,9 @@ int main() {
     findKthNumber_scaffold(42, 34, 401, 126);
     findKthNumber_scaffold(9895, 28405, 100787757, 31666344);
     TIMER_STOP(findKthNumber);
-    util::Log(logESSENTIAL) << "findKthNumber using " << TIMER_MSEC(findKthNumber) << " milliseconds";
+    SPDLOG_WARN("findKthNumber tests use {} ms", TIMER_MSEC(findKthNumber));
 
-    util::Log(logESSENTIAL) << "Running findKthLargest tests:";
+    SPDLOG_WARN("Running findKthLargest tests:");
     TIMER_START(findKthLargest);
     findKthLargest_scaffold("[3,2,1,5,6,4]", 1, 6);
     findKthLargest_scaffold("[3,2,1,5,6,4]", 2, 5);
@@ -459,5 +483,5 @@ int main() {
     findKthLargest_scaffold("[3,2,3,1,2,4,5,5,6]", 9, 1);
     findKthLargest_scaffold("[3,2,3,1,2,4,5,5,5,6]", 4, 5);
     TIMER_STOP(findKthLargest);
-    util::Log(logESSENTIAL) << "findKthLargest using " << TIMER_MSEC(findKthLargest) << " milliseconds";
+    SPDLOG_WARN("findKthLargest tests use {} ms", TIMER_MSEC(findKthLargest));
 }

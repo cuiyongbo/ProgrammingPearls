@@ -22,15 +22,16 @@ private:
     write a function to search target in nums. If target exists, then return its index, otherwise return -1.
 */
 int Solution::binary_search(vector<int>& nums, int target) {
+    // l, r are inclusive
     int l = 0;
     int r = nums.size()-1;
     while (l<=r) {
         int m = (l+r)/2;
         if (nums[m] == target) {
             return m;
-        } else if (nums[m] < target) {
+        } else if (nums[m] < target) { // target must reside in right part if it exists
             l = m+1;
-        } else {
+        } else { // target must reside in left part if it exists
             r = m-1;
         }
     }
@@ -40,12 +41,13 @@ int Solution::binary_search(vector<int>& nums, int target) {
 
 int Solution::lower_bound(vector<int>& nums, int target) {
     int l = 0;
-    int r = nums.size();
+    int r = nums.size(); // r is not inclusive
     while (l < r) {
         int m = (l+r)/2;
-        if (nums[m] < target) {
+        if (nums[m] < target) { // target must reside in right part if it exists
             l = m+1;
-        } else {
+        } else { // target must reside in left part if it exists
+            // if nums[m] == target, we move to r to left to search the first element that is greater than or equal to target
             r = m;
         }
     }
@@ -55,12 +57,13 @@ int Solution::lower_bound(vector<int>& nums, int target) {
 
 int Solution::upper_bound(vector<int>& nums, int target) {
     int l = 0;
-    int r = nums.size();
+    int r = nums.size(); // r is not inclusive
     while (l < r) {
         int m = (l+r)/2;
-        if (nums[m] <= target) {
+        if (nums[m] <= target) { // target must reside in right part if it exists
+            // if nums[m] == target, we move to l to right to search the first element that is greater than target
             l = m+1;
-        } else {
+        } else { // target must reside in left part if it exists
             r = m;
         }
     }
@@ -74,6 +77,10 @@ int Solution::upper_bound(vector<int>& nums, int target) {
     Hint: perform the lower_bound/upper_bound search.
 */
 int Solution::searchInsert(vector<int>& nums, int target) {
+    if (0) { // std solution
+        auto it = std::lower_bound(nums.begin(), nums.end(), target);
+        return std::distance(nums.begin(), it);
+    }
     return lower_bound(nums, target);
 }
 
@@ -84,7 +91,19 @@ int Solution::searchInsert(vector<int>& nums, int target) {
     Hint: perform lower_bound to find the left boundray, and upper_bound for right boundary (not inclusive).
 */
 vector<int> Solution::searchRange(vector<int>& nums, int target) {
-    // return the first element index that is greater or equal than target
+    if (0) { // std solution
+        auto it1 = std::lower_bound(nums.begin(), nums.end(), target);
+        auto it2 = std::upper_bound(nums.begin(), nums.end(), target);
+        if (it1 == it2) {
+            return {-1, -1};
+        } else {
+            int l = std::distance(nums.begin(), it1);
+            int r = std::distance(nums.begin(), it2);
+            return {l, r-1};
+        }
+    }
+
+    // return the first element index that is greater than or equal to target
     int l = lower_bound(nums, target);
     // return the first element index that is greater than target
     int r = upper_bound(nums, target);
@@ -95,16 +114,18 @@ vector<int> Solution::searchRange(vector<int>& nums, int target) {
     }
 }
 
+
 void searchInsert_scaffold(string input, int target, int expectedResult) {
     Solution ss;
     vector<int> nums = stringTo1DArray<int>(input);
     int actual = ss.searchInsert(nums, target);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO( "Case({}, {}, expectedResult={}) passed", input, target, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed, Actual: " << actual;
+        SPDLOG_ERROR( "Case({}, {}, expectedResult={}) failed, actual: {}", input, target, expectedResult, actual);
     }
 }
+
 
 void searchRange_scaffold(string input, int target, string expectedResult) {
     Solution ss;
@@ -112,23 +133,42 @@ void searchRange_scaffold(string input, int target, string expectedResult) {
     auto expected = stringTo1DArray<int>(expectedResult);
     auto actual = ss.searchRange(nums, target);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO( "Case({}, {}, expectedResult={}) passed", input, target, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed";
+        SPDLOG_ERROR( "Case({}, {}, expectedResult={}) failed, actual: {}", input, target, expectedResult, numberVectorToString(actual));
     }
 }
+
 
 void binary_search_scaffold(string input, int target, int expectedResult) {
     Solution ss;
     vector<int> nums = stringTo1DArray<int>(input);
     int actual = ss.binary_search(nums, target);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO( "Case({}, {}, expectedResult={}) passed", input, target, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << target << ", expectedResult: " << expectedResult << ") failed, Actual: " << actual;
+        SPDLOG_ERROR( "Case({}, {}, expectedResult={}) failed, actual: {}", input, target, expectedResult, actual);
     }
 }
 
+
+struct time_map_key_t {
+    std::string key;
+    int timestamp;
+    time_map_key_t(std::string k, int ts) {
+        this->key = k;
+        this->timestamp = ts;
+    }
+    bool operator<(const time_map_key_t& other) const {
+        if (this->key < other.key) {
+            return true;
+        } else if (this->key == other.key) {
+            return this->timestamp < other.timestamp;
+        } else {
+            return false;
+        }
+    }
+};
 
 class TimeMap {
 /*
@@ -157,24 +197,37 @@ public:
     void set(string key, string val, int timestamp);
     string get(string key, int timestamp);
 
+    void display() {
+        for (auto p: m_data_store) {
+            SPDLOG_WARN("iterate over map, key: {}, timestamp: {}, value: {}", p.first.key, p.first.timestamp, p.second);
+        }
+    }
+
 private:
-    unordered_map<string, map<int, string>> m_table;
+    std::map<time_map_key_t, string> m_data_store;
 };
 
+
 void TimeMap::set(string key, string val, int timestamp) {
-    m_table[key][timestamp] = val;
+    time_map_key_t k(key, timestamp);
+    m_data_store[k] = val;
 }
 
+
 string TimeMap::get(string key, int timestamp) {
-    string ans;
-    if (m_table.count(key) != 0) {
-        const auto& it = m_table[key].upper_bound(timestamp);
-        if (it != m_table[key].begin()) {
-            ans = std::prev(it)->second;
+    string ans = "";
+    time_map_key_t k(key, timestamp);
+    // find the first iterator with map_key larger than <key, timestamp>
+    auto it = m_data_store.upper_bound(k);
+    if (it != m_data_store.begin()) {
+        auto p = std::prev(it);
+        if (p->first.key == key) {
+            ans = p->second;
         }
     }
     return ans;
 }
+
 
 void TimeMap_scaffold(string operations, string args, string expectedOutputs) {
     vector<string> funcOperations = stringTo1DArray<string>(operations);
@@ -185,22 +238,23 @@ void TimeMap_scaffold(string operations, string args, string expectedOutputs) {
     for (int i=0; i<n; ++i) {
         if (funcOperations[i] == "set") {
             tm.set(funcArgs[i][0], funcArgs[i][1], std::stoi(funcArgs[i][2]));
+            SPDLOG_INFO("TimeMap::set(key={}, value={}, timestamp={}) passed", funcArgs[i][0], funcArgs[i][1], funcArgs[i][2]);
         } else if (funcOperations[i] == "get") {
             string actual = tm.get(funcArgs[i][0], std::stoi(funcArgs[i][1]));
-            if (actual != ans[i]) {
-                util::Log(logERROR) << "get(" << funcArgs[i][0] << ", " << funcArgs[i][1] << ") failed, " 
-                                    << "Expected: " << ans[i] << ", actual: " << actual;
+            if (actual == ans[i]) {
+                SPDLOG_INFO("TimeMap::get(key={}, timestamp={}) passed", funcArgs[i][0], funcArgs[i][1]);
             } else {
-                util::Log(logINFO) << "get(" << funcArgs[i][0] << ", " << funcArgs[i][1] << ") passed";
+                SPDLOG_ERROR("TimeMap::get(key={}, timestamp={}) failed, expect: {}, actual: {}", funcArgs[i][0], funcArgs[i][1], ans[i], actual);
+                tm.display();
             }
         }
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running searchInsert tests:";
+int main() {
+
+    SPDLOG_WARN("Running searchInsert tests:");
     TIMER_START(searchInsert);
     searchInsert_scaffold("[1]", 2, 1);
     searchInsert_scaffold("[1]", 0, 0);
@@ -210,9 +264,9 @@ int main() {
     searchInsert_scaffold("[1,3,5,6]", 7, 4);
     searchInsert_scaffold("[1,3,5,6]", 0, 0);
     TIMER_STOP(searchInsert);
-    util::Log(logESSENTIAL) << "searchInsert using " << TIMER_MSEC(searchInsert) << " milliseconds";
+    SPDLOG_WARN("searchInsert tests use {} ms", TIMER_MSEC(searchInsert));
 
-    util::Log(logESSENTIAL) << "Running searchRange tests:";
+    SPDLOG_WARN("Running searchRange tests:");
     TIMER_START(searchRange);
     searchRange_scaffold("[1]", 2, "[-1,-1]");
     searchRange_scaffold("[1]", 0, "[-1, -1]");
@@ -222,25 +276,25 @@ int main() {
     searchRange_scaffold("[5,7,7,8,8,10]", 8, "[3,4]");
     searchRange_scaffold("[5,7,7,8,8,10]", 6, "[-1,-1]");
     TIMER_STOP(searchRange);
-    util::Log(logESSENTIAL) << "searchRange using " << TIMER_MSEC(searchRange) << " milliseconds";
+    SPDLOG_WARN("searchRange tests use {} ms", TIMER_MSEC(searchRange));
 
-    util::Log(logESSENTIAL) << "Running binary_search tests:";
+    SPDLOG_WARN("Running binary_search tests:");
     TIMER_START(binary_search);
     binary_search_scaffold("[1]", 2, -1);
     binary_search_scaffold("[1]", 0, -1);
     binary_search_scaffold("[1,3,5,6]", 5, 2);
     binary_search_scaffold("[1,3,5,6]", 0, -1);
     TIMER_STOP(binary_search);
-    util::Log(logESSENTIAL) << "binary_search using " << TIMER_MSEC(binary_search) << " milliseconds";
+    SPDLOG_WARN("binary_search tests use {} ms", TIMER_MSEC(binary_search));
 
-    util::Log(logESSENTIAL) << "Running TimeMap tests:";
+    SPDLOG_WARN("Running TimeMap tests:");
     TIMER_START(TimeMap);
-    TimeMap_scaffold("[TimeMap,set,get,get,set,get,get]", 
-                    "[[],[foo,bar,1],[foo,1],[foo,3],[foo,bar2,4],[foo,4],[foo,5]]",
-                    "[null,null,bar,bar,null,bar2,bar2]");
+    TimeMap_scaffold("[TimeMap,set,get,get,set,get,get,get]", 
+                    "[[],[foo,bar,1],[foo,1],[foo,3],[foo,bar2,4],[foo,4],[foo,5],[hello,5]]",
+                    "[null,null,bar,bar,null,bar2,bar2,,]");
     TimeMap_scaffold("[TimeMap,set,set,get,get,get,get,get]", 
                     "[[],[love,high,10],[love,low,20],[love,5],[love,10],[love,15],[love,20],[love,25]]",
                     "[null,null,null,,high,high,low,low]");
     TIMER_STOP(TimeMap);
-    util::Log(logESSENTIAL) << "TimeMap using " << TIMER_MSEC(TimeMap) << " milliseconds";
+    SPDLOG_WARN("TimeMap tests use {} ms", TIMER_MSEC(TimeMap));
 }

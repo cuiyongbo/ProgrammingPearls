@@ -42,11 +42,6 @@ output [
     dims: [1024]
   },
   {
-    name: "total_tokens"
-    data_type: TYPE_UINT32
-    dims: [1]
-  },
-  {
     name: "token_num"
     data_type: TYPE_UINT32
     dims: [1]

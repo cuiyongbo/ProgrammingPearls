@@ -132,9 +132,6 @@ class TritonPythonModel:
                             "dense_vecs", outputs[0],
                         ),
                         pb_utils.Tensor(
-                            "total_tokens", total_tokens,
-                        ),
-                        pb_utils.Tensor(
                             "token_num", total_tokens,
                         ),
                     ]
