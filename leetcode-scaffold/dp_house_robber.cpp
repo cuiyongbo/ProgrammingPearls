@@ -9,11 +9,12 @@ class Solution {
 public:
     int rob_198(vector<int>& moneys);
     int rob_213(vector<int>& moneys);
-    int maxProfit(vector<int>& prices);
     int deleteAndEarn(vector<int>& nums);
-    int numTilings(int N);
+    int maxProfit(vector<int>& prices);
+    int numTilings(int N); // I cann't even understand what the problem is about
     int minSwap(vector<int>& A, vector<int>& B);
 };
+
 
 int Solution::rob_198(vector<int>& moneys) {
 /*
@@ -22,15 +23,18 @@ int Solution::rob_198(vector<int>& moneys) {
 */
     // dp[i] means the max profit when robbing house[:i], i is inclusive
     // dp[i] = max(dp[i-2]+moneys[i], dp[i-1])
-
     int sz = moneys.size();
     vector<int> dp = moneys;
+    // trivial cases
     dp[0] = moneys[0]; dp[1] = max(moneys[0], moneys[1]);
+    // recursively calculate the answer
     for (int i=2; i<sz; ++i) {
-        dp[i] = max(dp[i-1], dp[i-2]+moneys[i]);
+        dp[i] = max(dp[i-1], /*money obtained by robbing house i-1*/
+                    dp[i-2]+moneys[i]); /*money obtained by not robbing house i-1*/
     }
     return dp[sz-1];
 }
+
 
 int Solution::rob_213(vector<int>& moneys) {
 /*
@@ -38,7 +42,7 @@ int Solution::rob_213(vector<int>& moneys) {
     **All houses at this place are arranged in a circle. That means the first house is the neighbor of the last one.** 
     Meanwhile, adjacent houses have security system connected and it will automatically contact the police if two adjacent houses were broken into on the same night.
     Given a list of non-negative integers representing the amount of money of each house, determine the maximum amount of money you can rob tonight without alerting the police.
-    Hint: similar to rob_198, except that we may not steal the first house and the last room at the same time
+    Hint: similar to rob_198, except that we can not steal the first and the last house at the same time
 */
     int n = moneys.size();
     // trivial cases
@@ -47,6 +51,7 @@ int Solution::rob_213(vector<int>& moneys) {
     } else if (n == 2) {
         return max(moneys[0], moneys[1]);
     }
+    // r is not inclusive
     auto worker = [&] (int l, int r) {
         vector<int> dp = moneys;
         dp[l] = moneys[l]; dp[l+1] = max(moneys[l], moneys[l+1]);
@@ -55,9 +60,10 @@ int Solution::rob_213(vector<int>& moneys) {
         }
         return dp[r-1];        
     };
-    return max(worker(0, n-1), // steal hourses[0, n-1)
-                worker(1, n)); // steal hourses[1, n)
+    return max(worker(0, n-1), // steal hourses[0, n-1]
+                worker(1, n)); // steal hourses[1, n]
 }
+
 
 int Solution::maxProfit(vector<int>& prices) {
 /*
@@ -70,6 +76,34 @@ int Solution::maxProfit(vector<int>& prices) {
         After you sell your stock, you cannot buy stock on next day. (i.e., cooldown 1 day)
 */
 
+{
+    if (prices.empty()) {
+        return 0;
+    }
+    int n = prices.size();
+    // Initialize the DP arrays
+    vector<int> hold(n, 0), sold(n, 0), cooldown(n, 0);
+    // hold[i] means maxProfit if you buy the stock on day i
+    // sold[i] means maxProfit if you sell the stock on day i
+    // cooldown[i] means maxProfit if you are in a cooldown period on day i (you sold the stock the day before or haven't done any transaction)
+    // trivial cases:
+    hold[0] = -prices[0]; // We've bought on the first day
+    sold[0] = 0;          // Cannot sell on the first day without buying
+    cooldown[0] = 0;      // No cooldown on the first day
+    // state transitions
+    for (int i = 1; i < n; ++i) {
+        // you can buy the stock on day i if you were in a cooldown period or you were already holding the stock
+        hold[i] = max(hold[i-1], cooldown[i-1] - prices[i]);
+        // you can sell the stock on day i if you were holding the stock the day before
+        sold[i] = hold[i-1] + prices[i];
+        // you can be in a cooldown period on day i if you were in a cooldown period or you just sold the stock the day before
+        cooldown[i] = max(cooldown[i-1], sold[i-1]);
+    }
+    // The result is the maximum profit on the last day being in sold or cooldown states
+    return max(sold[n-1], cooldown[n-1]);
+}
+
+{ // optimize space usage
     // sold[i] means maxProfit when sold 
     // hold[i] = max(hold[i-1], rest[i-1] - prices[i])
     // sold[i] = hold[i-1] + prices[i]
@@ -87,6 +121,9 @@ int Solution::maxProfit(vector<int>& prices) {
     }
     return max(sold, rest);
 }
+
+}
+
 
 int Solution::deleteAndEarn(vector<int>& nums) {
 /*
@@ -111,8 +148,10 @@ int Solution::deleteAndEarn(vector<int>& nums) {
     for (auto n: nums) {
         points[n-l] += n;
     }
+    // brilliant! we convert this problem into rob_198
     return rob_198(points);
 }
+
 
 int Solution::numTilings(int N) {
 /*
@@ -130,6 +169,7 @@ int Solution::numTilings(int N) {
     // const int kMod = 1e09 + 7;
     return 0;
 }
+
 
 int Solution::minSwap(vector<int>& A, vector<int>& B) {
 /*
@@ -152,12 +192,13 @@ int Solution::minSwap(vector<int>& A, vector<int>& B) {
         }
         // 2. we may swap at position either i-1 or i
         if (A[i-1]<B[i] && B[i-1]<A[i]) {
-            exchange[i] = min(exchange[i], keep[i-1]+1); // swap only at position i
-            keep[i] = min(keep[i], exchange[i-1]); // swap only at position i-1
+            exchange[i] = min(exchange[i], keep[i-1]+1); // we swap only at position i but don't touch position i-1
+            keep[i] = min(keep[i], exchange[i-1]); // swap only at position i-1 but don't touch position i
         }
     }
     return min(exchange[n-1], keep[n-1]);
 }
+
 
 void rob_scaffold(string input, int expectedResult, int func_no) {
     Solution ss;
@@ -168,35 +209,37 @@ void rob_scaffold(string input, int expectedResult, int func_no) {
     } else if (func_no == 213) {
         actual = ss.rob_213(moneys);
     } else {
-        util::Log(logERROR) << "func_no can only be values in [198, 213]";
+        SPDLOG_ERROR("func_no can only be values in [198, 213], actual: {}", func_no);
         return;
     }
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ", func_no:" << func_no << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}, func_no={}) passed", input, expectedResult, func_no);
     } else {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ", func_no:" << func_no << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}, func_no={}) failed, actual: {}", input, expectedResult, func_no, actual);
     }
 }
+
 
 void maxProfit_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<int> moneys = stringTo1DArray<int>(input);
     int actual = ss.maxProfit(moneys);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
+
 
 void deleteAndEarn_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<int> moneys = stringTo1DArray<int>(input);
     int actual = ss.deleteAndEarn(moneys);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
 
@@ -206,16 +249,15 @@ void minSwap_scaffold(string input1, string input2, int expectedResult) {
     vector<int> B = stringTo1DArray<int>(input2);
     int actual = ss.minSwap(A, B);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running rob tests:";
+int main() {
+    SPDLOG_WARN("Running rob tests:");
     TIMER_START(rob);
     rob_scaffold("[1]", 1, 198);
     rob_scaffold("[1,2,3,4,5]", 9, 198);
@@ -229,25 +271,25 @@ int main() {
     rob_scaffold("[1]", 1, 213);
     rob_scaffold("[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]", 0, 213);
     TIMER_STOP(rob);
-    util::Log(logESSENTIAL) << "rob using " << TIMER_MSEC(rob) << " milliseconds";
+    SPDLOG_WARN("rob tests use {} ms", TIMER_MSEC(rob));
 
-    util::Log(logESSENTIAL) << "Running maxProfit tests:";
+    SPDLOG_WARN("Running maxProfit tests:");
     TIMER_START(maxProfit);
     maxProfit_scaffold("[1, 2, 3, 0, 2]", 3);
     TIMER_STOP(maxProfit);
-    util::Log(logESSENTIAL) << "maxProfit using " << TIMER_MSEC(maxProfit) << " milliseconds";
+    SPDLOG_WARN("maxProfit tests use {} ms", TIMER_MSEC(maxProfit));
 
-    util::Log(logESSENTIAL) << "Running deleteAndEarn tests:";
+    SPDLOG_WARN("Running deleteAndEarn tests:");
     TIMER_START(deleteAndEarn);
     deleteAndEarn_scaffold("[3,4,2]", 6);
     deleteAndEarn_scaffold("[2,2,3,3,3,4]", 9);
     TIMER_STOP(deleteAndEarn);
-    util::Log(logESSENTIAL) << "deleteAndEarn using " << TIMER_MSEC(deleteAndEarn) << " milliseconds";
+    SPDLOG_WARN("deleteAndEarn tests use {} ms", TIMER_MSEC(deleteAndEarn));
 
-    util::Log(logESSENTIAL) << "Running minSwap tests:";
+    SPDLOG_WARN("Running minSwap tests:");
     TIMER_START(minSwap);
     minSwap_scaffold("[1,3,5,4]", "[1,2,3,7]", 1);
     minSwap_scaffold("[0,3,5,8,9]", "[2,1,4,6,9]", 1);
     TIMER_STOP(minSwap);
-    util::Log(logESSENTIAL) << "minSwap using " << TIMER_MSEC(minSwap) << " milliseconds";
+    SPDLOG_WARN("minSwap tests use {} ms", TIMER_MSEC(minSwap));
 }

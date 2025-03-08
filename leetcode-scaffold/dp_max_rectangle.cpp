@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 85, 221, 1277 */
 
@@ -37,7 +36,6 @@ int Solution::maxRectangle(vector<vector<int>>& grid) {
             }
         }
     }
-
     int ans = INT32_MIN;
     for (int r=0; r<rows; ++r) {
         for (int c=0; c<columns; ++c) {
@@ -68,27 +66,28 @@ int Solution::maxSquare(vector<vector<int>>& grid) {
         ]
         Output: 4
 */
-    // dp[i][j] means maxLen of all 1 sequence ending with grid[i][j]
-    // dp[i][j] = dp[i][j-1]+1 if grid[i][j] == 1 else 0
     int rows = grid.size();
     int columns = grid[0].size();
+    // dp[i][j] emans maximum length of all 1 sequence ending with grid[i][j] at row i
+    // dp[i][j] = dp[i][j-1]+1 if grid[i][j]==1 else 0
     vector<vector<int>> dp(rows, vector<int>(columns, 0));
     for (int r=0; r<rows; ++r) {
         for (int c=0; c<columns; ++c) {
             if (grid[r][c] == 1) {
                 dp[r][c] = (c>0) ? (dp[r][c-1]+1) : 1;
+            } else {
+                dp[r][c] = 0;
             }
         }
     }
-
-    int ans = INT32_MIN;
-    for (int r=0; r<rows; ++r) {
-        for (int c=0; c<columns; ++c) {
+    int ans = 0;
+    for (int r=0; r<rows; r++) {
+        for (int c=0; c<columns; c++) {
+            // maxSquare for grid[r:, c]
             int len = INT32_MAX;
-            for (int k=r; k<rows; ++k) {
-                // maxSquare in grid[r:, c]
+            for (int k=r; k<rows; k++) {
                 len = min(len, dp[k][c]);
-                if (len == 0) { // stop when encountering a zero-row
+                if (len == 0) { // stop at row with all 0
                     break;
                 }
                 int w = min(len, k-r+1);
@@ -98,6 +97,7 @@ int Solution::maxSquare(vector<vector<int>>& grid) {
     }
     return ans;
 }
+
 
 int Solution::countSquares(vector<vector<int>>& grid) {
 /*
@@ -134,59 +134,61 @@ int Solution::countSquares(vector<vector<int>>& grid) {
     return ans;
 }
 
+
 void maxRectangle_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> grid = stringTo2DArray<int>(input);
     int actual = ss.maxRectangle(grid);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
+
 
 void maxSquare_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> grid = stringTo2DArray<int>(input);
     int actual = ss.maxSquare(grid);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
+
 
 void countSquares_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> grid = stringTo2DArray<int>(input);
     int actual = ss.countSquares(grid);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running maxRectangle tests:";
+int main() {
+    SPDLOG_INFO("Running maxRectangle tests:");
     TIMER_START(maxRectangle);
     maxRectangle_scaffold("[[0,0,0,0,0,1],[1,1,0,0,1,0],[0,0,0,0,1,1],[0,0,1,0,1,0],[0,1,1,0,0,0],[0,1,1,0,0,0]]", 4);
     maxRectangle_scaffold("[[0,0,1,1,1,1],[0,0,0,0,1,1],[1,1,0,0,0,1],[1,1,1,0,0,1],[1,1,1,0,0,1],[1,1,1,0,0,0]]", 9);
     maxRectangle_scaffold("[[1,0,1,0,0],[1,0,1,1,1],[1,1,1,1,1],[1,0,0,1,0]]", 6);
     TIMER_STOP(maxRectangle);
-    util::Log(logESSENTIAL) << "maxRectangle using " << TIMER_MSEC(maxRectangle) << " milliseconds";
+    SPDLOG_INFO("maxRectangle tests use {} ms", TIMER_MSEC(maxRectangle));
 
-    util::Log(logESSENTIAL) << "Running maxSquare tests:";
+    SPDLOG_INFO("Running maxSquare tests:");
     TIMER_START(maxSquare);
     maxSquare_scaffold("[[0,0,0,0,0,1],[1,1,0,0,1,0],[0,0,0,0,1,1],[0,0,1,0,1,0],[0,1,1,0,0,0],[0,1,1,0,0,0]]", 4);
     maxSquare_scaffold("[[0,0,1,1,1,1],[0,0,0,0,1,1],[1,1,0,0,0,1],[1,1,1,0,0,1],[1,1,1,0,0,1],[1,1,1,0,0,0]]", 9);
     maxSquare_scaffold("[[1,0,1,0,0],[1,0,1,1,1],[1,1,1,1,1],[1,0,0,1,0]]", 4);
     TIMER_STOP(maxSquare);
-    util::Log(logESSENTIAL) << "maxSquare using " << TIMER_MSEC(maxSquare) << " milliseconds";
+    SPDLOG_INFO("maxSquare tests use {} ms", TIMER_MSEC(maxSquare));
 
-    util::Log(logESSENTIAL) << "Running countSquares tests:";
+    SPDLOG_INFO("Running countSquares tests:");
     TIMER_START(countSquares);
     countSquares_scaffold("[[0,0,0,0,0,1],[1,1,0,0,1,0],[0,0,0,0,1,1],[0,0,1,0,1,0],[0,1,1,0,0,0],[0,1,1,0,0,0]]", 13);
     countSquares_scaffold("[[0,0,1,1,1,1],[0,0,0,0,1,1],[1,1,0,0,0,1],[1,1,1,0,0,1],[1,1,1,0,0,1],[1,1,1,0,0,0]]", 27);
@@ -194,6 +196,5 @@ int main() {
     countSquares_scaffold("[[0,1,1,1],[1,1,1,1],[0,1,1,1]]", 15);
     countSquares_scaffold("[[1,0,1],[1,1,0],[1,1,0]]", 7);
     TIMER_STOP(countSquares);
-    util::Log(logESSENTIAL) << "countSquares using " << TIMER_MSEC(countSquares) << " milliseconds";
-
+    SPDLOG_INFO("countSquares tests use {} ms", TIMER_MSEC(countSquares));
 }

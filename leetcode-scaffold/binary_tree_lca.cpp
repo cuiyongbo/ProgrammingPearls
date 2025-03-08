@@ -63,6 +63,7 @@ TreeNode* Solution::lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* 
         All of the nodes' values will be unique.
         p and q are different and both values will exist in the binary tree.
 */
+    // brilliant
     if (root == nullptr || root == p || root == q) { // trivial cases
         return root;
     }

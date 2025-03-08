@@ -28,7 +28,7 @@ int Solution::minDistance(string word1, string word2) {
 }
 
 int Solution::minDistance_dp(string word1, string word2) {
-    // dp[i][j] means minDistance(word1[0,i), word2[0, j))
+    // dp[i][j] means minDistance(word1[0,i), word2[0, j)). i, j are not inclusive
     // dp[i][j] = dp[i-1][j-1] if word1[i-1]=word2[j-1] else 
     //      dp[i][j] = min{dp[i][j-1], dp[i-1][j], dp[i-1][j-1]} + 1
     int m = word1.size();
@@ -80,6 +80,7 @@ int Solution::minDistance_memoization(string word1, string word2) {
     return dfs(m, n);
 }
 
+
 bool Solution::isMatch(string s, string p) {
 /*
     Given an input string (s) and a pattern (p), implement regular expression matching with support for '.' and '*'.
@@ -90,29 +91,30 @@ bool Solution::isMatch(string s, string p) {
     For example, given an input: s = "ab", p = ".*", output: true, explanation: ".*" means "zero or more (*) of any character (.)".
 */
 
-{ // dp solution
+if (1) {
     int m = s.size(), n = p.size();
-    if (n == 0) {
-        return m == 0;
-    }
-    // dp[i][j] means whether p[:j] matches s[:i] (right end is not inclusive)
+    // dp[i][j] means whether p[:j] matches s[:i] or not (**the right ends are inclusive**)
     vector<vector<bool>> dp(m+1, vector<bool>(n+1, false));
-    dp[0][0] = true;
-    for (int j=1; j<n+1; ++j) { // trivial case to match an empty string
-        if (p[j-1] == '*') { 
+    dp[0][0] = true; // trivial case
+    for (int j=2; j<=n; ++j) {
+        if (p[j-1] == '*') { // trivial cases to match an empty string
             dp[0][j] = dp[0][j-2];
         }
     }
-    for (int i=1; i<m+1; ++i) {
-        for (int j=1; j<n+1; ++j) {
-            if (s[i-1] == p[j-1] || p[j-1] == '.') {
+    // i, j are not inclusive
+    for (int i=1; i<=m; ++i) {
+        for (int j=1; j<=n; ++j) {
+            if (p[j-1] == '.') { // a "." match
                 dp[i][j] = dp[i-1][j-1];
             } else if (p[j-1] == '*') {
-                if (s[i-1] == p[j-2] || p[j-2] == '.') {
-                    dp[i][j] = dp[i][j-2] || dp[i-1][j]; // do not understand
-                } else {
-                    dp[i][j] = dp[i][j-2];
+                // 1. Use '*' to match zero characters in s
+                dp[i][j] = dp[i][j-2];
+                // 2. Use '*' to match one or more characters in s
+                if (s[i-1] == p[j-2] || p[j-2]=='.') {
+                    dp[i][j] = dp[i][j] || dp[i-1][j];
                 }
+            } else { // case needing an exact match
+                dp[i][j] = (s[i-1] == p[j-1]) ? dp[i-1][j-1] : false;
             }
         }
     }
@@ -152,36 +154,37 @@ bool Solution::isMatch(string s, string p) {
 
 }
 
+
 void minDistance_scaffold(string input1, string input2, int expectedResult) {
     Solution ss;
     int actual = ss.minDistance(input1, input2);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
     }
 }
+
 
 void isMatch_scaffold(string input1, string input2, bool expectedResult) {
     Solution ss;
-    int actual = ss.isMatch(input1, input2);
+    bool actual = ss.isMatch(input1, input2);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running minDistance tests:";
+int main() {
+    SPDLOG_WARN("Running minDistance tests:");
     TIMER_START(minDistance);
     minDistance_scaffold("hello", "hope", 4);
     TIMER_STOP(minDistance);
-    util::Log(logESSENTIAL) << "minDistance using " << TIMER_MSEC(minDistance) << " milliseconds";
+    SPDLOG_WARN("minDistance tests use {} ms", TIMER_MSEC(minDistance));
 
-    util::Log(logESSENTIAL) << "Running isMatch tests:";
+    SPDLOG_WARN("Running isMatch tests:");
     TIMER_START(isMatch);
     isMatch_scaffold("aa", "a", false);
     isMatch_scaffold("aa", "a*", true);
@@ -189,5 +192,5 @@ int main() {
     isMatch_scaffold("aab", "c*a*b*", true);
     isMatch_scaffold("mississippi", "mis*is*p*.", false);
     TIMER_STOP(isMatch);
-    util::Log(logESSENTIAL) << "isMatch using " << TIMER_MSEC(isMatch) << " milliseconds";
+    SPDLOG_WARN("isMatch tests use {} ms", TIMER_MSEC(isMatch));
 }
