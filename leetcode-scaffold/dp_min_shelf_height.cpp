@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 1105 */
 
@@ -36,7 +35,8 @@ int Solution::minHeightShelves(vector<vector<int>>& books, int shelf_width) {
     for (int i=0; i<n; ++i) {
         int h = 0;
         int w = 0;
-        int prev = i>0 ? dp[i-1] : 0;
+        int prev = i==0 ? 0 : dp[i-1];
+        // put books[i:j] onto the same level of the shief
         for (int j=i; j<n; ++j) {
             w += books[j][0];
             if (w > shelf_width) {
@@ -51,23 +51,23 @@ int Solution::minHeightShelves(vector<vector<int>>& books, int shelf_width) {
 
 }
 
+
 void minHeightShelves_scaffold(string input1, int input2, int expectedResult) {
     Solution ss;
     auto books = stringTo2DArray<int>(input1);
     int actual = ss.minHeightShelves(books, input2);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running minHeightShelves tests:";
+int main() {
+    SPDLOG_WARN("Running minHeightShelves tests:");
     TIMER_START(minHeightShelves);
     minHeightShelves_scaffold("[[1,1],[2,3],[2,3],[1,1],[1,1],[1,1],[1,2]]", 4, 6);
     TIMER_STOP(minHeightShelves);
-    util::Log(logESSENTIAL) << "minHeightShelves using " << TIMER_MSEC(minHeightShelves) << " milliseconds";
+    SPDLOG_WARN("minHeightShelves tests use {} ms", TIMER_MSEC(minHeightShelves));
 }

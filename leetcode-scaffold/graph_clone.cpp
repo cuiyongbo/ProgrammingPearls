@@ -28,10 +28,13 @@ public:
 */
 Node* Solution::cloneGraph(Node* node) {
     std::map<Node*, Node*> visited; // original node, doppelganger
-    std::function<Node*(Node*)> dfs = [&] (Node* p) {
-        Node* np = new Node(p->val);
-        visited[p] = np;
-        for (auto c: p->neighbors) {
+    std::function<Node*(Node*)> dfs = [&] (Node* node) {
+        if (node == nullptr) { // trivial case
+            return node;
+        }
+        Node* np = new Node(node->val);
+        visited[node] = np;
+        for (auto c: node->neighbors) {
             if (visited.count(c) != 0) {
                 np->neighbors.push_back(visited[c]);
             } else {
@@ -54,7 +57,7 @@ Node* Solution::cloneGraph(Node* node) {
 RandomListNode* Solution::copyRandomList(RandomListNode* head) {
     std::map<RandomListNode*, RandomListNode*> visited; // original node, doppelganger
     std::function<RandomListNode*(RandomListNode*)> dfs = [&] (RandomListNode* node) {
-        if (node == nullptr) {
+        if (node == nullptr) { // trivial cases
             return node;
         }
         if (visited.count(node) == 0) {
@@ -73,20 +76,19 @@ void cloneGraph_scaffold(string input) {
     Node* g1 = stringToUndirectedGraph(input);
     Node* g2 = ss.cloneGraph(g1);
     if (graph_equal(g1, g2)) {
-        util::Log(logINFO) << "Case(" << input << ") passed";
+        SPDLOG_INFO("Case({}) passed", input);
     } else {
-        util::Log(logERROR) << "Case(" << input << ") failed";
+        SPDLOG_INFO("Case({}) failed", input);
     }
 }
 
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
-    util::Log(logESSENTIAL) << "Running cloneGraph tests:";
+    SPDLOG_WARN("Running cloneGraph tests:");
     TIMER_START(cloneGraph);
     cloneGraph_scaffold("[[1]]");
     cloneGraph_scaffold("[[2,4],[1,3],[2,4],[1,3]]");
+    cloneGraph_scaffold("[[2,4],[1,3],[2,4],[1,3],[5]]");
     TIMER_STOP(cloneGraph);
-    util::Log(logESSENTIAL) << "cloneGraph using " << TIMER_MSEC(cloneGraph) << " milliseconds";
+    SPDLOG_WARN("cloneGraph tests use {} ms", TIMER_MSEC(cloneGraph));
 }

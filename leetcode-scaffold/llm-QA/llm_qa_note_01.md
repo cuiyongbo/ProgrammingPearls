@@ -1,3 +1,119 @@
+Q: how to solve the problem in C++?
+
+```
+Given an array of integers, return the number of solutions with which we can partition the array into three non-empty parts with equal sums.
+for example,
+input: [0, 0, 0, 0]
+output: 3
+```
+
+To solve the problem of partitioning an array into three non-empty parts with equal sums, we can follow these steps:
+
+1. **Calculate the total sum of the array**.
+2. **Check if the total sum is divisible by 3**. If it is not, it is impossible to partition the array as required.
+3. **Find the target sum for each part** which should be one-third of the total sum.
+4. **Use a prefix sum approach to count the number of ways to form three partitions**. This involves:
+   - Iterating through the array to calculate potential partitions.
+   - Using a two-pointer or nested loop approach to ensure that each partition satisfies the conditions.
+
+### Implementation in C++
+
+Here is the complete implementation:
+
+```cpp
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int countPartitions(vector<int>& nums) {
+    int n = nums.size();
+    int total_sum = 0;
+    
+    // Calculate the total sum of the array
+    for (int num : nums) {
+        total_sum += num;
+    }
+
+    // If total sum is not divisible by 3, return 0
+    if (total_sum % 3 != 0) {
+        return 0;
+    }
+
+    // Calculate the target sum for each part
+    int target_sum = total_sum / 3;
+    int prefix_sum = 0;
+    int count = 0;
+    int first_partition_ways = 0;
+
+    for (int i = 0; i < n - 1; ++i) {
+        prefix_sum += nums[i];
+
+        // Check if the current prefix sum is equal to 2 * target_sum
+        if (prefix_sum == 2 * target_sum) {
+            count += first_partition_ways;
+        }
+
+        // Check if the current prefix sum is equal to target_sum
+        if (prefix_sum == target_sum) {
+            ++first_partition_ways;
+        }
+    }
+
+    return count;
+}
+
+int main() {
+    // Test case
+    vector<int> nums = {0, 0, 0, 0};
+    cout << "Number of ways to partition: " << countPartitions(nums) << endl; // Output: 3
+    return 0;
+}
+```
+
+### Explanation
+
+1. **Calculate Total Sum**:
+    - Iterate through the array and sum up all elements to get `total_sum`.
+
+2. **Check Divisibility**:
+    - If `total_sum % 3 != 0`, it is impossible to partition the array into three equal parts, so return 0.
+
+3. **Prefix Sum and Counting**:
+    - Iterate through the array and maintain a `prefix_sum`.
+    - Keep track of the number of times the prefix sum equals `target_sum` using `first_partition_ways`.
+    - When `prefix_sum` equals `2 * target_sum`, it implies that the first and second partitions can be formed correctly, and `first_partition_ways` counts the ways to form the first partition.
+
+4. **Count Valid Partitions**:
+    - Increment the count of valid partitions whenever the prefix sum equals `2 * target_sum`.
+
+### Detailed Steps
+
+1. **Initialization**:
+    - Initialize `prefix_sum` to 0, `count` to 0, and `first_partition_ways` to 0.
+
+2. **Main Loop**:
+    - For each index `i` in the array (except the last one), update `prefix_sum`.
+    - If `prefix_sum` equals `2 * target_sum`, update `count` by adding `first_partition_ways`.
+    - If `prefix_sum` equals `target_sum`, increment `first_partition_ways`.
+
+### Test and Validate
+
+You can test the function with different test cases to ensure correctness:
+
+```cpp
+vector<int> nums1 = {0, 0, 0, 0};
+cout << "Number of ways to partition: " << countPartitions(nums1) << endl; // Output: 3
+
+vector<int> nums2 = {1, 2, 3, 0, 3};
+cout << "Number of ways to partition: " << countPartitions(nums2) << endl; // Output: 0
+
+vector<int> nums3 = {1, 2, 0, 3, 0, 0, 3};
+cout << "Number of ways to partition: " << countPartitions(nums3) << endl; // Output: 2
+```
+
+With this approach, you'll be able to efficiently and correctly determine the number of ways to partition an array into three non-empty parts with equal sums.
+
 Q: how to solve following problem in C++?
 ```
 We have two integer sequences A and B of the same non-zero length. We are allowed to swap elements A[i] and B[i]. 

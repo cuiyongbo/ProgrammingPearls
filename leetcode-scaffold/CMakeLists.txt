@@ -48,63 +48,63 @@ endif()
 
 add_executable(graph_connected_components graph_connected_components.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_connected_components PUBLIC cxx_std_17)
-target_link_libraries(graph_connected_components)
+target_link_libraries(graph_connected_components PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_redundant_connection graph_redundant_connection.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_redundant_connection PUBLIC cxx_auto_type) # let cmake deduce the c++ standard to use
-target_link_libraries(graph_redundant_connection)
+target_link_libraries(graph_redundant_connection PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_town_judge graph_town_judge.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_town_judge PUBLIC cxx_auto_type)
-target_link_libraries(graph_town_judge)
+target_link_libraries(graph_town_judge PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_network_delay_time graph_network_delay_time.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_network_delay_time PUBLIC cxx_auto_type)
-target_link_libraries(graph_network_delay_time)
+target_link_libraries(graph_network_delay_time PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_shortest_path_visiting_all_nodes graph_shortest_path_visiting_all_nodes.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_shortest_path_visiting_all_nodes PUBLIC cxx_auto_type)
-target_link_libraries(graph_shortest_path_visiting_all_nodes)
+target_link_libraries(graph_shortest_path_visiting_all_nodes PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_minimum_genetic_mutation graph_minimum_genetic_mutation.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_minimum_genetic_mutation PUBLIC cxx_auto_type)
-target_link_libraries(graph_minimum_genetic_mutation)
+target_link_libraries(graph_minimum_genetic_mutation PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_reconstruct_itinerary graph_reconstruct_itinerary.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_reconstruct_itinerary PUBLIC cxx_auto_type)
-target_link_libraries(graph_reconstruct_itinerary)
+target_link_libraries(graph_reconstruct_itinerary PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_critical_connections graph_critical_connections.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_critical_connections PUBLIC cxx_auto_type)
-target_link_libraries(graph_critical_connections)
+target_link_libraries(graph_critical_connections PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_scc_alg graph_scc_alg.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_scc_alg PUBLIC cxx_auto_type)
-target_link_libraries(graph_scc_alg)
+target_link_libraries(graph_scc_alg PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_unique_path graph_unique_path.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_unique_path PUBLIC cxx_auto_type)
-target_link_libraries(graph_unique_path)
+target_link_libraries(graph_unique_path PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_region_cut_by_slash graph_region_cut_by_slash.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_region_cut_by_slash PUBLIC cxx_auto_type)
-target_link_libraries(graph_region_cut_by_slash)
+target_link_libraries(graph_region_cut_by_slash PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_traversal graph_traversal.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_traversal PUBLIC cxx_auto_type)
-target_link_libraries(graph_traversal)
+target_link_libraries(graph_traversal PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_clone graph_clone.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_clone PUBLIC cxx_auto_type)
-target_link_libraries(graph_clone)
+target_link_libraries(graph_clone PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_course_schedule graph_course_schedule.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_course_schedule PUBLIC cxx_auto_type)
-target_link_libraries(graph_course_schedule)
+target_link_libraries(graph_course_schedule PRIVATE spdlog::spdlog_header_only)
 
 add_executable(graph_coloring graph_coloring.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_coloring PUBLIC cxx_auto_type)
-target_link_libraries(graph_coloring)
+target_link_libraries(graph_coloring PRIVATE spdlog::spdlog_header_only)
 
 # BINARY SEARCH
 

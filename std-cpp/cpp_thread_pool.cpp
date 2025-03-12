@@ -15,6 +15,9 @@ From cppreference:
 > The template specialization of std::hash for the std::thread::id class allows users to obtain hashes of the identifiers of threads.
 */
 
+size_t get_thread_id() {
+    return std::hash<std::thread::id>{}(std::this_thread::get_id());
+}
 
 /*
     how to compile a binary: g++ cpp_thread_pool.cpp -std=c++11
@@ -26,6 +29,14 @@ using task_func_t = std::function<void()>;
 
 
 class ThreadPool {
+private:
+    int m_worker_num;
+    std::vector<std::thread> m_workers;
+    std::queue<task_func_t> m_tasks;
+    std::mutex m_mutex;
+    std::condition_variable m_cv;
+    bool m_is_running;
+
 public:
     ThreadPool(int worker_num) {
         m_worker_num = worker_num;
@@ -40,12 +51,14 @@ public:
     }
 
     int task_count() {
+        // you must query the size of queue with lock obtained
         std::unique_lock<std::mutex> lock(m_mutex);
         return m_tasks.size();
     }
 
     template<class F, class... Args>
     int enqueue(F&& f, Args&&... args) {
+        // push tasks into the queue
         return enqueue_impl(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
     }
 
@@ -71,6 +84,7 @@ private:
         while (true) {
             task_func_t task;
             {
+                // wait with lock obtained
                 std::unique_lock<std::mutex> lock(m_mutex);
                 m_cv.wait(lock, [this](){
                     return !m_tasks.empty() || !m_is_running;
@@ -79,7 +93,7 @@ private:
                     break;
                 }
                 auto t = m_tasks.front(); m_tasks.pop();
-                task = std::move(t);
+                task = std::move(t); // task must be moved
             }
             task();
         }
@@ -87,18 +101,11 @@ private:
 
     void start() {
         for (int i=0; i<m_worker_num; i++) {
+            // pass class member function as thread worker
             std::thread t = std::thread(&ThreadPool::woker_fn, this);
-            m_workers.push_back(std::move(t));
+            m_workers.push_back(std::move(t)); // threads must be moved
         }
     }
-
-private:
-    int m_worker_num;
-    std::vector<std::thread> m_workers;
-    std::queue<task_func_t> m_tasks;
-    std::mutex m_mutex;
-    std::condition_variable m_cv;
-    bool m_is_running;
 };
 
 
@@ -108,17 +115,17 @@ int main(void) {
         pool.enqueue([](){
             std::unique_lock<std::mutex> lock(cout_mutex);
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            printf("thread_id: %#zx\n", std::hash<std::thread::id>{}(std::this_thread::get_id()));
+            printf("thread_id: %#zx with func()\n", get_thread_id());
         });
         pool.enqueue([](int id){
             std::unique_lock<std::mutex> lock(cout_mutex);
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            printf("thread_id: %#zx, task: %d\n", std::hash<std::thread::id>{}(std::this_thread::get_id()), id);
+            printf("thread_id: %#zx with func(%d)\n", get_thread_id(), id);
         }, i);
         pool.enqueue(
             [](int x, int y) {
                 std::unique_lock<std::mutex> lock(cout_mutex);
-                std::cout <<"thread_id: " << std::this_thread::get_id() << ": " << x+y << std::endl;
+                printf("thread_id: %#zx with func(%d, %d)\n", get_thread_id(), x, y);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             },
             i, 10*i
@@ -129,7 +136,7 @@ int main(void) {
     pool.enqueue(
         [](int x, int y) {
             std::unique_lock<std::mutex> lock(cout_mutex);
-            std::cout << std::this_thread::get_id() << ":" << x+y << std::endl;
+            printf("thread_id: %#zx with func(%d, %d)\n", get_thread_id(), x, y);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         },
         1, 2

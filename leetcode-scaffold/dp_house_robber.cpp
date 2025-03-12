@@ -1,16 +1,14 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
-/* leetcode: 198, 213, 309, 740, 790, 801 */
+/* leetcode: 198, 213, 740, 790, 801 */
 
 class Solution {
 public:
     int rob_198(vector<int>& moneys);
     int rob_213(vector<int>& moneys);
     int deleteAndEarn(vector<int>& nums);
-    int maxProfit(vector<int>& prices);
     int numTilings(int N); // I cann't even understand what the problem is about
     int minSwap(vector<int>& A, vector<int>& B);
 };
@@ -62,66 +60,6 @@ int Solution::rob_213(vector<int>& moneys) {
     };
     return max(worker(0, n-1), // steal hourses[0, n-1]
                 worker(1, n)); // steal hourses[1, n]
-}
-
-
-int Solution::maxProfit(vector<int>& prices) {
-/*
-    Say you have an array for which the ith element is the price of a given stock on day i.
-
-    Design an algorithm to find the maximum profit. You may complete as many transactions 
-    as you like (i.e., buy one and sell one share of the stock multiple times) with the following restrictions:
-
-        You may not engage in multiple transactions at the same time (i.e., you must sell the stock before you buy again).
-        After you sell your stock, you cannot buy stock on next day. (i.e., cooldown 1 day)
-*/
-
-{
-    if (prices.empty()) {
-        return 0;
-    }
-    int n = prices.size();
-    // Initialize the DP arrays
-    vector<int> hold(n, 0), sold(n, 0), cooldown(n, 0);
-    // hold[i] means maxProfit if you buy the stock on day i
-    // sold[i] means maxProfit if you sell the stock on day i
-    // cooldown[i] means maxProfit if you are in a cooldown period on day i (you sold the stock the day before or haven't done any transaction)
-    // trivial cases:
-    hold[0] = -prices[0]; // We've bought on the first day
-    sold[0] = 0;          // Cannot sell on the first day without buying
-    cooldown[0] = 0;      // No cooldown on the first day
-    // state transitions
-    for (int i = 1; i < n; ++i) {
-        // you can buy the stock on day i if you were in a cooldown period or you were already holding the stock
-        hold[i] = max(hold[i-1], cooldown[i-1] - prices[i]);
-        // you can sell the stock on day i if you were holding the stock the day before
-        sold[i] = hold[i-1] + prices[i];
-        // you can be in a cooldown period on day i if you were in a cooldown period or you just sold the stock the day before
-        cooldown[i] = max(cooldown[i-1], sold[i-1]);
-    }
-    // The result is the maximum profit on the last day being in sold or cooldown states
-    return max(sold[n-1], cooldown[n-1]);
-}
-
-{ // optimize space usage
-    // sold[i] means maxProfit when sold 
-    // hold[i] = max(hold[i-1], rest[i-1] - prices[i])
-    // sold[i] = hold[i-1] + prices[i]
-    // rest[i] = max(rest[i-1], sold[i-1])
-    // init: rest[0]=sold[0]=0, hold[0]=-inf
-
-    int sold = 0;
-    int rest = 0;
-    int hold = -prices[0];
-    for (auto p: prices) {
-        int ps=sold, pr=rest, ph=hold;
-        sold = ph + p;
-        hold = max(ph, pr-p);
-        rest = max(pr, ps);
-    }
-    return max(sold, rest);
-}
-
 }
 
 
@@ -219,19 +157,6 @@ void rob_scaffold(string input, int expectedResult, int func_no) {
     }
 }
 
-
-void maxProfit_scaffold(string input, int expectedResult) {
-    Solution ss;
-    vector<int> moneys = stringTo1DArray<int>(input);
-    int actual = ss.maxProfit(moneys);
-    if (actual == expectedResult) {
-        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
-    } else {
-        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
-    }
-}
-
-
 void deleteAndEarn_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<int> moneys = stringTo1DArray<int>(input);
@@ -272,12 +197,6 @@ int main() {
     rob_scaffold("[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]", 0, 213);
     TIMER_STOP(rob);
     SPDLOG_WARN("rob tests use {} ms", TIMER_MSEC(rob));
-
-    SPDLOG_WARN("Running maxProfit tests:");
-    TIMER_START(maxProfit);
-    maxProfit_scaffold("[1, 2, 3, 0, 2]", 3);
-    TIMER_STOP(maxProfit);
-    SPDLOG_WARN("maxProfit tests use {} ms", TIMER_MSEC(maxProfit));
 
     SPDLOG_WARN("Running deleteAndEarn tests:");
     TIMER_START(deleteAndEarn);
