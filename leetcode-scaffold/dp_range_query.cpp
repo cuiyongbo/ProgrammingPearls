@@ -18,16 +18,23 @@ class NumArray {
 */
 public:
     NumArray(const vector<int>& nums) {
-        // m_sum[i] means sum(nums[0:i]), i is not inclusive
-        m_sum.resize(nums.size() + 1, 0);
-        std::partial_sum(nums.begin(), nums.end(), std::next(m_sum.begin()));
+        // m_sum[i] means sum(nums[0:i]), i is inclusive
+        m_sum.resize(nums.size(), 0);
+        std::partial_sum(nums.begin(), nums.end(), m_sum.begin());
     }
-
-    int sumRange(int i, int j) { return m_sum[j+1] - m_sum[i];}
+    // i, j are inclusive
+    int sumRange(int i, int j) {
+        if (i > 0) {
+            return m_sum[j] - m_sum[i-1];
+        } else {
+            return m_sum[j];
+        }
+    }
 
 private:
     vector<int> m_sum;
 };
+
 
 void NumArray_scaffold(string input1, string input2, string input3, string input4) {
     vector<string> funcs = stringTo1DArray<string> (input1);
@@ -40,42 +47,61 @@ void NumArray_scaffold(string input1, string input2, string input3, string input
         if (funcs[i] == "sumRange") {
             int actual = ranger.sumRange(std::stoi(funcArgs[i][0]), std::stoi(funcArgs[i][1]));
             if (actual == expected[i]) {
-                util::Log(logINFO) << funcs[i] << "(" << funcArgs[i][0] << "," << funcArgs[i][1] << ") test passed";
+                SPDLOG_INFO("{}({}, {}) test passed", funcs[i], funcArgs[i][0], funcArgs[i][1]);
             } else {
-                util::Log(logERROR) << funcs[i] << "(" << funcArgs[i][0] << "," << funcArgs[i][1] << ") test failed, "
-                            << "actual: " << actual << ", expected: " << expected[i];
+                SPDLOG_ERROR("{}({}, {}) test failed, expected={}, actual={}", funcs[i], funcArgs[i][0], funcArgs[i][1], expected[i], actual);
             }
         }
     }
 }
 
+
 class NumMatrix { 
 /*
     leetcode 304: 
-    Given a 2D grid grid, find the sum of the elements inside the rectangle defined by its upper left corner (row1, col1) and lower right corner (row2, col2).
-    (row1, col1), (row2, col2) are 0-indexed.
+    Given a 2D grid grid, find the sum of the elements inside the rectangle defined by its upper left corner (row1, col1) and lower right corner (row2, col2). (row1, col1), (row2, col2) are 0-indexed.
 */
 public:
     NumMatrix(vector<vector<int>>& grid);
-    int sumRegion(int row1, int col1, int row2, int col2);
+
+    /*
+    ----------------------------
+    |       |             |    |  
+    --------p1------------p2----
+    |       |             |    | 
+    |       |             |    |
+    |       |             |    | 
+    --------p3------------p4----
+    |       |             |    | 
+    ----------------------------
+    p1(row1, col1)
+    p2(row1, col2)
+    p3(row2, col1)
+    p4(row2, col2)
+    */
+    // row1, col1, row2, col2 are inclusive
+    int sumRegion(int row1, int col1, int row2, int col2) {
+        return m_dp[row2+1][col2+1] - m_dp[row1][col2+1] - m_dp[row2+1][col1] + m_dp[row1][col1];
+    }
 private:
     // m_dp[i][j] means the sum of matrix whose upper-left resides in (0, 0) and bottom-right in (i-1, j-1)
     vector<vector<int>> m_dp;
 };
 
+
 NumMatrix::NumMatrix(vector<vector<int>>& grid) {
     int rows = grid.size();
     int columns = grid[0].size();
-    // dp[i][j] means sum([0:i, 0:j]), not inclusive
+    // dp[i][j] means sum([0:i, 0:j]). i, j are not inclusive
     vector<vector<int>> dp(rows+1, vector<int>(columns+1, 0));
     for (int r=1; r<=rows; ++r) {
-        for (int c=1; c<=columns; ++c) { // sum by row
+        for (int c=1; c<=columns; ++c) { // prefix sum by row
             dp[r][c] += dp[r][c-1];
             dp[r][c] += grid[r-1][c-1];
         }
     }
     for (int c=1; c<=columns; ++c) {
-        for (int r=1; r<=rows; ++r) { // sum by column
+        for (int r=1; r<=rows; ++r) { // prefix sum by column
             dp[r][c] += dp[r-1][c];
         }
     }
@@ -93,9 +119,6 @@ NumMatrix::NumMatrix(vector<vector<int>>& grid) {
 #endif
 }
 
-int NumMatrix::sumRegion(int row1, int col1, int row2, int col2) {
-    return m_dp[row2+1][col2+1] - m_dp[row2+1][col1] - m_dp[row1][col2+1] + m_dp[row1][col1];
-}
 
 void NumMatrix_scaffold(string input, string operations, string args, string expectedOutputs) {
     vector<vector<int>> grid = stringTo2DArray<int>(input);
@@ -108,18 +131,17 @@ void NumMatrix_scaffold(string input, string operations, string args, string exp
         if (funcOperations[i] == "sumRegion") {
             int actual = tm.sumRegion(funcArgs[i][0], funcArgs[i][1], funcArgs[i][2], funcArgs[i][3]);
             if (actual == ans[i]) {
-                util::Log(logINFO) << funcOperations[i] << "(" << numberVectorToString<int>(funcArgs[i]) << ") passed";
+                SPDLOG_INFO("{}({}) test passed", funcOperations[i], numberVectorToString<int>(funcArgs[i]));
             } else {
-                util::Log(logERROR) << funcOperations[i] << "(" << numberVectorToString<int>(funcArgs[i]) << ") failed";
-                util::Log(logERROR) << "Expected: " << ans[i] << ", actual: " << actual;
+                SPDLOG_ERROR("{}({}) test failed, expected={}, actual={}", funcOperations[i], numberVectorToString<int>(funcArgs[i]), ans[i], actual);
             }
         }
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
+int main() {
+    SPDLOG_WARN("Running NumArray tests:");
     util::Log(logESSENTIAL) << "Running NumArray tests:";
     TIMER_START(NumArray);
     NumArray_scaffold("[NumArray,sumRange,sumRange,sumRange,sumRange]", 
@@ -127,7 +149,7 @@ int main() {
                     "[-2, 0, 3, -5, 2, -1]",
                     "[0,1,-1,-3,-2]");
     TIMER_STOP(NumArray);
-    util::Log(logESSENTIAL) << "NumArray using " << TIMER_MSEC(NumArray) << " milliseconds";
+    SPDLOG_WARN("NumArray tests use {} ms", TIMER_MSEC(NumArray));
 
     string input1 = R"([
         [3, 0, 1, 4, 2],
@@ -138,10 +160,9 @@ int main() {
     string operations = "[sumRegion,sumRegion,sumRegion]";
     string args = "[[2, 1, 4, 3],[1, 1, 2, 2],[1, 2, 2, 4]]";
     string expectedOutputs = "[8,11,12]";
-    util::Log(logESSENTIAL) << "Running NumMatrix tests:";
+    SPDLOG_WARN("Running NumMatrix tests:");
     TIMER_START(NumMatrix);
     NumMatrix_scaffold(input1, operations, args, expectedOutputs);
     TIMER_STOP(NumMatrix);
-    util::Log(logESSENTIAL) << "NumMatrix using " << TIMER_MSEC(NumMatrix) << " milliseconds";
-
+    SPDLOG_WARN("NumMatrix tests use {} ms", TIMER_MSEC(NumMatrix));
 }

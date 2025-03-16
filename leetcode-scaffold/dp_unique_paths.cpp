@@ -23,13 +23,12 @@ int Solution::uniquePaths(int m, int n) {
     The robot tries to move to the bottom-right corner (i.e., grid[m - 1][n - 1]). The robot can only move either down or right at any point in time.
     Given the two integers m and n, return the number of possible unique paths that the robot can take to reach the bottom-right corner.
 */
-
     // dp[i][j] means the number of unique paths to (i, j)
-    // dp[i][j] = dp[i-1][j] + dp[i][j-1]
+    // dp[i][j] = dp[i-1][j] + dp[i][j-1] // from left or upper
 
 { // naive solution
     vector<vector<int>> dp(m, vector<int>(n, 0));
-    dp[0][0] = 1; // initialization
+    dp[0][0] = 1; // trivcal cases
     for (int i=0; i<m; ++i) {
         for (int j=0; j<n; ++j) {
             if (i > 0) { // from upside
@@ -489,26 +488,29 @@ int Solution::calculateMinimumHP(vector<vector<int>>& dungeon) {
 
 }
 
+
 void uniquePaths_scaffold(int input1, int input2, int expectedResult) {
     Solution ss;
     int actual = ss.uniquePaths(input1, input2);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", input1, input2, expectedResult, actual);
     }
 }
+
 
 void uniquePathsWithObstacles_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> grid = stringTo2DArray<int>(input);
     int actual = ss.uniquePathsWithObstacles(grid);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
+
 
 void minPathSum_scaffold(string input, int expectedResult) {
     Solution ss;
@@ -574,45 +576,44 @@ void minimumMoves_scaffold(string input, int expectedResult) {
 }
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
-    util::Log(logESSENTIAL) << "Running uniquePaths tests:";
+    SPDLOG_WARN("Running uniquePaths tests:");
     TIMER_START(uniquePaths);
     uniquePaths_scaffold(3, 7, 28);
     TIMER_STOP(uniquePaths);
-    util::Log(logESSENTIAL) << "uniquePaths using " << TIMER_MSEC(uniquePaths) << " milliseconds";
+    SPDLOG_WARN("uniquePaths tests use {} ms", TIMER_MSEC(uniquePaths));
 
-    util::Log(logESSENTIAL) << "Running uniquePathsWithObstacles tests:";
+    SPDLOG_WARN("Running uniquePathsWithObstacles tests:");
     TIMER_START(uniquePathsWithObstacles);
     uniquePathsWithObstacles_scaffold("[[0,0,0],[0,1,0],[0,0,0]]", 2);
     uniquePathsWithObstacles_scaffold("[[0,1],[0,0]]", 1);
     TIMER_STOP(uniquePathsWithObstacles);
+    SPDLOG_WARN("uniquePathsWithObstacles tests use {} ms", TIMER_MSEC(uniquePathsWithObstacles));
     util::Log(logESSENTIAL) << "uniquePathsWithObstacles using " << TIMER_MSEC(uniquePathsWithObstacles) << " milliseconds";
 
-    util::Log(logESSENTIAL) << "Running minPathSum tests:";
+    SPDLOG_WARN("Running minPathSum tests:");
     TIMER_START(minPathSum);
     minPathSum_scaffold("[[1,3,1],[1,5,1],[4,2,1]]", 7);
     minPathSum_scaffold("[[1,2,3],[4,5,6]]", 12);
     TIMER_STOP(minPathSum);
-    util::Log(logESSENTIAL) << "minPathSum using " << TIMER_MSEC(minPathSum) << " milliseconds";
+    SPDLOG_WARN("minPathSum tests use {} ms", TIMER_MSEC(minPathSum));
 
-    util::Log(logESSENTIAL) << "Running minimumTotal tests:";
+    SPDLOG_WARN("Running minimumTotal tests:");
     TIMER_START(minimumTotal);
     minimumTotal_scaffold("[[2],[3,4],[6,5,7],[4,1,8,3]]", 11);
     minimumTotal_scaffold("[[-10]]", -10);
     minimumTotal_scaffold("[[1],[2,3],[4,5,6],[7,8,9,10]]", 14);
     TIMER_STOP(minimumTotal);
-    util::Log(logESSENTIAL) << "minimumTotal using " << TIMER_MSEC(minimumTotal) << " milliseconds";
+    SPDLOG_WARN("minimumTotal tests use {} ms", TIMER_MSEC(minimumTotal));
 
-    util::Log(logESSENTIAL) << "Running calculateMinimumHP tests:";
+    SPDLOG_WARN("Running calculateMinimumHP tests:");
     TIMER_START(calculateMinimumHP);
     calculateMinimumHP_scaffold("[[-2,-3,3],[-5,-10,1],[10,30,-5]]", 7);
     calculateMinimumHP_scaffold("[[0]]", 1);
     calculateMinimumHP_scaffold("[[100]]", 1);
     TIMER_STOP(calculateMinimumHP);
-    util::Log(logESSENTIAL) << "calculateMinimumHP using " << TIMER_MSEC(calculateMinimumHP) << " milliseconds";
+    SPDLOG_WARN("calculateMinimumHP tests use {} ms", TIMER_MSEC(calculateMinimumHP));
 
-    util::Log(logESSENTIAL) << "Running minFallingSum tests:";
+    SPDLOG_WARN("Running minFallingSum tests:");
     TIMER_START(minFallingSum);
     minFallingSum_scaffold("[[7]]", 7, 931);
     minFallingSum_scaffold("[[1,2,3],[4,5,6],[7,8,9]]", 12, 931);
@@ -621,12 +622,12 @@ int main() {
     minFallingSum_scaffold("[[1,2,3],[4,5,6],[7,8,9]]", 13, 1289);
     minFallingSum_scaffold("[[-73,61,43,-48,-36],[3,30,27,57,10],[96,-76,84,59,-15],[5,-49,76,31,-7],[97,91,61,-46,67]]", -192, 1289);
     TIMER_STOP(minFallingSum);
-    util::Log(logESSENTIAL) << "minFallingSum using " << TIMER_MSEC(minFallingSum) << " milliseconds";
+    SPDLOG_WARN("minFallingSum tests use {} ms", TIMER_MSEC(minFallingSum));
 
-    util::Log(logESSENTIAL) << "Running minimumMoves tests:";
+    SPDLOG_WARN("Running minimumMoves tests:");
     TIMER_START(minimumMoves);
     minimumMoves_scaffold("[[0,0,0,0,0,1],[1,1,0,0,1,0],[0,0,0,0,1,1],[0,0,1,0,1,0],[0,1,1,0,0,0],[0,1,1,0,0,0]]", 11);
     minimumMoves_scaffold("[[0,0,1,1,1,1],[0,0,0,0,1,1],[1,1,0,0,0,1],[1,1,1,0,0,1],[1,1,1,0,0,1],[1,1,1,0,0,0]]", 9);
     TIMER_STOP(minimumMoves);
-    util::Log(logESSENTIAL) << "minimumMoves using " << TIMER_MSEC(minimumMoves) << " milliseconds";
+    SPDLOG_WARN("minimumMoves tests use {} ms", TIMER_MSEC(minimumMoves));
 }
