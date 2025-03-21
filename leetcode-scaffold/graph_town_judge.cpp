@@ -18,8 +18,8 @@ int Solution::findJudge(int N, vector<vector<int>>& trusts) {
         The town judge trusts nobody.
         Everybody (except for the town judge) trusts the town judge.
         There is exactly one person that satisfies properties 1 and 2.
-    You are given trust, an array of pairs trust[i] = [a, b] representing 
-    that the person labelled a trusts the person labelled b.
+    You are given trust, an array of pairs `trust[i] = [a, b]` representing 
+    that the person labelled `a` trusts the person labelled `b`.
     If the town judge exists and can be identified, return the label of the town judge. Otherwise, return -1.
     Hint: node with degree (in_degree - out_degree == N-1) is the judge
 */
@@ -38,20 +38,21 @@ int Solution::findJudge(int N, vector<vector<int>>& trusts) {
     return judge;
 }
 
+
 void findJudge_scaffold(int N, string input, int expectedResult) {
     Solution ss;
     auto trusts = stringTo2DArray<int>(input);
     int actual = ss.findJudge(N, trusts);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << N << ", " << input << ", expected: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", N, input, expectedResult);
     } else {
-        util::Log(logESSENTIAL) << "Case(" << N << ", " << input << ", expected: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", N, input, expectedResult, actual);
     }
 }
 
+
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-    util::Log(logESSENTIAL) << "Running findJudge tests:";
+    SPDLOG_WARN("Running findJudge tests:");
     TIMER_START(findJudge);
     findJudge_scaffold(2, "[[1,2]]", 2);
     findJudge_scaffold(3, "[[1,3],[2,3]]", 3);
@@ -59,5 +60,5 @@ int main() {
     findJudge_scaffold(3, "[[1,2],[2,3]]", -1);
     findJudge_scaffold(4, "[[1,3],[1,4],[2,3],[2,4],[4,3]]", 3);
     TIMER_STOP(findJudge);
-    util::Log(logESSENTIAL) << "findJudge using " << TIMER_MSEC(findJudge) << " milliseconds";
+    SPDLOG_WARN("findJudge tests use {} ms", TIMER_MSEC(findJudge));
 }

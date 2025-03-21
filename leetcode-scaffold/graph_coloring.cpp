@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 785, 886, 1042*/
 class Solution {
@@ -31,13 +30,13 @@ public:
 */
 bool Solution::isBipartite(vector<vector<int>>& graph) {
     int n = graph.size();
-    vector<int> visited(n, 0);
-    vector<int> color(n, 0); 
+    vector<int> visited(n, 0); // 0 - unvisited, 1 - visiting , 2 - visited
+    vector<int> color(n, 0); // 1 - blue, 2 - green
     function<bool(int)> dfs = [&] (int u) {
-        visited[u] = 1;
+        visited[u] = 1; // visiting
         for (auto v: graph[u]) {
-            if (visited[v] == 0) {
-                color[v] = (color[u]==1 ? 2 : 1);
+            if (visited[v] == 0) { // v is not visited yet
+                color[v] = (color[u]==1 ? 2 : 1);  // color neighbors
                 if (!dfs(v)) {
                     return false;
                 }
@@ -45,12 +44,12 @@ bool Solution::isBipartite(vector<vector<int>>& graph) {
                 return false;
             }
         }
-        visited[u] = 2;
+        visited[u] = 2; // visited
         return true;
     };
     for (int u=0; u<n; ++u) {
-        if (visited[u] == 0) {
-            color[u] = 1;
+        if (visited[u] == 0) { // unvisited
+            color[u] = 1;  // color the start node. It has to be colored outside `dfs`
             if (!dfs(u)) {
                 return false;
             }
@@ -62,44 +61,20 @@ bool Solution::isBipartite(vector<vector<int>>& graph) {
 
 /*
     Given a set of N people (numbered 1, 2, ..., N), we would like to split everyone into two groups of any size.
-    Each person may dislike some other people, and they should not go into the same group. 
+    Each person may dislike some other people, and they should not go into the same group.
     Formally, if dislikes[i] = [a, b], it means it is not allowed to put the people numbered a and b into the same group.
     Return true if and only if it is possible to split everyone into two groups in this way.
 */
 bool Solution::possibleBipartition(int N, vector<vector<int>>& dislikes) {
 
 { // dfs solution
+    // build graph with adjacent list representation
     vector<vector<int>> graph(N);
     for (auto& p: dislikes) {
         graph[p[0]-1].push_back(p[1]-1);
         graph[p[1]-1].push_back(p[0]-1);
     }
-    vector<int> visited(N, 0);
-    vector<int> colors(N, 0);
-    function<bool(int)> dfs = [&] (int u) {
-        visited[u] = 1;
-        for (auto v: graph[u]) {
-            if (visited[v] == 0) {
-                colors[v] = (colors[u]==1 ? 2 : 1);
-                if (!dfs(v)) {
-                    return false;
-                }
-            } else if (colors[u] == colors[v]){
-                return false;
-            }
-        }
-        visited[u] = 2;
-        return true;
-    };
-    for (int u=0; u<N; ++u) {
-        if (visited[u] == 0) {
-            colors[u] = 1;
-            if (!dfs(u)) {
-                return false;
-            }
-        }
-    }
-    return true;
+    return isBipartite(graph);
 }
 
 { // bfs solution
@@ -141,8 +116,8 @@ bool Solution::possibleBipartition(int N, vector<vector<int>>& dislikes) {
     It is guaranteed an answer exists.
 */
 vector<int> Solution::gardenNoAdj(int N, vector<vector<int>>& paths) {
-
 { // dfs solution
+    // build a graph with adjacent list representation
     vector<vector<int>> graph(N);
     for (auto& p: paths) {
         graph[p[0]-1].push_back(p[1]-1);
@@ -151,7 +126,7 @@ vector<int> Solution::gardenNoAdj(int N, vector<vector<int>>& paths) {
     vector<int> color(N, 0);
     vector<int> visited(N, 0);
     auto choose_color = [&] (int u) {
-        vector<bool> mask(4, false);
+        vector<bool> mask(4, false); // brilliant!
         for (auto v: graph[u]) {
             if (color[v] != 0) {
                 mask[color[v]-1] = true;
@@ -206,27 +181,30 @@ vector<int> Solution::gardenNoAdj(int N, vector<vector<int>>& paths) {
 }
 }
 
+
 void isBipartite_scaffold(string input, bool expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     bool actual = ss.isBipartite(graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual:" << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
+
 
 void possibleBipartition_scaffold(int N, string input, bool expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     bool actual = ss.possibleBipartition(N, graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << N << ", " << input << ", expectedResult<" << expectedResult << ">) passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", N, input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << N << ", " << input << ", expectedResult<" << expectedResult << ">) failed";
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", N, input, expectedResult, actual);
     }
 }
+
 
 void gardenNoAdj_scaffold(int N, string input, string expectedResult) {
     Solution ss;
@@ -234,16 +212,15 @@ void gardenNoAdj_scaffold(int N, string input, string expectedResult) {
     vector<int> actual = ss.gardenNoAdj(N, graph);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << N << ", " << input << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", N, input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << N << ", " << input << ", " << expectedResult << ") failed, acutal: " << numberVectorToString(actual);
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", N, input, expectedResult, numberVectorToString(actual));
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running isBipartite tests: ";
+int main() {
+    SPDLOG_WARN("Running isBipartite tests:");
     TIMER_START(isBipartite);
     isBipartite_scaffold("[[1,3],[0,2],[1,3],[0,2]]", true);
     isBipartite_scaffold("[[1,2,3],[0,2],[1,3],[0,2]]", false);
@@ -251,22 +228,22 @@ int main() {
     isBipartite_scaffold("[[],[2,4,6],[1,4,8,9],[7,8],[1,2,8,9],[6,9],[1,5,7,8,9],[3,6,9],[2,3,4,6,9],[2,4,5,6,7,8]]", false);
     isBipartite_scaffold("[[],[3],[],[1],[]]", true);
     TIMER_STOP(isBipartite);
-    util::Log(logESSENTIAL) << "isBipartite using " << TIMER_MSEC(isBipartite) << " milliseconds";
+    SPDLOG_WARN("isBipartite tests use {} ms", TIMER_MSEC(isBipartite));
 
-    util::Log(logESSENTIAL) << "Running possibleBipartition tests: ";
+    SPDLOG_WARN("Running possibleBipartition tests:");
     TIMER_START(possibleBipartition);
     possibleBipartition_scaffold(4, "[[1,2],[1,3],[2,4]]", true);
     possibleBipartition_scaffold(3, "[[1,2],[1,3],[2,3]]", false);
     possibleBipartition_scaffold(5, "[[1,2],[2,3],[3,4],[4,5],[1,5]]", false);
     possibleBipartition_scaffold(5, "[[1,2],[3,4],[4,5],[3,5]]", false);
     TIMER_STOP(possibleBipartition);
-    util::Log(logESSENTIAL) << "possibleBipartition using " << TIMER_MSEC(possibleBipartition) << " milliseconds";
+    SPDLOG_WARN("possibleBipartition tests use {} ms", TIMER_MSEC(possibleBipartition));
 
-    util::Log(logESSENTIAL) << "Running gardenNoAdj tests: ";
+    SPDLOG_WARN("Running gardenNoAdj tests:");
     TIMER_START(gardenNoAdj);
     gardenNoAdj_scaffold(3, "[[1,2],[2,3],[3,1]]", "[1,2,3]");
     gardenNoAdj_scaffold(4, "[[1,2],[3,4]]", "[1,2,1,2]");
     gardenNoAdj_scaffold(4, "[[1,2],[2,3],[3,4],[4,1],[1,3],[2,4]]", "[1,2,3,4]");
     TIMER_STOP(gardenNoAdj);
-    util::Log(logESSENTIAL) << "gardenNoAdj using " << TIMER_MSEC(gardenNoAdj) << " milliseconds";
+    SPDLOG_WARN("gardenNoAdj tests use {} ms", TIMER_MSEC(gardenNoAdj));
 }

@@ -14,11 +14,12 @@ public:
 
 /*
     There are a total of n courses you have to take, labelled from 0 to n - 1. Some courses may have prerequisites, 
-    for example to take course 0 you have to first take course 1, which is expressed as a pair: [0, 1]
+    for example to take course 0 you have to take course 1 first, which is expressed as a pair: [0, 1]
     Given the total number of courses and a list of prerequisite pairs, is it possible for you to finish all courses? (no cycle dependency found)
     Hint: use dfs(coloring) to detect if there is a cycle in the graph. 
 */
 bool Solution::canFinish(int numCourses, vector<vector<int>>& prerequisites) {
+    // build a DAG (Directed Acyclic Graph)
     vector<vector<int>> graph(numCourses);
     for (auto& p: prerequisites) {
         graph[p[0]].push_back(p[1]);
@@ -26,19 +27,20 @@ bool Solution::canFinish(int numCourses, vector<vector<int>>& prerequisites) {
     vector<int> visited(numCourses, 0);
     // return false if we find a cycle
     function<bool(int)> dfs = [&] (int u) {
-        visited[u] = 1;
+        visited[u] = 1; // visiting
         for (auto v: graph[u]) {
-            if (visited[v] == 0) {
+            if (visited[v] == 0) { // unvisited
                 if (!dfs(v)) {
                     return false;
                 }
-            } else if (visited[v] == 1) {
+            } else if (visited[v] == 1) { // found a cycle
                 return false;
             }
         }
-        visited[u] = 2;
+        visited[u] = 2; // visited
         return true;
     };
+    // traverse all nodes to see if there is a cycle
     for (int u=0; u<numCourses; ++u) {
         if (visited[u] == 0) {
             if (!dfs(u)) {
@@ -51,45 +53,47 @@ bool Solution::canFinish(int numCourses, vector<vector<int>>& prerequisites) {
 
 /*
     There are a total of n courses you have to take, labelled from 0 to n - 1. Some courses may have prerequisites,
-    for example to take course 0 you have to first take course 1, which is expressed as a pair: [0, 1]
+    for example to take course 0 you have to take course 1 first, which is expressed as a pair: [0, 1]
     Given the total number of courses and a list of prerequisite pairs, return the ordering of courses you should take to finish all courses.
     There may be multiple correct orders, you just need to return one of them. If it is impossible to finish all courses, return an empty array.
 */
 vector<int> Solution::findOrder(int numCourses, vector<vector<int>>& prerequisites) {
+    // build a DAG (Directed Acyclic Graph)
     vector<vector<int>> graph(numCourses);
     for (auto& p: prerequisites) {
         graph[p[0]].push_back(p[1]);
     }
-    vector<int> ans;
+    vector<int> courses;
     vector<int> visited(numCourses, 0);
-    // return false if we can't finish all lessons anyway
+    // return false if we find a cycle
     function<bool(int)> dfs = [&] (int u) {
-        visited[u] = 1;
+        visited[u] = 1; // visiting
         for (auto v: graph[u]) {
-            if (visited[v] == 0) {
+            if (visited[v] == 0) { // unvisited
                 if (!dfs(v)) {
                     return false;
                 }
-            } else if (visited[v] == 1) { // cycle founded
+            } else if (visited[v] == 1) { // found a cycle
                 return false;
             }
         }
-        // we may start lesson u when all its prerequisites have been finished
-        ans.push_back(u);
-        visited[u] = 2;
+        // start lesson u when all its prerequisites are finished
+        courses.push_back(u);
+        visited[u] = 2; // visited
         return true;
     };
+    // traverse all nodes to see if there is a cycle
     for (int u=0; u<numCourses; ++u) {
-        if (visited[u] != 0) {
-            continue;
-        }
-        if (!dfs(u)) {
-            ans.clear();
-            break;
+        if (visited[u] == 0) {
+            if (!dfs(u)) {
+                courses.clear();
+                return courses;
+            }
         }
     }
-    return ans;
+    return courses;
 }
+
 
 /*
     In a directed graph, we start at some node and walk along a directed edge of the graph at every turn.
@@ -106,32 +110,34 @@ vector<int> Solution::findOrder(int numCourses, vector<vector<int>>& prerequisit
 */
 vector<int> Solution::eventualSafeNodes(vector<vector<int>>& graph) {
 
-// another way
-{
-    std::map<int, int> visited;
-    std::function<bool(int)> dfs = [&] (int u) {
-        visited[u] = 1;
-        for (const auto& v: graph[u]) {
-            if (visited.find(v) == visited.end()) {
+// naive way
+{    
+    int n = graph.size();
+    vector<int> visited(n, 0);
+    // return true if node u is eventually safe
+    function<bool(int)> dfs = [&] (int u) {
+        visited[u] = 1; // visiting
+        for (auto v: graph[u]) {
+            if (visited[v] == 0) { // unvisited
                 if (!dfs(v)) {
                     return false;
                 }
-            } else if (visited[v] == 1) {
+            } else if (visited[v] == 1) { // found a cycle
                 return false;
             }
         }
-        visited[u] = 2;
+        visited[u] = 2; // visited
         return true;
     };
-    for (int u=0; u<graph.size(); u++) {
-        if (visited.find(u) == visited.end()) {
+    for (int u=0; u<n; ++u) {
+        if (visited[u] == 0) {
             dfs(u);
         }
     }
-    std::vector<int> ans;
-    for (const auto& u: visited) {
-        if (visited[u.first] == 2) {
-            ans.push_back(u.first);
+    vector<int> ans;
+    for (int u=0; u<n; ++u) {
+        if (visited[u] == 2) {
+            ans.push_back(u);
         }
     }
     return ans;
@@ -144,18 +150,18 @@ vector<int> Solution::eventualSafeNodes(vector<vector<int>>& graph) {
     vector<int> visited(n, 0);
     // return true if node u is eventually safe
     function<bool(int)> dfs = [&] (int u) {
-        visited[u] = 1;
+        visited[u] = 1; // visiting
         for (auto v: graph[u]) {
-            if (visited[v] == 0) {
+            if (visited[v] == 0) { // unvisited
                 if (!dfs(v)) {
                     return false;
                 }
-            } else if (visited[v] == 1) {
+            } else if (visited[v] == 1) { // found a cycle
                 return false;
             }
         }
         ans.push_back(u);
-        visited[u] = 2;
+        visited[u] = 2; // visited
         return true;
     };
     for (int u=0; u<n; ++u) {
@@ -175,9 +181,9 @@ void canFinish_scaffold(int numCourses, string input, bool expectedResult) {
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     bool actual = ss.canFinish(numCourses, graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << numCourses << ", " << input << "," << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", numCourses, input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << numCourses << ", " << input << ", expected: " << expectedResult  << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", numCourses, input, expectedResult, actual);
     }
 }
 
@@ -188,9 +194,9 @@ void findOrder_scaffold(int numCourses, string input, string expectedResult) {
     vector<int> actual = ss.findOrder(numCourses, graph);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << numCourses << ", " << input << "," << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", numCourses, input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << numCourses << ", " << input << ", expected: " << expectedResult  << ") failed, acutal: " << numberVectorToString<int>(actual);
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", numCourses, input, expectedResult, numberVectorToString<int>(actual));
     }
 }
 
@@ -201,17 +207,15 @@ void eventualSafeNodes_scaffold(string input, string expectedResult) {
     vector<int> actual = ss.eventualSafeNodes(graph);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << "," << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expected: " << expectedResult << ") failed, acutal: " << numberVectorToString<int>(actual);
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, numberVectorToString<int>(actual));
     }
 }
 
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
-    util::Log(logESSENTIAL) << "Running canFinish tests:";
+    SPDLOG_WARN("Running canFinish tests:");
     TIMER_START(canFinish);
     canFinish_scaffold(2, "[[1,0]]", true);
     canFinish_scaffold(2, "[[0,0]]", false);
@@ -219,9 +223,9 @@ int main() {
     canFinish_scaffold(8, "[[1,0],[2,6],[1,7],[5,1],[6,4],[7,0],[0,5]]", false);
     canFinish_scaffold(8, "[[1,0],[2,6],[1,7],[6,4],[7,0],[0,5]]", true);
     TIMER_STOP(canFinish);
-    util::Log(logESSENTIAL) << "canFinish using " << TIMER_MSEC(canFinish) << " milliseconds";
+    SPDLOG_WARN("canFinish tests use {} ms", TIMER_MSEC(canFinish));
 
-    util::Log(logESSENTIAL) << "Running findOrder tests:";
+    SPDLOG_WARN("Running findOrder tests:");
     TIMER_START(findOrder);
     findOrder_scaffold(2, "[[1,0]]", "[0,1]");
     findOrder_scaffold(2, "[[0,0]]", "[]");
@@ -229,14 +233,13 @@ int main() {
     findOrder_scaffold(8, "[[1,0],[2,6],[1,7],[5,1],[6,4],[7,0],[0,5]]", "[]");
     findOrder_scaffold(8, "[[1,0],[2,6],[1,7],[6,4],[7,0],[0,5]]", "[5,0,7,1,4,6,2,3]");
     TIMER_STOP(findOrder);
-    util::Log(logESSENTIAL) << "findOrder using " << TIMER_MSEC(findOrder) << " milliseconds";
+    SPDLOG_WARN("findOrder tests use {} ms", TIMER_MSEC(findOrder));
 
-    util::Log(logESSENTIAL) << "Running eventualSafeNodes tests:";
+    SPDLOG_WARN("Running eventualSafeNodes tests:");
     TIMER_START(eventualSafeNodes);
     eventualSafeNodes_scaffold("[[1,2],[2,3],[5],[0],[5],[],[]]", "[2,4,5,6]");
     eventualSafeNodes_scaffold("[[1],[2,4],[3],[2],[]]", "[4]");
     eventualSafeNodes_scaffold("[[1,2,3,4],[1,2],[3,4],[0,4],[]]", "[4]");
-
     TIMER_STOP(eventualSafeNodes);
-    util::Log(logESSENTIAL) << "eventualSafeNodes using " << TIMER_MSEC(eventualSafeNodes) << " milliseconds";
+    SPDLOG_WARN("eventualSafeNodes tests use {} ms", TIMER_MSEC(eventualSafeNodes));
 }

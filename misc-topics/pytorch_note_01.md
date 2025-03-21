@@ -70,4 +70,108 @@ Shape of merged tensor: torch.Size([11, 16])
 
 By following this method, you can merge multiple tensors with varying numbers of rows but the same number of columns into a single tensor efficiently in PyTorch.
 
+Q: how to turn np.ndarray into torch.Tensor
+
+To convert a NumPy array (`np.ndarray`) into a PyTorch tensor (`torch.Tensor`), you can use the `torch.from_numpy()` function provided by the PyTorch library. This function creates a tensor that shares memory with the NumPy array, which means changes to one will affect the other. If you need the tensor to be independent of the NumPy array, you can use the `.clone()` method or `torch.tensor()` function.
+
+### Basic Conversion
+
+Here’s how you can perform the conversion:
+
+```python
+import numpy as np
+import torch
+
+# Create a NumPy array
+np_array = np.array([1, 2, 3, 4, 5])
+
+# Convert the NumPy array to a PyTorch tensor
+torch_tensor = torch.from_numpy(np_array)
+
+print(torch_tensor)
+```
+
+### Ensure Correct Data Type
+
+By default, `torch.from_numpy()` retains the data type (dtype) of the NumPy array. If you need a specific dtype, you can specify it after conversion:
+
+```python
+torch_tensor = torch.from_numpy(np_array).float()
+print(torch_tensor.dtype)  # Should output torch.float32
+```
+
+### Creating an Independent Tensor
+
+If you need a tensor that does not share memory with the original NumPy array:
+
+```python
+# Option 1: Using clone()
+torch_tensor_independent = torch.from_numpy(np_array).clone()
+
+# Option 2: Using torch.tensor()
+torch_tensor_independent = torch.tensor(np_array)
+
+# Both options create a new tensor that is independent of the original NumPy array
+print(torch_tensor_independent)
+```
+
+### Example with a 2D Array
+
+Here’s a more complex example with a 2D NumPy array:
+
+```python
+import numpy as np
+import torch
+
+# Create a 2D NumPy array
+np_array_2d = np.array([[1, 2, 3], [4, 5, 6]])
+
+# Convert the 2D NumPy array to a PyTorch tensor
+torch_tensor_2d = torch.from_numpy(np_array_2d)
+
+print(torch_tensor_2d)
+```
+
+### Summary of Methods
+
+1. **torch.from_numpy()**
+   - Shared memory with the NumPy array
+   - Fast conversion
+
+2. **torch.tensor()**
+   - Independent tensor
+   - More flexible for setting dtype and device (`cpu`/`cuda`)
+
+3. **.clone()**
+   - Create a copy of the tensor to ensure independence from the original NumPy array
+
+### Complete Example
+
+```python
+import numpy as np
+import torch
+
+# Create a NumPy array
+np_array = np.array([1, 2, 3, 4, 5])
+
+# Convert to a PyTorch tensor (shared memory)
+torch_tensor = torch.from_numpy(np_array)
+print("Shared memory tensor:", torch_tensor)
+
+# Convert to a PyTorch tensor (independent copy)
+torch_tensor_independent = torch.tensor(np_array)
+print("Independent tensor:", torch_tensor_independent)
+
+# Convert to a PyTorch tensor and specify dtype
+torch_tensor_float = torch.from_numpy(np_array).float()
+print("Tensor with float dtype:", torch_tensor_float)
+
+# Convert a 2D NumPy array
+np_array_2d = np.array([[1, 2, 3], [4, 5, 6]])
+torch_tensor_2d = torch.from_numpy(np_array_2d)
+print("2D tensor:", torch_tensor_2d)
+```
+
+By following these steps, you can easily convert any NumPy array into a PyTorch tensor, ensuring compatibility and flexibility for various deep learning tasks using PyTorch.
+
 ```

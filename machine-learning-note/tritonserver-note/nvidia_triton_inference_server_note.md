@@ -26,10 +26,11 @@ TODO: add mermaid images about triton system
 
 ## git repos
 
-* [triton-inference-server](https://github.com/triton-inference-server)
-    * [triton-inference-server/common: proto definition, ModelConfig](https://github.com/triton-inference-server/common)
-    * [triton-inference-server/backend](https://github.com/triton-inference-server/backend)
-    * [python_backend](https://github.com/triton-inference-server/python_backend)
+- [triton-inference-server](https://github.com/triton-inference-server)
+    - [triton-inference-server/common: proto definition, ModelConfig](https://github.com/triton-inference-server/common)
+      - [model_config.proto](triton-inference-server/common/protobuf/model_config.proto)
+    - [triton-inference-server/backend](https://github.com/triton-inference-server/backend)
+    - [python_backend](https://github.com/triton-inference-server/python_backend)
 
 
 ##  how to start tritonserver with NGC
@@ -191,10 +192,10 @@ model_warmup {
 # [Optimization Policy](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#optimization-policy)
 ```
 
-* [`config.pbtxt` examples](https://jamied.io/cheat_sheet.html)
-* for more examples, refer to [model_store](./model-store/)
+- [`config.pbtxt` examples](https://jamied.io/cheat_sheet.html)
+- for more examples, refer to [model_store](./model-store/)
 
-* for `label_filename`, refer to [how to parse classification labels from response](https://github.com/triton-inference-server/server/blob/main/docs/protocol/extension_classification.md)
+- for `label_filename`, refer to [how to parse classification labels from response](https://github.com/triton-inference-server/server/blob/main/docs/protocol/extension_classification.md)
 
 ```python
 help(httpclient.InferRequestedOutput)
@@ -264,9 +265,9 @@ flowchart LR
 **Note**: TRITONBACKEND_Backend, TRITONBACKEND_Model, TRITONBACKEND_ModelInstance don't use C++ inheritance mechanism, instead they are interfaces exported by shared object and implemented by specified backend.
 
 
-* [how to implement a custom backend?](https://github.com/triton-inference-server/backend/tree/main/examples#readme)
+- [how to implement a custom backend?](https://github.com/triton-inference-server/backend/tree/main/examples#readme)
 
-**Note:** when compiling a backend, you must specify the same branch with the tritonserver image, otherwise tritonserver will coredump when loading it.
+**Note:*- when compiling a backend, you must specify the same branch with the tritonserver image, otherwise tritonserver will coredump when loading it.
 
 ```bash
 # docker container list
@@ -283,11 +284,11 @@ CONTAINER ID   IMAGE                                   COMMAND                  
 
 you can deploy a model with python backend in serveral steps:
 
-* prepare the model repository
+- prepare the model repository
 
 set `backend: "python"` in `config.pbtxt`, and you may configure others as documented in [how to prepare model repository](#how-to-prepare-model-repository)
 
-* write a model handler called `model.py` for each model version
+- write a model handler called `model.py` for each model version
 
 similar to C++ abstract classes, there is a class called `TritonPythonModel` with `initialize, execute, finalize` methods
 
@@ -310,12 +311,12 @@ class TritonPythonModel:
         ----------
         args : dict
           Both keys and values are strings. The dictionary keys and values are:
-          * model_config: A JSON string containing the model configuration
-          * model_instance_kind: A string containing model instance kind
-          * model_instance_device_id: A string containing model instance device ID
-          * model_repository: Model repository path
-          * model_version: Model version
-          * model_name: Model name
+          - model_config: A JSON string containing the model configuration
+          - model_instance_kind: A string containing model instance kind
+          - model_instance_device_id: A string containing model instance device ID
+          - model_repository: Model repository path
+          - model_version: Model version
+          - model_name: Model name
         """
         print('Initialized...')
 
@@ -364,7 +365,7 @@ class TritonPythonModel:
         print('Cleaning up...')
 ```
 
-* how does python_backend process requests?
+- how does python_backend process requests?
 
 Due to python GIL lock, python_backend is different from other backends when serving with multiple model instances. instead of starting multiple worker threads as configured by `instance_group.count`, it will lauch `instance_group.count` stub processes. and triton main process communicates with these stub processes via shared memory. when requests come, triton main process will put request data into shared memory; then the corresponding stub process reads request from shared memory,
 call `TritonPythonModel.execute` to perform model inference, write result back into shared memory; the triton main process reads inference result from shared memory, assemble responses and send back to caller.
@@ -379,14 +380,14 @@ TRITONBACKEND_ModelInstanceExecute(
         AllocatedSharedMemory<ResponseBatch> response_batch = Stub()->ShmPool()->Load<ResponseBatch>(received_message_->Args());
 
 // python_backend/src/pb_stub.cc
-int main(int argc, char** argv) {
+int main(int argc, char*- argv) {
   while (true) {
     finalize = stub->RunCommand();
   }
 }
 Stub::RunCommand()
     AllocatedSharedMemory<char> request_batch = shm_pool_->Load<char>(ipc_message->Args());
-    RequestBatch* request_batch_shm_ptr = reinterpret_cast<RequestBatch*>(request_batch.data_.get());
+    RequestBatch- request_batch_shm_ptr = reinterpret_cast<RequestBatch*>(request_batch.data_.get());
     ProcessRequests(request_batch_shm_ptr);
         py::list py_request_list = LoadRequestsFromSharedMemory(request_batch_shm_ptr);
         ScopedDefer execute_finalize([this] { stub_message_queue_->Pop(); });
@@ -397,7 +398,7 @@ Stub::RunCommand()
 ## [model ensemble](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/architecture.html#ensemble-models)
 
 in some scenario you need to request multiple models for one task, of course you can request model one by one, either serially or simultaneously.
-however, you can do this more elegantly by making one request and letting triton to request multiple models during inference. this is often more efficient because of less network passes, less intermediate variables. refer to [bge_ensemble_model](./model-store/bge_ensemble_model) for an ensemble to process nlp task. ensemble is only an abstraction, and there is no physical instance bound with it.
+however, you can do this more elegantly by making one request and letting triton to request multiple models during inference. this is often more efficient because of less network passes, less intermediate variables. refer to [bge_ensemble_model](./model-store/bge_ensemble_model) for an ensemble to process a nlp task. ensemble is only an abstraction, and there is no physical instance bound with it.
 and you don't need to write a `model.py` since triton schedules models according to `ensemble_scheduling` in `config.pbtxt`.
 
 following is an ensemble example to perform object detection in an image:
@@ -436,7 +437,7 @@ ensemble_scheduling {
       model_name: "image_preprocess_model"
       model_version: -1
       input_map {
-        key: "RAW_IMAGE" # an input/output name of the composing model
+        key: "RAW_IMAGE" # an input/output tensor name of the composing model
         value: "IMAGE" # inputs for the first model should be mapped to the ensemble inputs
       }
       output_map {
@@ -472,15 +473,22 @@ ensemble_scheduling {
 }
 ```
 
-remember that
+remember that:
 
-* don't add `instance_group` in `config.pbtxt`
+-  When crafting the ensemble steps, it is useful to note the distinction between *key* and *value* on the `input_map`/`output_map`:
+
+> *key*: An `input`/`output` tensor name on the composing model.
+> *value*: A tensor name on the ensemble model, which acts as an identifier
+> connecting ensemble `input`/`output` to those on the composing model and between composing models.
+
+- don't add `instance_group` in `config.pbtxt`
 
 > Ensemble models are an abstraction Triton uses to execute a user-defined pipeline of models. Since there is no physical instance associated with an ensemble model,
 > the `instance_group` field can not be specified for it.
 > However, each composing model can specify `instance_group` in its config file and support parallel execution
 > as described above when the ensemble receives multiple requests.
 
+**TODO**: how a ensemble model is executed? refer to [EnsembleScheduler::Enqueue](triton-inference-server/core/src/ensemble_scheduler/ensemble_scheduler.cc)
 
 ## [Business Logic Scripting](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/python_backend/README.html#business-logic-scripting)
 
@@ -490,12 +498,12 @@ BLS model has bond instances and you need to code a `mode.py` to tell triton how
 
 ## FAQs
 
-* [how to install tritonclient?](https://github.com/triton-inference-server/client)
-* [how to add log in python_backend](https://github.com/triton-inference-server/python_backend?tab=readme-ov-file#logging)
-    * [python_models/identity_fp32_logging](https://github.com/triton-inference-server/server/blob/main/qa/python_models/identity_fp32_logging/model.py)
-* [Error handling in python_backend](https://github.com/triton-inference-server/python_backend/blob/main/README.md#error-handling)
+- [how to install tritonclient?](https://github.com/triton-inference-server/client)
+- [how to add log in python_backend](https://github.com/triton-inference-server/python_backend?tab=readme-ov-file#logging)
+    - [python_models/identity_fp32_logging](https://github.com/triton-inference-server/server/blob/main/qa/python_models/identity_fp32_logging/model.py)
+- [Error handling in python_backend](https://github.com/triton-inference-server/python_backend/blob/main/README.md#error-handling)
 
-* convert between PB tensor and Pytorch Tensor
+- convert between PB tensor and Pytorch Tensor
 
 ```python
 # PB Tensor -> PyTorch Tensor
@@ -517,7 +525,7 @@ class TritonPythonModel:
         input0 = pb_utils.Tensor.from_dlpack("INPUT0", torch.utils.dlpack.to_dlpack(pytorch_tensor))
 ```
 
-* PYTHON BACKEND PB Tensor Placement
-    * By default, tensors sent to Python backend will be copied to CPU
-    * To keep tensors on GPU, need to set following in config file: ``parameters: {key: "FORCE_CPU_ONLY_INPUT_TENSORS" value:{string_value:"no"}}``
-    * You can check the placement of tensor by: ``pb_utils.Tensor.is_cpu()``
+- PYTHON BACKEND PB Tensor Placement
+    - By default, tensors sent to Python backend will be copied to CPU
+    - To keep tensors on GPU, need to set following in config file: ``parameters: {key: "FORCE_CPU_ONLY_INPUT_TENSORS" value:{string_value:"no"}}``
+    - You can check the placement of tensor by: ``pb_utils.Tensor.is_cpu()``

@@ -18,6 +18,7 @@ public:
     string smallestStringWithSwaps(string s, vector<vector<int>>& pairs);
 };
 
+
 string Solution::smallestStringWithSwaps(string s, vector<vector<int>>& pairs) {
 /*
     You are given a string s, and an array of pairs of indices in the string where pairs[i] = [a, b] indicates 2 indices(0-indexed) of the string.
@@ -28,7 +29,7 @@ string Solution::smallestStringWithSwaps(string s, vector<vector<int>>& pairs) {
         solution two: use disjoint set to find connected components, then sort s.substring in each component
 */
 
-{ // disjoint set version solution
+if (0) { // disjoint set version solution
     int sz = s.size();
     DisjointSet dsu(sz);
     for (auto& p: pairs) {
@@ -55,42 +56,46 @@ string Solution::smallestStringWithSwaps(string s, vector<vector<int>>& pairs) {
     return ans;
 }
 
+
 { // dfs version solution
-    map<int, vector<int>> graph;
+    int n = s.size();
+    // build graph
+    vector<vector<int>> graph(n);
     for (auto& p: pairs) {
         graph[p[0]].push_back(p[1]);
         graph[p[1]].push_back(p[0]);
     }
-    int sz = s.size();
-    vector<int> visited(sz, 0);
-    vector<int> path;
-    vector<vector<int>> path_set;
-    std::function<void(int)> dfs = [&] (int u) {
-        visited[u] = 1;
+    // find all connected components
+    vector<int> visited(n, 0);
+    function<vector<int>(int u)> dfs = [&] (int u) {
+        vector<int> path;
         path.push_back(u);
+        visited[u] = 1;
         for (auto v: graph[u]) {
             if (visited[v] == 0) {
-                dfs(v);
+                auto p = dfs(v);
+                path.insert(path.end(), p.begin(), p.end());
             }
         }
         visited[u] = 2;
+        return path;
     };
-    for (int u=0; u<sz; ++u) {
+    vector<vector<int>> paths;
+    for (int u=0; u<n; u++) {
         if (visited[u] == 0) {
-            dfs(u);
-            path_set.push_back(path);
-            path.clear();
+            paths.push_back(dfs(u));
         }
     }
+    // reoragnize s by sorting each component
     string ans = s;
-    for (auto& p : path_set) {
+    for (auto& p: paths) {
         std::sort(p.begin(), p.end());
         string tmp;
         for (auto i: p) {
             tmp.push_back(s[i]);
         }
         std::sort(tmp.begin(), tmp.end());
-        for (int i=0; i<p.size(); ++i) {
+        for (int i=0; i<tmp.size(); i++) {
             ans[p[i]] = tmp[i];
         }
     }
@@ -98,6 +103,7 @@ string Solution::smallestStringWithSwaps(string s, vector<vector<int>>& pairs) {
 }
 
 }
+
 
 bool Solution::canVisitAllRooms(vector<vector<int>>& rooms) {
 /*
@@ -107,23 +113,26 @@ bool Solution::canVisitAllRooms(vector<vector<int>>& rooms) {
 */
     int n = rooms.size();
     vector<bool> visited(n, false);
-    std::function<void(int)> dfs = [&] (int u) {
+    std::function<int(int)> dfs = [&] (int u) {
+        int count = 1;
         visited[u] = true;
         for (auto v: rooms[u]) {
             if (!visited[v]) {
-                dfs(v);
+                count += dfs(v);
             }
         }
+        return count;
     };
-    dfs(0);
-    return std::all_of(visited.begin(), visited.end(), [](bool i) {return i;});
+    int visited_rooms = dfs(0);
+    return visited_rooms == n;
 }
+
 
 int Solution::numEnclaves(vector<vector<int>>& grid) {
 /*
     Given a 2D array grid, each cell is 0 (representing sea) or 1 (representing land).
     A move consists of walking from one land square 4-directionally to another land square, or off the boundary of the grid.
-    Return the number of land squares in the grid for which we cannot walk off the boundary of the grid in any number of moves.
+    Return the number of lands in the grid for which we cannot walk off the boundary of the grid in any number of moves.
     Example 1:
         Input: [[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]]
         Output: 3
@@ -139,29 +148,29 @@ int Solution::numEnclaves(vector<vector<int>>& grid) {
     int rows = grid.size();
     int columns = grid[0].size();
     vector<vector<bool>> visited(rows, vector<bool>(columns, false));
-    function<pair<bool, int>(int, int)> dfs = [&] (int r, int c) {
-        int node_count = 1;
+    std::function<pair<bool, int>(int, int)> dfs = [&] (int r, int c) {
+        int count = 1;
         visited[r][c] = true;
-        bool is_safe = true;
-        for (auto& d: directions) {
+        bool in_bound = true;
+        for (auto d: directions) {
             int nr = r + d.first;
             int nc = c + d.second;
-            if (nr<0 || nr>=rows || nc<0 || nc>=columns) {
-                is_safe = false;
+            if (nr<0||nr>=rows||nc<0||nc>=columns) {
+                in_bound = false;
                 continue;
-            } 
+            }
             if (grid[nr][nc]==1 && !visited[nr][nc]) {
                 auto p = dfs(nr, nc);
-                is_safe &= p.first;
-                node_count += p.second;
-            }  
+                in_bound &= p.first;
+                count += p.second;
+            }
         }
-        return make_pair(is_safe, node_count);     
+        return make_pair(in_bound, count);
     };
     int ans = 0;
     for (int r=0; r<rows; ++r) {
         for (int c=0; c<columns; ++c) {
-            if (grid[r][c] == 1 && !visited[r][c]) {
+            if (grid[r][c]==1 && !visited[r][c]) {
                 auto p = dfs(r, c);
                 if (p.first) {
                     ans += p.second;
@@ -171,6 +180,7 @@ int Solution::numEnclaves(vector<vector<int>>& grid) {
     }
     return ans;
 }
+
 
 int Solution::numIslands(vector<vector<int>>& grid) {
 /*
@@ -211,7 +221,7 @@ int Solution::findCircleNum(vector<vector<int>>& grid) {
 /*
     There are n cities. Some of them are connected, while some are not. If city a is connected directly with city b, 
     and city b is connected directly with city c, then city a is connected indirectly with city c.
-    A province is a group of directly or indirectly connected cities and no other cities outside of the group.
+    **A province is a group of directly or indirectly connected cities and no other cities outside of the group.**
     You are given an n x n matrix grid where grid[i][j] = 1 if the ith city and the jth city are directly connected, and grid[i][j] = 0 otherwise.
     Return the total number of provinces.
 */
@@ -233,16 +243,18 @@ int Solution::maxAreaOfIsland(vector<vector<int>>& grid) {
         for (auto& d: directions) {
             int nr = r + d.first;
             int nc = c + d.second;
-            if (0<=nr && nr<rows &&
-                0<=nc && nc<columns &&
-                !visited[nr][nc] &&
-                grid[nr][nc] == 1) {
+            if (nr<0 || nr>=rows || nc<0 || nc>=columns) {
+                continue;
+            }
+            if (grid[nr][nc] == 0) {
+                continue;
+            }
+            if (!visited[nr][nc]) {
                 area += dfs(nr, nc);
             }
         }
         return area;
     };
-
     int ans = 0;
     for (int r=0; r<rows; ++r) {
         for (int c=0; c<columns; ++c) {
@@ -286,67 +298,69 @@ int Solution::largestIsland(vector<vector<int>>& grid) {
     You are given an nxn binary matrix grid. You are allowed to change at most one 0 to be 1.
     Return the size of the largest island in grid after applying this operation. An island is a 4-directionally connected group of 1s.
 */
-    typedef pair<int, int> Coordinate;
+
     int rows = grid.size();
     int columns = grid[0].size();
-    int island_id = 0;
-    map<Coordinate, int> coor_to_island_map; // coor, island_id
-    map<int, int> island_area_map; // island_id, area
     vector<vector<bool>> visited(rows, vector<bool>(columns, false));
-    function<int(int, int)> dfs = [&] (int r, int c) {
-        int area = 1;
+    std::function<int(int, int, int)> dfs = [&] (int r, int c, int island_id) {
+        int area = 1; // count current node
+        grid[r][c] = island_id; // mark node with current island
         visited[r][c] = true;
-        coor_to_island_map[{r, c}] = island_id;
         for (auto& d: directions) {
             int nr = r + d.first;
             int nc = c + d.second;
-            if (0<=nr && nr<rows &&
-                0<=nc && nc<columns &&
-                !visited[nr][nc] &&
-                grid[nr][nc] == 1) {
-                area += dfs(nr, nc);
+            if (nr<0 || nr>=rows || nc<0 || nc>=columns) {
+                continue;
+            }
+            if (grid[nr][nc] != 1) { // count only unknow island
+                continue;
+            }
+            if (!visited[nr][nc]) {
+                area += dfs(nr, nc, island_id);
             }
         }
         return area;
     };
-    int ans = INT32_MIN;
-    for (int r=0; r<rows; ++r) {
-        for (int c=0; c<columns; ++c) {
-            if (grid[r][c]==1 && !visited[r][c]) {
-                island_area_map[island_id] = dfs(r, c);
-                ans = max(ans, island_area_map[island_id]);
-                ++island_id;
-            }
-        }
-    }
-    auto worker = [&] (int r, int c) {
-        int area = 1;
-        set<int> visited_islands;
-        for (auto& d: directions) {
-            int nr = r + d.first;
-            int nc = c + d.second;
-            if (0<=nr && nr<rows &&
-                0<=nc && nc<columns &&
-                grid[nr][nc]==1) {
-                Coordinate coor = make_pair(nr, nc);
-                int island = coor_to_island_map[coor];
-                if (visited_islands.count(island) == 0) {
-                    visited_islands.insert(island);
-                    area += island_area_map[island];
-                }
-            }
-        }
-        return area;
-    };
+    queue<pair<int, int>> zero_nodes;
+    int island_id = 1;
+    int max_island_area = 0;
+    map<int, int> area_map; // island_id, area
     for (int r=0; r<rows; ++r) {
         for (int c=0; c<columns; ++c) {
             if (grid[r][c] == 0) {
-                ans = max(ans, worker(r, c));
+                zero_nodes.emplace(r, c);
+            }
+            if (grid[r][c] == 1 && !visited[r][c]) {
+                island_id++;
+                area_map[island_id] = dfs(r, c, island_id);
+                max_island_area = max(max_island_area, area_map[island_id]);
             }
         }
     }
+    int ans = max_island_area;
+    while (!zero_nodes.empty()) {
+        auto t = zero_nodes.front(); zero_nodes.pop();
+        set<int> islands; // reachable islands
+        for (auto& d: directions) {
+            int nr = t.first + d.first;
+            int nc = t.second + d.second;
+            if (nr<0 || nr>=rows || nc<0 || nc>=columns) {
+                continue;
+            }
+            if (grid[nr][nc] == 0) {
+                continue;
+            }
+            islands.insert(grid[nr][nc]);
+        }
+        int area = 1; // count current zero node
+        for (auto p: islands) {
+            area += area_map[p];
+        }
+        ans = max(ans, area);
+    }
     return ans;
 }
+
 
 int Solution::maxDistance(vector<vector<int>>& grid) {
 /*
@@ -356,8 +370,7 @@ int Solution::maxDistance(vector<vector<int>>& grid) {
     and (x1, y1) is |x0 - x1| + |y0 - y1|. If no land or water exists in the grid, return -1.
     Hint: launch a bfs traversal from all land cells, traverse ONLY water cells until no cell left, then we would find the answer
 */
-    typedef pair<int, int> Coordinate;
-    queue<Coordinate> q;
+    queue<pair<int, int>> q;
     int rows = grid.size();
     int columns = grid[0].size();
     for (int r=0; r<rows; ++r) {
@@ -395,25 +408,27 @@ int Solution::maxDistance(vector<vector<int>>& grid) {
     return steps-1;
 }
 
+
 void numIslands_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.numIslands(graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
+
 
 void findCircleNum_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.findCircleNum(graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
@@ -422,10 +437,9 @@ void maxAreaOfIsland_scaffold(string input, int expectedResult) {
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.maxAreaOfIsland(graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
-        util::Log(logERROR) << "expected: " << expectedResult  << ", actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
@@ -435,9 +449,12 @@ void floodFill_scaffold(string input, int sr, int sc, int newColor, string expec
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
     vector<vector<int>> actual = ss.floodFill(graph, sr, sc, newColor);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, {}, {}, expectedResult={}) passed", input, sr, sc, newColor, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
+        SPDLOG_ERROR("Case({}, {}, {}, {}, expectedResult={}) failed, actual:", input, sr, sc, newColor, expectedResult);
+        for (const auto& a: actual) {
+            std::cout << numberVectorToString(a) << std::endl;
+        }
     }
 }
 
@@ -446,10 +463,9 @@ void largestIsland_scaffold(string input, int expectedResult) {
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.largestIsland(graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
-        util::Log(logERROR) << "expected: " << expectedResult  << ", actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
@@ -458,10 +474,9 @@ void maxDistance_scaffold(string input, int expectedResult) {
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.maxDistance(graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
-        util::Log(logERROR) << "expected: " << expectedResult  << ", actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
@@ -470,10 +485,9 @@ void numEnclaves_scaffold(string input, int expectedResult) {
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.numEnclaves(graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << expectedResult  << ") failed";
-        util::Log(logERROR) << "expected: " << expectedResult  << ", actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
@@ -482,9 +496,9 @@ void canVisitAllRooms_scaffold(string input, bool expectedResult) {
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     bool actual = ss.canVisitAllRooms(graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << "," << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << "," << expectedResult  << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
@@ -493,30 +507,28 @@ void smallestStringWithSwaps_scaffold(string input, string pairs, string expecte
     vector<vector<int>> graph = stringTo2DArray<int>(pairs);
     string actual = ss.smallestStringWithSwaps(input, graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", " << pairs << "," << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", " << pairs << "," << expectedResult  << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
-    util::Log(logESSENTIAL) << "Running numEnclaves tests:";
+    SPDLOG_WARN("Running numEnclaves tests:");
     TIMER_START(numEnclaves);
     numEnclaves_scaffold("[[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]]", 3);
     numEnclaves_scaffold("[[0,1,1,0],[0,0,1,0],[0,0,1,0],[0,0,0,0]]", 0);
     TIMER_STOP(numEnclaves);
-    util::Log(logESSENTIAL) << "numEnclaves using " << TIMER_MSEC(numEnclaves) << " milliseconds";
+    SPDLOG_WARN("numEnclaves tests use {} ms", TIMER_MSEC(numEnclaves));
 
-    util::Log(logESSENTIAL) << "Running numIslands tests:";
+    SPDLOG_WARN("Running numIslands tests:");
     TIMER_START(numIslands);
     numIslands_scaffold("[[1,1,1,1,0],[1,1,0,1,0],[1,1,0,0,0],[0,0,0,0,0]]", 1);
     numIslands_scaffold("[[1,1,0,0,0],[1,1,0,0,0],[0,0,1,0,0],[0,0,0,1,1]]", 3);
     TIMER_STOP(numIslands);
-    util::Log(logESSENTIAL) << "numIslands using " << TIMER_MSEC(numIslands) << " milliseconds";
+    SPDLOG_WARN("numIslands tests use {} ms", TIMER_MSEC(numIslands));
 
-    util::Log(logESSENTIAL) << "Running findCircleNum tests:";
+    SPDLOG_WARN("Running findCircleNum tests:");
     TIMER_START(findCircleNum);
     findCircleNum_scaffold("[[1,1,1,1,0],[1,1,0,1,0],[1,1,0,0,0],[0,0,0,0,0]]", 1);
     findCircleNum_scaffold("[[1,1,0,0,0],[1,1,0,0,0],[0,0,1,0,0],[0,0,0,1,1]]", 3);
@@ -524,9 +536,9 @@ int main() {
     findCircleNum_scaffold("[[1,1,0],[1,1,0],[0,1,1]]", 1);
     findCircleNum_scaffold("[[1,0,0],[0,1,0],[0,0,1]]", 3);
     TIMER_STOP(findCircleNum);
-    util::Log(logESSENTIAL) << "findCircleNum using " << TIMER_MSEC(findCircleNum) << " milliseconds";
+    SPDLOG_WARN("findCircleNum tests use {} ms", TIMER_MSEC(findCircleNum));
 
-    util::Log(logESSENTIAL) << "Running maxAreaOfIsland tests:";
+    SPDLOG_WARN("Running maxAreaOfIsland tests:");
     TIMER_START(maxAreaOfIsland);
     maxAreaOfIsland_scaffold("[[1,1,1,1,0],[1,1,0,1,0],[1,1,0,0,0],[0,0,0,0,0]]", 9);
     maxAreaOfIsland_scaffold("[[1,1,0,0,0],[1,1,0,0,0],[0,0,1,0,0],[0,0,0,1,1]]", 4);
@@ -535,27 +547,27 @@ int main() {
     maxAreaOfIsland_scaffold("[[0,0,0,0,0,0,0,0,0,0,0,0]]", 0);
     maxAreaOfIsland_scaffold("[[0,0,1,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,1,1,0,1,0,0,0,0,0,0,0,0],[0,1,0,0,1,1,0,0,1,0,1,0,0], [0,1,0,0,1,1,0,0,1,1,1,0,0], [0,0,0,0,0,0,0,0,0,0,1,0,0], [0,0,0,0,0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,1,1,0,0,0,0]]", 6);
     TIMER_STOP(maxAreaOfIsland);
-    util::Log(logESSENTIAL) << "maxAreaOfIsland using " << TIMER_MSEC(maxAreaOfIsland) << " milliseconds";
+    SPDLOG_WARN("maxAreaOfIsland tests use {} ms", TIMER_MSEC(maxAreaOfIsland));
 
-    util::Log(logESSENTIAL) << "Running floodFill tests:";
+    SPDLOG_WARN("Running floodFill tests:");
     TIMER_START(floodFill);
     floodFill_scaffold("[[1,1,1],[1,1,0],[1,0,1]]", 1, 1, 2, "[[2,2,2],[2,2,0],[2,0,1]]");
     floodFill_scaffold("[[1,1,1],[1,1,0],[1,0,1]]", 0, 0, 2, "[[2,2,2],[2,2,0],[2,0,1]]");
     floodFill_scaffold("[[1,1,1],[1,1,0],[1,0,1]]", 0, 1, 2, "[[2,2,2],[2,2,0],[2,0,1]]");
     floodFill_scaffold("[[1,1,1],[1,1,0],[1,0,1]]", 2, 2, 2, "[[1,1,1],[1,1,0],[1,0,2]]");
     TIMER_STOP(floodFill);
-    util::Log(logESSENTIAL) << "floodFill using " << TIMER_MSEC(floodFill) << " milliseconds";
+    SPDLOG_WARN("floodFill tests use {} ms", TIMER_MSEC(floodFill));
 
-    util::Log(logESSENTIAL) << "Running largestIsland tests:";
+    SPDLOG_WARN("Running largestIsland tests:");
     TIMER_START(largestIsland);
     largestIsland_scaffold("[[1,0],[0,1]]", 3);
     largestIsland_scaffold("[[1,1],[0,1]]", 4);
     largestIsland_scaffold("[[1,1],[1,1]]", 4);
     largestIsland_scaffold("[[1,1,0],[1,1,0],[0,0,1]]", 6);
     TIMER_STOP(largestIsland);
-    util::Log(logESSENTIAL) << "largestIsland using " << TIMER_MSEC(largestIsland) << " milliseconds";
+    SPDLOG_WARN("largestIsland tests use {} ms", TIMER_MSEC(largestIsland));
 
-    util::Log(logESSENTIAL) << "Running maxDistance tests:";
+    SPDLOG_WARN("Running maxDistance tests:");
     TIMER_START(maxDistance);
     maxDistance_scaffold("[[1,0],[0,1]]", 1);
     maxDistance_scaffold("[[1,1],[0,1]]", 1);
@@ -565,21 +577,21 @@ int main() {
     maxDistance_scaffold("[[1,0,1],[0,0,0],[1,0,1]]", 2);
     maxDistance_scaffold("[[0,0,0],[0,0,0],[0,0,1]]", 4);
     TIMER_STOP(maxDistance);
-    util::Log(logESSENTIAL) << "maxDistance using " << TIMER_MSEC(maxDistance) << " milliseconds";
+    SPDLOG_WARN("maxDistance tests use {} ms", TIMER_MSEC(maxDistance));
 
-    util::Log(logESSENTIAL) << "Running canVisitAllRooms tests:";
+    SPDLOG_WARN("Running canVisitAllRooms tests:");
     TIMER_START(canVisitAllRooms);
     canVisitAllRooms_scaffold("[[0],[2],[3],[]]", false);
     canVisitAllRooms_scaffold("[[1],[2],[3],[]]", true);
     canVisitAllRooms_scaffold("[[1,3],[3,0,1],[2],[0]]", false);
     TIMER_STOP(canVisitAllRooms);
-    util::Log(logESSENTIAL) << "canVisitAllRooms using " << TIMER_MSEC(canVisitAllRooms) << " milliseconds";
+    SPDLOG_WARN("canVisitAllRooms tests use {} ms", TIMER_MSEC(canVisitAllRooms));
 
-    util::Log(logESSENTIAL) << "Running smallestStringWithSwaps tests:";
+    SPDLOG_WARN("Running smallestStringWithSwaps tests:");
     TIMER_START(smallestStringWithSwaps);
     smallestStringWithSwaps_scaffold("dcab", "[[0,3],[1,2]]", "bacd");
     smallestStringWithSwaps_scaffold("dcab", "[[0,3],[1,2],[0,2]]", "abcd");
     smallestStringWithSwaps_scaffold("cba", "[[0,1],[1,2]]", "abc");
     TIMER_STOP(smallestStringWithSwaps);
-    util::Log(logESSENTIAL) << "smallestStringWithSwaps using " << TIMER_MSEC(smallestStringWithSwaps) << " milliseconds";    
+    SPDLOG_WARN("smallestStringWithSwaps tests use {} ms", TIMER_MSEC(smallestStringWithSwaps));
 }
