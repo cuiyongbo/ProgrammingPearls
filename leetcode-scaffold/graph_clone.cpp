@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 class RandomListNode {
 public:

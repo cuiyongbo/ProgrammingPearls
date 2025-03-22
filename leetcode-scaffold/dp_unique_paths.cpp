@@ -11,9 +11,9 @@ public:
     int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid);
     int minPathSum(vector<vector<int>>& grid);
     int minimumTotal(vector<vector<int>>& t);
-    int calculateMinimumHP(vector<vector<int>>& dungeon);
     int minFallingSum_931(vector<vector<int>>& grid);
     int minFallingSum_1289(vector<vector<int>>& grid);
+    int calculateMinimumHP(vector<vector<int>>& dungeon);
     int minimumMoves(vector<vector<int>>& grid);
 };
 
@@ -89,6 +89,7 @@ int Solution::uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
     return dp[m-1][n-1];
 }
 
+
 int Solution::minPathSum(vector<vector<int>>& grid) {
 /*
     Given a m x n grid filled with non-negative numbers, find a path from top left to bottom right which minimizes the sum of all numbers along its path.
@@ -99,6 +100,27 @@ int Solution::minPathSum(vector<vector<int>>& grid) {
         [4,2,1]]
     Given the above grid map, return 7. Because the path 1→3→1→1→1 minimizes the sum.
 */
+
+{ // dp solution
+    // dp[i][j] means minPathSum to (i, j)
+    // dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1]);
+    int m = grid.size();
+    int n = grid[0].size();
+    vector<vector<int>> dp(m, vector<int>(n, 0));
+    for (int i=0; i<m; ++i) {
+        for (int j=0; j<n; ++j) {
+            int cost = INT32_MAX;
+            if (i > 0) { // from upside
+                cost = min(cost, dp[i-1][j]);
+            }
+            if (j > 0) { // from left
+                cost = min(cost, dp[i][j-1]);
+            }
+            dp[i][j] = (cost == INT32_MAX) ? grid[i][j] : (cost+grid[i][j]);
+        }
+    }
+    return dp[m-1][n-1];
+}
 
 { // solution using dijkstra algorithm
     typedef pair<int, int> Coordinate; // row, column
@@ -140,28 +162,8 @@ int Solution::minPathSum(vector<vector<int>>& grid) {
     return -1;
 }
 
-{ // dp solution
-    // dp[i][j] means minPathSum to (i, j)
-    // dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1]);
-    int m = grid.size();
-    int n = grid[0].size();
-    vector<vector<int>> dp(m, vector<int>(n, 0));
-    for (int i=0; i<m; ++i) {
-        for (int j=0; j<n; ++j) {
-            int cost = INT32_MAX;
-            if (i > 0) { // from upside
-                cost = min(cost, dp[i-1][j]);
-            }
-            if (j > 0) { // from left
-                cost = min(cost, dp[i][j-1]);
-            }
-            dp[i][j] = (cost == INT32_MAX) ? grid[i][j] : (cost+grid[i][j]);
-        }
-    }
-    return dp[m-1][n-1];
 }
 
-}
 
 int Solution::minimumTotal(vector<vector<int>>& t) {
 /*
@@ -178,21 +180,18 @@ int Solution::minimumTotal(vector<vector<int>>& t) {
         ]
     The minimum path sum from top to bottom is 11 (i.e., 2 + 3 + 5 + 1 = 11).
 */
-
-{
     // dp[i][j] means minimumTotal to reach (i, j)
     // dp[i][j] = min(dp[i-1][j-1], dp[i-1][j]) + t[i][j]
     int ans = INT32_MAX;
     int m = t.size();
     vector<vector<int>> dp(m, vector<int>(m, 0));
     for (int i=0; i<m; ++i) {
-        for (int j=0; j<=i; ++j) {
+        for (int j=0; j<=i; ++j) { // there are i element(s) in the (i-1)-th row
             int cost = INT32_MAX;
-            // (i-1)-th row has i element(s)
-            if (i>0 && j>0 && j-1<=i-1) {
+            if (i>0 && j>0 && j-1<=i-1) { // (j-1<=i-1) ensure we won't be out of range when visiting previous row
                 cost = min(cost, dp[i-1][j-1]);
             }
-            if (i>0 && j<=i-1) {
+            if (i>0 && j<=i-1) { // (j<=i-1) ensure we won't be out of range when visiting previous row
                 cost = min(cost, dp[i-1][j]);
             }
             dp[i][j] = cost==INT32_MAX ? t[i][j] : cost+t[i][j];
@@ -202,8 +201,6 @@ int Solution::minimumTotal(vector<vector<int>>& t) {
         }
     }
     return ans;
-}
-
 }
 
 int Solution::minFallingSum_931(vector<vector<int>>& grid) {
@@ -234,19 +231,24 @@ int Solution::minFallingSum_931(vector<vector<int>>& grid) {
         for (int c=0; c<columns; ++c) {
             int cost = INT32_MAX;
             if (r > 0) {
-                cost = min(cost, dp[r-1][c]);
+                cost = min(cost, dp[r-1][c]); // up
                 if (c>0) {
-                    cost = min(cost, dp[r-1][c-1]);
+                    cost = min(cost, dp[r-1][c-1]); // diagonally left
                 }
                 if (c+1<columns) {
-                    cost = min(cost, dp[r-1][c+1]);
+                    cost = min(cost, dp[r-1][c+1]); // diagonally right
                 }
             }
             dp[r][c] = (cost==INT32_MAX ? 0 : cost) + grid[r][c];
-            if (r == rows-1) {
-                ans = min(ans, dp[r][c]);
-            }
+            // it would be more effient to check ans here
+            //if (r == rows-1) {
+            //    ans = min(ans, dp[r][c]);
+            //}
         }
+    }
+    // for explainability and interpretability
+    for (int i=0; i<columns; i++) {
+        ans = min(ans, dp[rows-1][i]);
     }
     return ans;
 }
@@ -293,59 +295,60 @@ int Solution::minFallingSum_1289(vector<vector<int>>& grid) {
 }
 
 int Solution::minimumMoves(vector<vector<int>>& grid) {
-    /*
-        In an n*n grid, there is a snake that spans 2 cells and starts moving from the top left 
-        corner at (0, 0) and (0, 1). The grid has empty cells represented by 0 and blocked 
-        cells represented by 1. The snake wants to reach the lower right corner at (n-1, n-2) and (n-1, n-1).
+/*
+In an n*n grid, there is a snake that spans 2 cells and starts moving from the top left 
+corner at (0, 0) and (0, 1).
+The grid has empty cells represented by 0 and blocked cells represented by 1.
+The snake wants to reach the lower right corner at (n-1, n-2) and (n-1, n-1).
 
-        In one move the snake can:
+In one move the snake can:
 
-            Move one cell to the right if there are no blocked cells there. 
-            This move keeps the horizontal/vertical position of the snake as it is.
+    Move one cell to the right if there are no blocked cells there. 
+    This move keeps the horizontal/vertical position of the snake as it is.
 
-            Move down one cell if there are no blocked cells there. 
-            This move keeps the horizontal/vertical position of the snake as it is.
-            
-            Rotate clockwise if it’s in a horizontal position and the two cells 
-            under it are both empty. In that case the snake moves from (r, c) 
-            and (r, c+1) to (r, c) and (r+1, c).
-            
-            Rotate counterclockwise if it’s in a vertical position and the two cells 
-            to its right are both empty. In that case the snake moves from (r, c) 
-            and (r+1, c) to (r, c) and (r, c+1).
-            
-        Return the minimum number of moves to reach the target.
-        If there is no way to reach the target, return -1.
+    Move down one cell if there are no blocked cells there. 
+    This move keeps the horizontal/vertical position of the snake as it is.
+    
+    Rotate clockwise if it’s in a horizontal position and the two cells 
+    under it are both empty. In that case the snake moves from (r, c) 
+    and (r, c+1) to (r, c) and (r+1, c).
+    
+    Rotate counterclockwise if it’s in a vertical position and the two cells 
+    to its right are both empty. In that case the snake moves from (r, c) 
+    and (r+1, c) to (r, c) and (r, c+1).
+    
+Return the minimum number of moves to reach the target.
+If there is no way to reach the target, return -1.
 
-        Example:
+Example:
 
-        Input: 
-        grid = [[0,0,0,0,0,1],
-                [1,1,0,0,1,0],
-                [0,0,0,0,1,1],
-                [0,0,1,0,1,0],
-                [0,1,1,0,0,0],
-                [0,1,1,0,0,0]]
-        Output: 11
-        Explanation:
-        One possible solution is [right, right, rotate clockwise, right, down, 
-        down, down, down, rotate counterclockwise, right, down].
+    Input: 
+    grid = [[0,0,0,0,0,1],
+            [1,1,0,0,1,0],
+            [0,0,0,0,1,1],
+            [0,0,1,0,1,0],
+            [0,1,1,0,0,0],
+            [0,1,1,0,0,0]]
+    Output: 11
+    Explanation:
+    One possible solution is [right, right, rotate clockwise, right, down, 
+    down, down, down, rotate counterclockwise, right, down].
 
-        Example 2:
-        Input: grid = [[0,0,1,1,1,1],
-                       [0,0,0,0,1,1],
-                       [1,1,0,0,0,1],
-                       [1,1,1,0,0,1],
-                       [1,1,1,0,0,1],
-                       [1,1,1,0,0,0]]
-        Output: 9
+    Example 2:
+    Input: grid = [[0,0,1,1,1,1],
+                    [0,0,0,0,1,1],
+                    [1,1,0,0,0,1],
+                    [1,1,1,0,0,1],
+                    [1,1,1,0,0,1],
+                    [1,1,1,0,0,0]]
+    Output: 9
 
-        Constraints:
+    Constraints:
 
-            2 <= n <= 100
-            0 <= grid[i][j] <= 1
-            It is guaranteed that the snake starts at empty cells.
-    */
+        2 <= n <= 100
+        0 <= grid[i][j] <= 1
+        It is guaranteed that the snake starts at empty cells.
+*/
 
     // used[i][j] = 0: not used
     // used[i][j] = 1: tail facing right used
@@ -359,8 +362,7 @@ int Solution::minimumMoves(vector<vector<int>>& grid) {
     auto set_right = [&](int y, int x) { used[y][x] |= 0x1;};
     auto set_down = [&](int y, int x) { used[y][x] |= 0x2;};
 
-    auto is_target = [&] (const vector<int>& t)
-    {
+    auto is_target = [&] (const vector<int>& t) {
         return t[0] == n-1 && t[1] == n-2 && t[2] == n-1 && t[3] == n-1;
     };
 
@@ -368,37 +370,30 @@ int Solution::minimumMoves(vector<vector<int>>& grid) {
     set_right(0, 1);
     queue<vector<int>> q;
     q.push({0, 0, 0, 1}); // y1, x1, y2, x2
-    while(!q.empty())
-    {
-        for(size_t i=q.size(); i != 0; i--)
-        {
+    while (!q.empty()) {
+        for (size_t i=q.size(); i != 0; i--) {
             auto t = q.front(); q.pop();
             if (is_target(t)) return steps;
 
             int y = t[2], x = t[3];
 
             // horizontal
-            if (t[0] == t[2])
-            {
+            if (t[0] == t[2]) {
                 // go right
-                if (x+1 < n && !grid[y][x+1] && !is_right_used(y, x+1))
-                {
+                if (x+1 < n && !grid[y][x+1] && !is_right_used(y, x+1)) {
                     set_right(y, x+1);
                     q.push({y, x, y, x+1});
                 }
 
-                if (y+1 < n && !grid[y+1][x-1] && !grid[y+1][x])
-                {
+                if (y+1 < n && !grid[y+1][x-1] && !grid[y+1][x]) {
                     // go down
-                    if (!is_right_used(y+1, x))
-                    {
+                    if (!is_right_used(y+1, x)) {
                         set_right(y+1, x);
                         q.push({y+1, x-1, y+1, x});
                     }
 
                     // rotate clockwise
-                    if (!is_down_used(y+1, x-1))
-                    {
+                    if (!is_down_used(y+1, x-1)) {
                         set_down(y+1, x-1);
                         q.push({y, x-1, y+1, x-1});
                     }
@@ -406,27 +401,22 @@ int Solution::minimumMoves(vector<vector<int>>& grid) {
             }
 
             // vertical
-            if (t[1] == t[3])
-            {
+            if (t[1] == t[3]) {
                 // go down
-                if (y+1 < n && !grid[y+1][x] && !is_down_used(y+1, x))
-                {
+                if (y+1 < n && !grid[y+1][x] && !is_down_used(y+1, x)) {
                     set_down(y+1, x);
                     q.push({y, x, y+1, x});
                 }
 
-                if (x+1 < n && !grid[y-1][x+1] && !grid[y][x+1])
-                {
+                if (x+1 < n && !grid[y-1][x+1] && !grid[y][x+1]) {
                     // go right
-                    if (!is_down_used(y, x+1))
-                    {
+                    if (!is_down_used(y, x+1)) {
                         set_down(y, x+1);
                         q.push({y-1, x+1, y, x+1});
                     }
 
                     // rotate counter-clockwise
-                    if (!is_right_used(y-1, x+1))
-                    {
+                    if (!is_right_used(y-1, x+1)) {
                         set_right(y-1, x+1);
                         q.push({y-1, x, y-1, x+1});
                     }
@@ -437,6 +427,7 @@ int Solution::minimumMoves(vector<vector<int>>& grid) {
     }
     return -1;
 }
+
 
 int Solution::calculateMinimumHP(vector<vector<int>>& dungeon) {
 /*
@@ -458,13 +449,16 @@ int Solution::calculateMinimumHP(vector<vector<int>>& dungeon) {
             [10,30,-5 (P)],
         ]
 */
-    // dp[i][j] means MinimumHP to get (m, n) from (i, j), assume (i, j) is the start point.
+    // dp[i][j] means MinimumHP to get (m-1, n-1) from (i, j), assume (i, j) is the start point.
     // dp[i][j] = max(1, min(dp[i+1][j], dp[i][j+1])-dungeon[i][j])
+    // we can build the answer from bottom to top: what is the MinimumHP to go through the sub-dungeon (i, j) to (m-1, n-1), then extend the solution from (m-1, n-1) to (0, 0)
 
-{ // naive dp solution
+{ // naive dp solution, brilliant
     int m = dungeon.size();
     int n = dungeon[0].size();
-    vector<vector<int>> dp(m+1, vector<int>(n+1, INT32_MAX));
+    vector<vector<int>> dp(m+1, vector<int>(n+1, INT32_MAX)); // we have to initialize dp with INT32_MAX
+    // source: (0, 0)
+    // destination: (m-1, n-1)
     dp[m][n-1] = 1; dp[m-1][n] = 1; // initialization
     for (int i=m-1; i>=0; --i) {
         for (int j=n-1; j>=0; --j) {
@@ -478,8 +472,8 @@ int Solution::calculateMinimumHP(vector<vector<int>>& dungeon) {
     int m = dungeon.size();
     int n = dungeon[0].size();
     vector<int> dp(n+1, INT32_MAX); dp[n-1] = 1;
-    for(int i=m-1; i>=0; i--) {
-        for(int j=n-1; j>=0; j--) {
+    for (int i=m-1; i>=0; i--) {
+        for (int j=n-1; j>=0; j--) {
             dp[j] = max(1, min(dp[j], dp[j+1]))-dungeon[i][j];
         }
     }
@@ -517,9 +511,9 @@ void minPathSum_scaffold(string input, int expectedResult) {
     vector<vector<int>> grid = stringTo2DArray<int>(input);
     int actual = ss.minPathSum(grid);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
@@ -528,9 +522,9 @@ void minimumTotal_scaffold(string input, int expectedResult) {
     vector<vector<int>> grid = stringTo2DArray<int>(input);
     int actual = ss.minimumTotal(grid);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
@@ -539,9 +533,9 @@ void calculateMinimumHP_scaffold(string input, int expectedResult) {
     vector<vector<int>> grid = stringTo2DArray<int>(input);
     int actual = ss.calculateMinimumHP(grid);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
@@ -554,13 +548,13 @@ void minFallingSum_scaffold(string input, int expectedResult, int func_no) {
     } else if (func_no == 1289){
         actual = ss.minFallingSum_1289(grid);
     } else {
-        util::Log(logERROR) << "func_no can only be values in [931, 1289]";
+        SPDLOG_ERROR("func_no can only be values in [931, 1289], actual={}", func_no);
         return;
     }
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ", func_no: " << func_no <<  ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}, func_no={}) passed", input, expectedResult, func_no);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ", func_no: " << func_no <<  ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}, func_no={}) failed, actual={}", input, expectedResult, func_no, actual);
     }
 }
 
@@ -569,9 +563,9 @@ void minimumMoves_scaffold(string input, int expectedResult) {
     vector<vector<int>> grid = stringTo2DArray<int>(input);
     int actual = ss.minimumMoves(grid);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
@@ -610,6 +604,7 @@ int main() {
     calculateMinimumHP_scaffold("[[-2,-3,3],[-5,-10,1],[10,30,-5]]", 7);
     calculateMinimumHP_scaffold("[[0]]", 1);
     calculateMinimumHP_scaffold("[[100]]", 1);
+    calculateMinimumHP_scaffold("[[5,-3,2],[-2,4,-1],[3,-5,6]]", 1);
     TIMER_STOP(calculateMinimumHP);
     SPDLOG_WARN("calculateMinimumHP tests use {} ms", TIMER_MSEC(calculateMinimumHP));
 

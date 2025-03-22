@@ -18,7 +18,7 @@ int DisjointSet::find(int x) {
 }
 
 int DisjointSet::find_recursive(int x) {
-    if (m_parent[x] != x) { // Be cautious, there is a `if` clause not `while`
+    if (m_parent[x] != x) { // Be cautious, there must be a `if` clause instead of `while`
         m_parent[x] = find_recursive(m_parent[x]);
     }
     return m_parent[x];
@@ -30,7 +30,7 @@ int DisjointSet::find_iterative(int x) {
         s.push(x);
         x = m_parent[x];
     }
-    // x == m_parent[x]
+    // assert(x == m_parent[x]);
     while (!s.empty()) {
         m_parent[s.top()] = x;
         s.pop();

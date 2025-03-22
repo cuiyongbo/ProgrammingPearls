@@ -4,12 +4,12 @@ using namespace std;
 using namespace osrm;
 
 /* leetcode: 139, 140 */
-
 class Solution {
 public:
     bool wordBreak_139(string s, vector<string>& wordDict);
     vector<string> wordBreak_140(string s, vector<string>& wordDict);
 };
+
 
 bool Solution::wordBreak_139(string input, vector<string>& wordDict) {
 /*
@@ -18,32 +18,31 @@ bool Solution::wordBreak_139(string input, vector<string>& wordDict) {
     You may assume the dictionary does not contain duplicate words.
 */
 
-    // dp[i] means s[:i) is in wordDict
-    // ans = OR(wordBreak(s[:i]) && wordBreak(s[i+1:])), 0<i<s.size
-{
-    map<string, bool> dict_set; dict_set[""] = true;
+    // dp[i] means input[:i] is in wordDict
+    // ans = OR(wordBreak(input[:i]) && wordBreak(input[i:])), 0<i<input.size
+    map<string, bool> sub_solution;
+    sub_solution[""] = true;
     for (auto& p: wordDict) {
-        dict_set[p] = true;
+        sub_solution[p] = true;
     }
-    function<bool(string&)> dfs = [&] (string& u) {
-        if (dict_set.count(u) == 1) { // memoization
-            return dict_set[u];
+    function<bool(string)> dfs = [&] (string u) {
+        if (sub_solution.count(u)) { // memoization
+            return sub_solution[u];
         }
-        dict_set[u] = false;
-        for (int i=1; i<=u.size(); ++i) {
-            string ul = u.substr(0, i);
-            string ur = u.substr(i);
-            if (dfs(ul) && dfs(ur)) {
-                dict_set[u] = true;
-                break;
+        sub_solution[u] = false;
+        for (int i=1; i<(int)u.size(); i++) {
+            auto l = u.substr(0, i);
+            auto r = u.substr(i);
+            if (dfs(l) && dfs(r)) {
+                sub_solution[u] = true;
+                return true;
             }
         }
-        return dict_set[u];
+        return false;
     };
     return dfs(input);
 }
 
-}
 
 vector<string> Solution::wordBreak_140(string input, vector<string>& wordDict) {
 /*
@@ -63,7 +62,7 @@ vector<string> Solution::wordBreak_140(string input, vector<string>& wordDict) {
             return sub_solution[u];
         }
         sub_solution[u] = make_pair(false, solution_type());
-        for (int i=1; i<=u.size(); ++i) {
+        for (int i=1; i<=(int)u.size(); ++i) {
             string ul = u.substr(0, i);
             if (dict_set.count(ul) == 0) {
                 continue;
@@ -98,6 +97,7 @@ vector<string> Solution::wordBreak_140(string input, vector<string>& wordDict) {
                 candidate.push_back(' ');
             }
             candidate.pop_back();
+            //std::cout << candidate << std::endl;
             ans.push_back(candidate);
         }
     }
@@ -106,16 +106,18 @@ vector<string> Solution::wordBreak_140(string input, vector<string>& wordDict) {
 
 }
 
+
 void wordBreak_scaffold(string input1, string input2, bool expectedResult) {
     Solution ss;
     vector<string> dict = stringTo1DArray<string>(input2);
     bool actual = ss.wordBreak_139(input1, dict);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", input1, input2, expectedResult, actual);
     }
 }
+
 
 void wordBreakII_scaffold(string input1, string input2, string expectedResult) {
     Solution ss;
@@ -123,32 +125,30 @@ void wordBreakII_scaffold(string input1, string input2, string expectedResult) {
     vector<string> expected = stringTo1DArray<string>(expectedResult);
     auto actual = ss.wordBreak_140(input1, dict);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual: ";
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual:", input1, input2, expectedResult);
         for (const auto& s: actual)  {
-            util::Log(logERROR) << "[" << s << "]";
+            std::cout << "[" << s << "]" << std::endl;
         }
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running wordBreak_139 tests:";
+int main() {
+    SPDLOG_WARN("Running wordBreak_139 tests:");
     TIMER_START(wordBreak_139);
     wordBreak_scaffold("leetcode", "[leet,code]", true);
     wordBreak_scaffold("leetcode", "[leet,code,loser]", true);
     wordBreak_scaffold("googlebingbaidu", "[google,bing,baidu]", true);
     wordBreak_scaffold("googlebingbaidu360", "[google,bing,baidu]", false);
     TIMER_STOP(wordBreak_139);
-    util::Log(logESSENTIAL) << "wordBreak_139 using " << TIMER_MSEC(wordBreak_139) << " milliseconds";
+    SPDLOG_WARN("wordBreak_139 tests use {} ms", TIMER_MSEC(wordBreak_139));
 
-    util::Log(logESSENTIAL) << "Running wordBreak_140 tests:";
+    SPDLOG_WARN("Running wordBreak_140 tests:");
     TIMER_START(wordBreak_140);
     wordBreakII_scaffold("leetcode", "[leet,code]", "[leet code]");
     wordBreakII_scaffold("catsanddog", "[cat,cats,and,sand,dog]", "[cat sand dog,cats and dog]");
     TIMER_STOP(wordBreak_140);
-    util::Log(logESSENTIAL) << "wordBreak_140 using " << TIMER_MSEC(wordBreak_140) << " milliseconds";
+    SPDLOG_WARN("wordBreak_140 tests use {} ms", TIMER_MSEC(wordBreak_140));
 }
