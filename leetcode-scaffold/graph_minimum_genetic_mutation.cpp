@@ -41,13 +41,14 @@ int Solution::minMutation(string start, string end, vector<string>& bank) {
         }
         return diff == 1;
     };
+    // use bfs to find the minimum steps from start to end
     int steps = 0;
     queue<string> q; q.push(start);
     set<string> visited; visited.insert(start);
     while (!q.empty()) {
         for (int k=q.size(); k!=0; --k) {
             auto u = q.front(); q.pop();
-            if (u == end) {
+            if (u == end) { // we reach the end
                 return steps;
             }
             for (auto& v: bank) {
@@ -70,12 +71,13 @@ int Solution::minMutation(string start, string end, vector<string>& bank) {
     We have a list of bus routes. Each routes[i] is a bus route that the i-th bus repeats forever. 
     For example if routes[0] = [1, 5, 7], this means that the first bus (0-th indexed) travels in the sequence 1->5->7->1->5->7->1->… forever.
     We start at bus stop S (initially not on a bus), and we want to go to bus stop T. 
-    Travelling by buses only, what is the least number of buses we must take to reach our destination? Return -1 if it is not possible.
+    Travelling by buses only, what is the least number of buses we must take to reach our destination? Return -1 if it is not possible. [最少换乘]
 */
 int Solution::numBusesToDestination(vector<vector<int>>& routes, int S, int T) {
     return numBusesToDestination_bfs(routes, S, T);
     //return numBusesToDestination_napolen(routes, S, T);
 }
+
 
 int Solution::numBusesToDestination_napolen(vector<vector<int>>& routes, int S, int T) {
     // build an undirected graph
@@ -125,7 +127,63 @@ int Solution::numBusesToDestination_napolen(vector<vector<int>>& routes, int S, 
     return ans == INT32_MAX ? -1 : ans+1;
 }
 
+
 int Solution::numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int T) {
+
+{ // naive bfs
+    int buses = routes.size();
+    // build bus station map
+    map<int, vector<int>> bus_station_map;
+    for (int i=0; i<buses; i++) {
+        for (auto r: routes[i]) {
+            bus_station_map[r].push_back(i);
+        }
+    }
+    auto is_intersected = [&] (int i, int j) {
+        for (auto r: routes[i]) {
+            for (auto l: routes[j]) {
+                if (r == l) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+    // build a bus graph
+    map<int, vector<int>> graph;
+    for (int i=0; i<buses; i++) {
+        for (int j=i+1; j<buses; j++) {
+            if (is_intersected(i, j)) {
+                graph[i].push_back(j);
+                graph[j].push_back(i);
+            }
+        }
+    }
+    // use bfs to find the minimum bus to travel from S to T
+    int steps = 0;
+    queue<int> q;
+    for (auto r: bus_station_map[S]) {
+        q.push(r);
+    }
+    set<int> visited(bus_station_map[S].begin(), bus_station_map[S].end());
+    set<int> ends(bus_station_map[T].begin(), bus_station_map[T].end());
+    while (!q.empty()) {
+        for (int k=q.size(); k!=0; k--) {
+            auto u = q.front(); q.pop();
+            if (ends.count(u)) {
+                return steps+1;
+            }
+            for (auto v: graph[u]) {
+                if (visited.count(v) == 0) {
+                    q.push(v);
+                    visited.insert(v);
+                }
+            }  
+        }
+        steps++;
+    }
+    return -1;
+}
 
 { // naive bfs
     map<int, vector<int>> station_to_bus;
@@ -201,12 +259,13 @@ int Solution::numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int 
 */
 vector<int> Solution::distanceK(TreeNode* root, int target, int distance) {
     map<int, vector<int>> graph;
-    function<void(TreeNode*)> graph_from_tree = [&] (TreeNode* node) {
+    // perform post-order traversal to build a undirected graph
+    function<void(TreeNode*)> tree_to_graph = [&] (TreeNode* node) {
         if (node == nullptr) {
             return;
         }
-        graph_from_tree(node->left);
-        graph_from_tree(node->right);
+        tree_to_graph(node->left);
+        tree_to_graph(node->right);
         if (node->left != nullptr) {
             graph[node->val].push_back(node->left->val);
             graph[node->left->val].push_back(node->val);
@@ -216,8 +275,8 @@ vector<int> Solution::distanceK(TreeNode* root, int target, int distance) {
             graph[node->right->val].push_back(node->val);
         }
     };
-    graph_from_tree(root);
-
+    tree_to_graph(root);
+    // perform bfs to find the destination nodes
     int steps = 0;
     queue<int> q; q.push(target);
     set<int> visited; visited.insert(target);
@@ -242,7 +301,7 @@ vector<int> Solution::distanceK(TreeNode* root, int target, int distance) {
 
 
 /*
-    Consider a directed graph, with nodes labelled 0, 1, ..., n-1.
+    Consider a *directed* graph, with nodes labelled 0, 1, ..., n-1.
     In this graph, each edge is either red or blue, and there could be self-edges or parallel edges.
     Each [i, j] in red_edges denotes a red directed edge from node i to node j.  
     Similarly, each [i, j] in blue_edges denotes a blue directed edge from node i to node j.
@@ -283,7 +342,7 @@ vector<int> Solution::shortestAlternatingPaths(int n, vector<vector<int>>& red_e
                 }
             }
             ++steps;
-            color = color==RED ? BLUE : RED;
+            color = color==RED ? BLUE : RED; // change color at each step
         }
     };
     search(RED); // search starting from red graph
@@ -310,7 +369,8 @@ vector<int> Solution::shortestAlternatingPaths(int n, vector<vector<int>>& red_e
 int Solution::minPushBox(vector<vector<char>>& grid) {
     int rows = grid.size();
     int columns = grid[0].size();
-    typedef pair<int, int> Coordinate;
+    using Coordinate = std::pair<int, int>;
+    // find player, dest, and box positions
     Coordinate box, player, dest;
     for (int r=0; r<rows; ++r) {
         for (int c=0; c<columns; ++c) {
@@ -323,17 +383,14 @@ int Solution::minPushBox(vector<vector<char>>& grid) {
             }
         }
     }
-    //printf("player:(%d,%d);box:(%d,%d);dest:(%d,%d)\n", player.first, player.second, box.first, box.second, dest.first, dest.second);
-    // return true if target is reachable from player_pos, otherwise false
-    auto is_valid_move = [&] (Coordinate player_pos, Coordinate target, Coordinate box_pos) {
+    // return true if `push_pos` is reachable from `player_pos`, otherwise false
+    auto is_valid_move = [&] (Coordinate player_pos, Coordinate push_pos, Coordinate box_pos) {
         queue<Coordinate> q; q.push(player_pos);
         set<Coordinate> visited; visited.insert(player_pos);
         while (!q.empty()) {
             for (int k=q.size(); k!=0; --k) {
                 auto u = q.front(); q.pop();
-                //printf("(%d,%d)->", u.first, u.second);
-                if (u == target) {
-                    //printf("true\n");
+                if (u == push_pos) {
                     return true;
                 }
                 for (auto d: directions) {
@@ -343,7 +400,7 @@ int Solution::minPushBox(vector<vector<char>>& grid) {
                         continue;
                     }
                     auto v = make_pair(nr, nc);
-                    if (v == box_pos // cannot walk through box, we may compact code by add box_pos to visited
+                    if (v == box_pos // cannot walk through box, we may compact code by adding box_pos to visited
                         || visited.count(v) != 0) {
                         continue;
                     }
@@ -352,15 +409,16 @@ int Solution::minPushBox(vector<vector<char>>& grid) {
                 }                
             }
         }
-        //printf("false\n");
         return false;
     };
+    // perform bfs search
     int steps = 0;
-    set<pair<Coordinate, Coordinate>> visited; // box_pos, push_direction
+    set<pair<Coordinate, Coordinate>> visited; // box_pos, direction from which box is pushed to box_pos
     queue<pair<Coordinate, Coordinate>> q; q.emplace(box, player); // box_pos, player_pos
     while (!q.empty()) {
         for (int k=q.size(); k!=0; --k) {
             auto candidate = q.front(); q.pop();
+            auto player_pos = candidate.second;
             auto box_pos = candidate.first;
             if (box_pos == dest) {
                 return steps;
@@ -371,16 +429,19 @@ int Solution::minPushBox(vector<vector<char>>& grid) {
                 if (nr<0 || nr>=rows || nc<0 || nc>=columns || grid[nr][nc]=='#') {
                     continue;
                 }
-                auto coor = make_pair(nr, nc);
-                auto pp = make_pair(coor, d);
+                auto new_box = make_pair(nr, nc);
+                auto pp = make_pair(new_box, d);
                 if (visited.count(pp) != 0) {
                     continue;
                 }
-                auto old_player = candidate.second;
-                auto target = make_pair(box_pos.first-d.first, box_pos.second-d.second);
-                if (is_valid_move(old_player, target, box_pos)) {
-                    visited.insert(pp);
-                    q.emplace(coor, box_pos); // player goes to previous box_pos after pushing
+                // to push box to `new_box`, player must goes to `push_pos` then push
+                auto push_pos = make_pair(box_pos.first-d.first, box_pos.second-d.second);
+                if (push_pos.first<0 || push_pos.first>=rows || push_pos.second<0 || push_pos.second>=columns || grid[push_pos.first][push_pos.second]=='#') {
+                    continue;
+                }
+                if (is_valid_move(player_pos, push_pos, box_pos)) {
+                    visited.insert(pp); // DON'T move it out of `is_valid_move`
+                    q.emplace(new_box, box_pos); // player takes the place of previous box position after pushing
                 }
             }
         }
@@ -395,9 +456,9 @@ void minMutation_scaffold(string input1, string input2, string input3, int expec
     vector<string> bank = stringTo1DArray<string>(input3);
     int actual = ss.minMutation(input1, input2, bank);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expected: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, {}, expectedResult={}) passed", input1, input2, input3, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expected: " << expectedResult << ") failed, actutal: " << actual;
+        SPDLOG_ERROR("Case({}, {}, {}, expectedResult={}) failed, actual={}", input1, input2, input3, expectedResult, actual);
     }
 }
 
@@ -407,9 +468,9 @@ void numBusesToDestination_scaffold(string input1, int input2, int input3, int e
     vector<vector<int>> routes = stringTo2DArray<int>(input1);
     int actual = ss.numBusesToDestination(routes, input2, input3);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, {}, expectedResult={}) passed", input1, input2, input3, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") failed, actutal: " << actual;
+        SPDLOG_ERROR("Case({}, {}, {}, expectedResult={}) failed, actual={}", input1, input2, input3, expectedResult, actual);
     }
 }
 
@@ -422,9 +483,9 @@ void distanceK_scaffold(string input1, int input2, int input3, string expectedRe
     std::sort(actual.begin(), actual.end());
     std::sort(expected.begin(), expected.end());
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, {}, expectedResult={}) passed", input1, input2, input3, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") failed, actutal: " << numberVectorToString(actual);
+        SPDLOG_ERROR("Case({}, {}, {}, expectedResult={}) failed, actual={}", input1, input2, input3, expectedResult, numberVectorToString(actual));
     }
 }
 
@@ -436,9 +497,9 @@ void shortestAlternatingPaths_scaffold(int input1, string input2, string input3,
     vector<int> actual = ss.shortestAlternatingPaths(input1, red_edges, blue_edges);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, {}, expectedResult={}) passed", input1, input2, input3, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", " << input3 << ", expectedResult: " << expectedResult << ") failed, actutal: " << numberVectorToString(actual);
+        SPDLOG_ERROR("Case({}, {}, {}, expectedResult={}) failed, actual={}", input1, input2, input3, expectedResult, numberVectorToString(actual));
     }
 }
 
@@ -448,27 +509,24 @@ void minPushBox_scaffold(string input, int expectedResult) {
     vector<vector<char>> grid = stringTo2DArray<char>(input);
     int actual = ss.minPushBox(grid);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actutal: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
-    util::Log(logESSENTIAL) << "Running minMutation tests:";
+    SPDLOG_WARN("Running minMutation tests:");
     TIMER_START(minMutation);
     minMutation_scaffold("AACCGGTT", "AACCGGTA", "[AACCGGTA]", 1);
     minMutation_scaffold("AACCGGTT", "AAACGGTA", "[AACCGGTA, AACCGCTA, AAACGGTA]", 2);
     minMutation_scaffold("AAAAACCC", "AACCCCCC", "[AAAACCCC, AAACCCCC, AACCCCCC]", 3);
     minMutation_scaffold("AAAAAAAA", "CCCCCCCC", "[AAAAAAAA,AAAAAAAC,AAAAAACC,AAAAACCC,AAAACCCC,AACACCCC,ACCACCCC,ACCCCCCC,CCCCCCCA]", -1);
     TIMER_STOP(minMutation);
-    util::Log(logESSENTIAL) << "minMutation using " << TIMER_MSEC(minMutation) << " milliseconds";
+    SPDLOG_WARN("minMutation tests {} ms", TIMER_MSEC(minMutation));
 
-    util::Log(logESSENTIAL) << "Running numBusesToDestination tests:";
+    SPDLOG_WARN("Running numBusesToDestination tests:");
     TIMER_START(numBusesToDestination);
     numBusesToDestination_scaffold("[[1,3,7],[2,5,6]]", 1, 5, -1);
     numBusesToDestination_scaffold("[[1,3,7],[2,5,6]]", 1, 3, 1);
@@ -478,17 +536,17 @@ int main() {
     numBusesToDestination_scaffold("[[1,2,7],[3,6,7]]", 6, 3, 1);
     numBusesToDestination_scaffold("[[1,2,7],[3,6,7]]", 7, 1, 1);
     TIMER_STOP(numBusesToDestination);
-    util::Log(logESSENTIAL) << "numBusesToDestination using " << TIMER_MSEC(numBusesToDestination) << " milliseconds";
+    SPDLOG_WARN("numBusesToDestination tests {} ms", TIMER_MSEC(numBusesToDestination));
 
-    util::Log(logESSENTIAL) << "Running distanceK tests:";
+    SPDLOG_WARN("Running distanceK tests:");
     TIMER_START(distanceK);
     distanceK_scaffold("[3,5,1,6,2,0,8,null,null,7,4]", 5, 2, "[1,4,7]");
     distanceK_scaffold("[1]", 1, 2, "[]");
     distanceK_scaffold("[0,1,null,null,2,null,3,null,4]", 3, 0, "[3]");
     TIMER_STOP(distanceK);
-    util::Log(logESSENTIAL) << "distanceK using " << TIMER_MSEC(distanceK) << " milliseconds";
+    SPDLOG_WARN("distanceK tests {} ms", TIMER_MSEC(distanceK));
 
-    util::Log(logESSENTIAL) << "Running shortestAlternatingPaths tests:";
+    SPDLOG_WARN("Running shortestAlternatingPaths tests:");
     TIMER_START(shortestAlternatingPaths);
     shortestAlternatingPaths_scaffold(3, "[[0,1],[1,2]]", "[]", "[0,1,-1]");
     shortestAlternatingPaths_scaffold(3, "[[0,1]]", "[[2,1]]", "[0,1,-1]");
@@ -496,9 +554,9 @@ int main() {
     shortestAlternatingPaths_scaffold(3, "[[0,1]]", "[[1,2]]", "[0,1,2]");
     shortestAlternatingPaths_scaffold(3, "[[0,1],[0,2]]", "[[1,0]]", "[0,1,1]");
     TIMER_STOP(shortestAlternatingPaths);
-    util::Log(logESSENTIAL) << "shortestAlternatingPaths using " << TIMER_MSEC(shortestAlternatingPaths) << " milliseconds";
+    SPDLOG_WARN("shortestAlternatingPaths tests {} ms", TIMER_MSEC(shortestAlternatingPaths));
 
-    util::Log(logESSENTIAL) << "Running minPushBox tests:";
+    SPDLOG_WARN("Running minPushBox tests:");
     TIMER_START(minPushBox);
 
     string grid = R"([[#,#,#,#,#,#],
@@ -539,6 +597,5 @@ int main() {
     minPushBox_scaffold(grid, 8);
 
     TIMER_STOP(minPushBox);
-    util::Log(logESSENTIAL) << "minPushBox using " << TIMER_MSEC(minPushBox) << " milliseconds";
-
+    SPDLOG_WARN("minPushBox tests {} ms", TIMER_MSEC(minPushBox));
 }

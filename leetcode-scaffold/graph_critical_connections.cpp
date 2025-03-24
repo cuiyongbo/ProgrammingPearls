@@ -22,6 +22,7 @@ public:
     Hint: tarjan algorithm
 */
 vector<vector<int>> Solution::criticalConnections(int n, vector<vector<int>>& connections) {
+    // build a undirected graph
     vector<vector<int>> graph(n);
     for (auto& p: connections) {
         graph[p[0]].push_back(p[1]);
@@ -30,7 +31,7 @@ vector<vector<int>> Solution::criticalConnections(int n, vector<vector<int>>& co
 
     int t = 0;
     vector<vector<int>> ans;
-    vector<int> ts(n, -1); // timestamp when a node is explored for the first time
+    vector<int> ts(n, -1); // timestamp when a node is explored for the first time [discovering timestamp]
     // return the earliest timestamp of node(s) reachable from u, including u itself
     function<int(int, int)> tarjan = [&](int u, int parent) {
         int min_u = ts[u] = t++; 
@@ -59,27 +60,29 @@ vector<vector<int>> Solution::criticalConnections(int n, vector<vector<int>>& co
     return ans;
 }
 
+
 void criticalConnections_scaffold(int input1, string input2, string expectedResult) {
     Solution ss;
     vector<vector<int>> connections = stringTo2DArray<int>(input2);
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
     vector<vector<int>> actual = ss.criticalConnections(input1, connections);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expected: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expected: " << expectedResult << ") failed, actual: ";
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual:", input1, input2, expectedResult);
         for (auto& s: actual) {
-            util::Log(logERROR) << numberVectorToString(s);
+            std::cout << numberVectorToString(s) << std::endl;
         }
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running criticalConnections tests:";
+int main() {
+    SPDLOG_WARN("Running criticalConnections tests:");
     TIMER_START(criticalConnections);
     criticalConnections_scaffold(4, "[[0,1],[1,2],[2,0],[1,3]]", "[[1,3]]");
+    criticalConnections_scaffold(5, "[[0,1],[1,2],[2,0],[1,3],[3,4]]", "[[1,3],[3,4]]");
+    criticalConnections_scaffold(6, "[[0,1],[1,2],[2,0],[1,3],[3,4],[3,5],[4,5]]", "[[1,3]]");
     TIMER_STOP(criticalConnections);
-    util::Log(logESSENTIAL) << "criticalConnections using " << TIMER_MSEC(criticalConnections) << " milliseconds";
+    SPDLOG_WARN("criticalConnections tests use {} ms", TIMER_MSEC(criticalConnections));
 }
