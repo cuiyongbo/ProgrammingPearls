@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 959 */
-
 class Solution {
 public:
     int regionsBySlashes(const vector<string>& grid);
@@ -17,12 +15,11 @@ public:
 
     Hint: split one grid into 4, and use dsu to find unique groups.
     _____________
-    |\ /|\ /|\ /|
-    |/_\|/_\|/_\|
-    |\ /|\ /|\ /|
-    |/_\|/_\|/_\|
-    |\ /|\ /|\ /|
-    |/_\|/_\|/_\|
+    |\|/|\|/|\|/|
+    |/|\|/|\|/|\|
+    |\|/|\|/|\|/|
+    |/|\|/|\|/|\|
+    -------------
 */
 int Solution::regionsBySlashes(const vector<string>& grid) {
 
@@ -70,17 +67,15 @@ void regionsBySlashes_scaffold(vector<string> input, int expectedResult) {
 	Solution ss;
 	int actual = ss.regionsBySlashes(input);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input[0] << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input[0], expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input[0] << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input[0], expectedResult, actual);
     }
 }
 
 
 int main() {
-	util::LogPolicy::GetInstance().Unmute();
-
-	util::Log(logESSENTIAL) << "Running regionsBySlashes tests:";
+    SPDLOG_WARN("Running regionsBySlashes tests:");
 	TIMER_START(regionsBySlashes);
 	regionsBySlashes_scaffold({" /",  "/ "}, 2);
 	regionsBySlashes_scaffold({" /",  "  "}, 1);
@@ -88,5 +83,5 @@ int main() {
 	regionsBySlashes_scaffold({"/\\",  "\\/"}, 5);
 	regionsBySlashes_scaffold({"//",  "/ "}, 3);
 	TIMER_STOP(regionsBySlashes);
-	util::Log(logESSENTIAL) << "regionsBySlashes using " << TIMER_MSEC(regionsBySlashes) << " milliseconds";
+    SPDLOG_WARN("regionsBySlashes tests use {} ms", TIMER_MSEC(regionsBySlashes));
 }

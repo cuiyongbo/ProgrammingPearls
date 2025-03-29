@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 684, 685, 1319 */
-
 class Solution {
 public:
     vector<int> findRedundantConnection(vector<vector<int>>& edges);
@@ -14,7 +12,7 @@ public:
 
 
 /*
-    In this problem, a tree is an undirected graph that is connected and has no cycles.
+    In this problem, a tree is an *undirected* graph that is connected and has no cycles.
 
     You are given a graph that started as a tree with n nodes labelled from 1 to n, with one additional edge added. 
     The added edge has two different vertices chosen from 1 to n, and was not an edge that already existed. 
@@ -34,6 +32,7 @@ vector<int> Solution::findRedundantConnection(vector<vector<int>>& edges) {
     vector<int> ans;
     DisjointSet dsu(edges.size());
     for (auto& e: edges) {
+        // return the last edge which results in a cycle in the graph
         if (!dsu.unionFunc(e[0], e[1])) {
             ans = e;
         }
@@ -43,8 +42,7 @@ vector<int> Solution::findRedundantConnection(vector<vector<int>>& edges) {
 
 
 /*
-    In this problem, a rooted tree is a directed graph such that,
-    there is exactly one node (the root) for which all other nodes are descendants of this node,
+    In this problem, a rooted tree is a directed graph such that, there is exactly one node (the root) for which all other nodes are descendants of this node,
     plus every node has exactly one parent, except for the root node which has no parents.
 
     The given input is a directed graph that started as a rooted tree with N nodes (with distinct values 1, 2, …, N),
@@ -54,63 +52,116 @@ vector<int> Solution::findRedundantConnection(vector<vector<int>>& edges) {
     Return an edge that can be removed so that the resulting graph is a rooted tree of N nodes. If there are multiple answers, return the answer that occurs last in the given 2D-array.
 
     Constraints:
-        N == edges.length
+        N == edges.length (note this constraint)
         edges[i].length == 2
         1 <= u, v <= N
         u != v
     Hint:
-    // case 1: no multi-parents, revert to findRedundantConnection
-    // case 2: no cycle, a node has multi-parents [u1, u2], return the latter
-    // case 3: both, return [u1, v] or [u2, v] that creates the loop
+
+case 1: the additional directed edge points to root node, which results in a cycle, and in-degree of all nodes is equal to 1, revert to findRedundantConnection
+
+```plaintext
+    1 (root)
+    /^
+    v  \
+    2-->3
+```
+
+case 2: the additional directed edge points to non-root node, and the in-degree of that node becomes 2, but there is no cycle in the graph
+
+```plaintext
+    1 (root)
+    / \
+    v   v
+    2-->3
+```
+
+case 3: the additional directed edge points to non-root node, and the in-degree of that node becomes 2, but there is a cycle in the graph
+
+```plaintext
+    1
+    |
+    v
+    2 <--> 3
+```
 */
 vector<int> Solution::findRedundantDirectedConnection(vector<vector<int>>& edges) {
-
-{ // old solution
-    int node_count = edges.size();
-    vector<vector<int>> graph(node_count+1);
-
-    int v = 0;
-    bool multiparents_found = false;
-    for (auto& e: edges) {
-        graph[e[1]].push_back(e[0]);
-        if (graph[e[1]].size() > 1) {
-            v = e[1];
-            multiparents_found = true;
-            break;
+    // 1. test whether the additional edge points to root node or not
+    bool point_to_root = true;
+    int node_with_2_indegree = -1;
+    int N = edges.size();
+    vector<int> indegrees(N+1, 0); // NOTE that index 0 is not used
+    vector<vector<int>> graph(N+1);
+    for (auto e: edges) {
+        graph[e[0]].push_back(e[1]);
+        indegrees[e[1]]++;
+        if (indegrees[e[1]] == 2) {
+            point_to_root = false;
+            node_with_2_indegree = e[1];
         }
     }
-    vector<int> cycle_edge;
-    bool cycle_found = false;
-    DisjointSet dsu(node_count);
-    for (auto& e: edges) {
-        if (e[1] != v && !dsu.unionFunc(e[0], e[1])) {
-            cycle_found = true;
-            cycle_edge = e;
-            break;
-        }
-    }
-
-    vector<int> ans;
-    if (cycle_found) {
-        ans = cycle_edge;
-    } else if (multiparents_found) {
-        for (auto u: graph[v]) {
-            if (!dsu.unionFunc(u, v)) {
-                ans.push_back(u);
-                ans.push_back(v);
-                break;
+    // case 1
+    if (point_to_root) {
+        vector<int> ans;
+        DisjointSet dsu(N);
+        for (auto e: edges) {
+            if (!dsu.unionFunc(e[0], e[1])) {
+                ans = e;
             }
         }
+        return ans;
     }
-    return ans;
-}
+    // 2 test if there is a cycle
+    // return false if there is a cycle in the graph
+    vector<int> visited(N+1, 0);
+    std::function<bool(int)> dfs = [&] (int u) {
+        visited[u] = 1;
+        for (auto v: graph[u]) {
+            if (visited[v] == 0) {
+                if (!dfs(v)) {
+                    return false;
+                }
+            } else if (visited[v] == 1) {
+                return false;
+            }
+        }
+        visited[u] = 2;
+        return true;
+    };
+    int root_node = -1;
+    for (int i=1; i<(int)indegrees.size(); i++) {
+        if (indegrees[i] == 0) {
+            root_node = i;
+        }
 
+    }
+    bool no_cycle = dfs(root_node);
+    // case 2
+    if (no_cycle) {
+        vector<int> ans;
+        for (auto e: edges) {
+            if (e[1] == node_with_2_indegree) {
+            //if (e[0] != root_node && e[1] == node_with_2_indegree) {
+                ans = e;
+            }
+        }
+        return ans;
+    } else {
+    // case 3, note that we can not remove edge comming from root
+        vector<int> ans;
+        for (auto e: edges) {
+            if (e[0] != root_node && e[1] == node_with_2_indegree) {
+                ans = e;
+            }
+        }
+        return ans;
+    }
 }
 
 
 /*
     There are n computers numbered from 0 to n-1 connected by ethernet cables forming a network where connections[i] = [a, b] 
-    represents a connection between computers a and b (undirected). Any computer can reach any other computer directly or indirectly through the network.
+    represents a connection between computers a and b (*undirected*). Any computer can reach any other computer directly or indirectly through the network.
 
     Given an initial computer network connections. You can extract certain cables between two directly connected computers, and place them between any pair of disconnected computers to make them directly connected. 
     Return the minimum number of times you need to do this in order to make all the computers connected. If it’s not possible, return -1. 
@@ -118,6 +169,7 @@ vector<int> Solution::findRedundantDirectedConnection(vector<vector<int>>& edges
     Hint: use disjoint set to find the number of connected components.
 */
 int Solution::makeConnected(int node_count, vector<vector<int>>& connections) {
+    // calculate the number of redundant edges which we may use to connect SCC(s) later
     int redundant_edge_cnt = 0;
     DisjointSet dsu(node_count);
     for (auto& p: connections) {
@@ -125,10 +177,12 @@ int Solution::makeConnected(int node_count, vector<vector<int>>& connections) {
             redundant_edge_cnt++;
         }
     }
+    // calculate the number of SCC(s): `num`
     set<int> groups;
     for (int i=0; i<node_count; ++i) {
         groups.insert(dsu.find(i));
     }
+    // we need at least `num-1` edges to connect `num` SCC(s)
     int ans = groups.size()-1;
     return (redundant_edge_cnt>=ans) ? ans : -1;
 }
@@ -140,9 +194,9 @@ void findRedundantConnection_scaffold(string input, string expectedResult) {
     vector<int> actual = ss.findRedundantConnection(graph);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", expected: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expected: " << expectedResult << ") failed, acutal: " << numberVectorToString(actual);
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, acutal={}", input, expectedResult, numberVectorToString(actual));
     }
 }
 
@@ -153,9 +207,9 @@ void findRedundantDirectedConnection_scaffold(string input, string expectedResul
     vector<int> actual = ss.findRedundantDirectedConnection(graph);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", expected: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expected: " << expectedResult << ") failed, acutal: " << numberVectorToString(actual);
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, acutal={}", input, expectedResult, numberVectorToString(actual));
     }
 }
 
@@ -165,38 +219,40 @@ void makeConnected_scaffold(int n, string input, int expectedResult) {
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.makeConnected(n, graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << n << ", " << input << ", " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", n, input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << n << ", " << input << ", " << expectedResult << ") failed, acutal: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, acutal={}", n, input, expectedResult, actual);
     }
 }
 
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
-    util::Log(logESSENTIAL) << "Running findRedundantConnection tests:";
+    SPDLOG_WARN("Running findRedundantConnection tests:");
     TIMER_START(findRedundantConnection);
     findRedundantConnection_scaffold("[[1,2],[2,3],[1,3],[2,4]]", "[1,3]");
     findRedundantConnection_scaffold("[[1,2], [1,3], [2,3]]", "[2,3]");
     findRedundantConnection_scaffold("[[1,2], [2,3], [3,4], [1,4], [1,5]]", "[1,4]");
     TIMER_STOP(findRedundantConnection);
-    util::Log(logESSENTIAL) << "findRedundantConnection using " << TIMER_MSEC(findRedundantConnection) << " milliseconds";
+    SPDLOG_WARN("findRedundantConnection tests use {} ms", TIMER_MSEC(findRedundantConnection));
 
-    util::Log(logESSENTIAL) << "Running findRedundantDirectedConnection tests:";
+    SPDLOG_WARN("Running findRedundantDirectedConnection tests:");
     TIMER_START(findRedundantDirectedConnection);
     findRedundantDirectedConnection_scaffold("[[1,2],[2,3],[3,4],[4,1],[1,5]]", "[4,1]"); // no duplicate parents, revert to findRedundantConnection
     findRedundantDirectedConnection_scaffold("[[1,2],[1,3],[2,3]]", "[2,3]"); // a node has duplicate parents [u, v], return the latter
+    findRedundantDirectedConnection_scaffold("[[1,2],[3,2],[2,3]]", "[3,2]");
+    findRedundantDirectedConnection_scaffold("[[3,2],[2,3],[1,2]]", "[3,2]");
+    findRedundantDirectedConnection_scaffold("[[3,2],[1,2],[2,3]]", "[3,2]");
     findRedundantDirectedConnection_scaffold("[[1,2],[2,3],[3,4],[1,4],[1,5]]", "[1,4]");
     findRedundantDirectedConnection_scaffold("[[1,2],[2,3],[3,4],[4,2]]", "[4, 2]");
     findRedundantDirectedConnection_scaffold("[[2,1],[3,1],[4,2],[1,4]]", "[2,1]"); // both, return [u1, v] or [u2, v] that creates the loop
     findRedundantDirectedConnection_scaffold("[[3,1],[2,1],[4,2],[1,4]]", "[2,1]");
     findRedundantDirectedConnection_scaffold("[[4,1],[2,3],[3,1],[1,2]]", "[3,1]");
     TIMER_STOP(findRedundantDirectedConnection);
-    util::Log(logESSENTIAL) << "findRedundantDirectedConnection using " << TIMER_MSEC(findRedundantDirectedConnection) << " milliseconds";
+    SPDLOG_WARN("findRedundantDirectedConnection tests use {} ms", TIMER_MSEC(findRedundantDirectedConnection));
 
-    util::Log(logESSENTIAL) << "Running makeConnected tests:";
+    SPDLOG_WARN("Running makeConnected tests:");
     TIMER_START(makeConnected);
+    makeConnected_scaffold(5, "[[0,1],[1,2],[2,3]]", -1);
     makeConnected_scaffold(4, "[[0,1],[0,2],[1,2]]", 1);
     makeConnected_scaffold(6, "[[0,1],[0,2],[0,3],[1,2],[1,3]]", 2);
     makeConnected_scaffold(6, "[[0,1],[0,2],[0,3],[1,2]]", -1);
@@ -219,5 +275,5 @@ int main() {
                                 "[63,84],[77,94],[26,90],[64,77],[0,3],[27,97],[66,89],[18,77],[27,43]]", 13);
     
     TIMER_STOP(makeConnected);
-    util::Log(logESSENTIAL) << "makeConnected using " << TIMER_MSEC(makeConnected) << " milliseconds";
+    SPDLOG_WARN("makeConnected tests use {} ms", TIMER_MSEC(makeConnected));
 }

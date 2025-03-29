@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 332*/
 
@@ -44,23 +43,18 @@ void findItinerary_scaffold(string input, string expectedResult) {
     vector<vector<string>> tickets = stringTo2DArray<string>(input);
     vector<string> actual = ss.findItinerary(tickets);
     if (actual == expected) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed";
-        util::Log(logERROR) << "Actual: ";
-        for (auto& s: actual) {
-            util::Log(logERROR) << s;
-        }
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual:", input, expectedResult);
+        print_vector(actual);
     }
 }
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
-    util::Log(logESSENTIAL) << "Running findItinerary tests:";
+    SPDLOG_WARN("Running findItinerary tests:");
     TIMER_START(findItinerary);
     findItinerary_scaffold("[[MUC, LHR], [JFK, MUC], [SFO, SJC], [LHR, SFO]]", "[JFK, MUC, LHR, SFO, SJC]");
     findItinerary_scaffold("[[JFK,SFO],[JFK,ATL],[SFO,ATL],[ATL,JFK],[ATL,SFO]]", "[JFK,ATL,JFK,SFO,ATL,SFO]");
     TIMER_STOP(findItinerary);
-    util::Log(logESSENTIAL) << "findItineray using " << TIMER_MSEC(findItinerary) << " milliseconds";
+    SPDLOG_WARN("findItinerary tests use {} ms", TIMER_MSEC(findItinerary));
 }

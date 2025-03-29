@@ -17,13 +17,14 @@ private:
 
 int Solution::shortestPathLength(vector<vector<int>>& graph) {
 /*
-    An undirected, connected graph of N nodes (labelled 0, 1, 2, ..., N-1, N=graph.length) is given in adjacency list notation.
+    An *undirected* graph of N nodes (labelled 0, 1, 2, ..., N-1, N=graph.length) is given in *adjacency-list* notation.
     Return the length of the shortest path that visits every node. You may start and stop at any node, you may revisit nodes multiple times, and you may reuse edges.
     Hint: Traveling Salesman Problem 
 */
 
     int node_count = graph.size();
     vector<vector<int>> distance_table(node_count, vector<int>(node_count, INT32_MAX));
+    // initialize trivial cases
     for (int u=0; u<node_count; ++u) {
         distance_table[u][u] = 0;
         for (auto v: graph[u]) {
@@ -31,12 +32,12 @@ int Solution::shortestPathLength(vector<vector<int>>& graph) {
             distance_table[v][u] = 1;
         }
     }
-
+    // floyd-warshall algorithm
     for (int k=0; k<node_count; ++k) {
         for (int i=0; i<node_count; ++i) {
             for (int j=0; j<node_count; ++j) {
                 if (distance_table[i][k] != INT32_MAX && distance_table[k][j] != INT32_MAX) {
-                    distance_table[i][j] = min(distance_table[i][j], distance_table[i][k]+distance_table[k][j]);
+                    distance_table[i][j] = std::min(distance_table[i][j], distance_table[i][k]+distance_table[k][j]);
                 }
             }
         }
@@ -52,7 +53,7 @@ int Solution::shortestPathLength(vector<vector<int>>& graph) {
 
 #ifdef DEBUG
     for (int i=0; i<node_count; ++i) {
-        cout << numberVectorToString(distance_table[i]) << endl;
+        std::cout << numberVectorToString(distance_table[i]) << std::endl;
     }
 #endif
 
@@ -92,6 +93,7 @@ int Solution::bruteForceTrip(vector<vector<int>>& distance_table, int node_count
     vector<int> node_order(node_count);
     vector<int> plan = node_order;
     std::iota(node_order.begin(), node_order.end(), 0);
+    // traversal all possible orders to visit all nodes, choose the best plan by path length
     do {
         int len = tripLengthForPlan(node_order, ans);
         if (len < ans) {
@@ -121,14 +123,15 @@ int Solution::shortestPathAllKeys(vector<string>& grid) {
     Return the lowest number of moves to acquire all keys. If it’s impossible, return -1.
 */
 
-    auto is_key = [&] (int letter) {
+    auto is_key = [] (int letter) {
         return 'a' <= letter && letter <= 'z';
     };
-    auto is_lock = [&] (int letter) {
+    auto is_lock = [] (int letter) {
         return 'A' <= letter && letter <= 'Z';
     };
 
-    typedef pair<int, int> Coordinate; // <row, column>
+    // 1. find start, keys, locks positions
+    using Coordinate = std::pair<int, int>; // <row, column>
     Coordinate coors[128];
     int keys = 0;
     int rows = grid.size();
@@ -144,7 +147,7 @@ int Solution::shortestPathAllKeys(vector<string>& grid) {
         }
     }
 
-    keys /= 2;
+    keys /= 2; // number of the pairs of key/lock
     auto route_length = [&] () {
         int steps = 0;
         set<int> visited_locks;
@@ -154,7 +157,7 @@ int Solution::shortestPathAllKeys(vector<string>& grid) {
         set<Coordinate> visited; visited.insert(start);
         queue<Coordinate> q; q.push(start);
         while (!q.empty()) {
-            if (visited_keys.size() == keys) {
+            if ((int)visited_keys.size() == keys) {
                 return steps;
             }
             for (int k=q.size(); k!=0; --k) {
@@ -162,11 +165,13 @@ int Solution::shortestPathAllKeys(vector<string>& grid) {
                 for (auto& d: directions) {
                     int nr = u.first + d.first;
                     int nc = u.second + d.second;
+                    // out of boundary or ecounter walls
                     if (nr<0 || nr >=rows ||
                         nc<0 || nc >=columns ||
                         grid[nr][nc] == '#') {
                         continue;
                     }
+                    // already visited
                     if (visited.count({nr, nc}) == 1) {
                         continue;
                     }
@@ -176,17 +181,15 @@ int Solution::shortestPathAllKeys(vector<string>& grid) {
                         visited.emplace(nr, nc);
                     } else if (is_key(letter)) { // keys
                         visited_keys.insert(letter);
-
                         q.emplace(nr, nc);
                         visited.emplace(nr, nc);
-
-                        // we may pass the lock after we got the key
+                        // after we got the key we may pass the lock next time
                         if (visited_locks.count(letter-diff) == 1) {
                             q.push(coors[letter-diff]);
                             visited.insert(coors[letter-diff]);
                         }  
                     } else if (is_lock(letter)) { // locks
-                        if (visited_keys.count(letter+diff) == 1) { // we can pass lock only if we have alread had its key
+                        if (visited_keys.count(letter+diff) == 1) { // we can pass lock only if we have alread got its key
                             q.emplace(nr, nc);
                             visited.emplace(nr, nc);
                         } else {
@@ -203,45 +206,47 @@ int Solution::shortestPathAllKeys(vector<string>& grid) {
     return ans == INT32_MAX ? -1 : ans;
 }
 
+
 void shortestPathLength_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
     int actual = ss.shortestPathLength(graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
+
 
 void shortestPathAllKeys_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<string> graph = stringTo1DArray<string>(input);
     int actual = ss.shortestPathAllKeys(graph);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
-int main() {
-    util::LogPolicy::GetInstance().Unmute();
 
-    util::Log(logESSENTIAL) << "Running shortestPathLength tests:";
+int main() {
+    SPDLOG_WARN("Running shortestPathLength tests:");
     TIMER_START(shortestPathLength);
     shortestPathLength_scaffold("[[1,2,3],[0],[0],[0]]", 4);
     shortestPathLength_scaffold("[[1],[0,2,4],[1,3,4],[2],[1,2]]", 4);
     shortestPathLength_scaffold("[[2,6],[2,3],[0,1],[1,4,5,6,8],[3,9,7],[3],[3,0],[4],[3],[4]]", 12);
     TIMER_STOP(shortestPathLength);
-    util::Log(logESSENTIAL) << "shortestPathLength using " << TIMER_MSEC(shortestPathLength) << " milliseconds";
+    SPDLOG_WARN("shortestPathLength tests use {} ms", TIMER_MSEC(shortestPathLength));
 
-    util::Log(logESSENTIAL) << "Running shortestPathAllKeys tests:";
+    SPDLOG_WARN("Running shortestPathAllKeys tests:");
     TIMER_START(shortestPathAllKeys);
     shortestPathAllKeys_scaffold("[@.a.#, ###.#, b.A.B]", 8);
+    shortestPathAllKeys_scaffold("[@.a.., ###.#, b.A.B]", 8);
     shortestPathAllKeys_scaffold("[@..aA, ..B#., ....b]", 6);
     shortestPathAllKeys_scaffold("[@Aa]", -1);
-    shortestPathAllKeys_scaffold("[@...a, .###A, b.BCc]", 10);
+    shortestPathAllKeys_scaffold("[@...a, .###A, b.BCc]", 6);
     TIMER_STOP(shortestPathAllKeys);
-    util::Log(logESSENTIAL) << "shortestPathAllKeys using " << TIMER_MSEC(shortestPathAllKeys) << " milliseconds";
+    SPDLOG_WARN("shortestPathAllKeys tests use {} ms", TIMER_MSEC(shortestPathAllKeys));
 }

@@ -10,7 +10,7 @@ public:
     // return the group id to which x belongs
     int find(int x);
 
-    // return false if x and y belong to the same component, otherwise true
+    // return false if x and y already belong to the same component, otherwise true
     bool unionFunc(int x, int y);
 
 private:

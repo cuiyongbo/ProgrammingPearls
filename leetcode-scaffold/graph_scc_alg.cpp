@@ -21,9 +21,8 @@ const char* Algorithm_toString(Algorithm type) {
 
 
 /*
-    Given a directed graph with nodes labelled 1 to `node_count`, edge `[u, v]`
-    means there is a directed edge connected node u and v, where u is a parent of child v.
-    find SCCs in a directed graph.
+    Given a directed graph with n nodes which are labelled 1 to n,
+    edge `[u, v]` means there is a directed edge connected node u and v, where u is a parent of child v. ind SCCs in a directed graph.
     Hint: tarjan algorithm or kosaraju algorithm
 */
 class Solution {
