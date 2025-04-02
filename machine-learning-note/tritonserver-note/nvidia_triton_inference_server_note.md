@@ -18,8 +18,17 @@ Table of Contents:
 
 ## what is triton
 
-Developed by nvidia, Triton is a software toolkit to deploy and serve machine learning models. the model may be trained with different machine learning frameworks, such as tensorflow, pytorch. and may be in different formats, such as SavedModel for tensorflow, torchscript for pytorch, or other format such as ONNX, TensorRT. you can serve one or more models in one triton server, and you can also orchestrate how multiple models work
+Developed by nvidia, Triton is a software toolkit to deploy and serve machine learning models. the model may be trained with different machine learning frameworks, such as tensorflow, pytorch. and may be in different formats, such as tensorflow SavedModel/GraphDef, pytorch torchscript, or other format such as ONNX, TensorRT. you can serve one or more models in one triton server, and you can also orchestrate how multiple models work
 together to solve tasks which may be difficult for one model, such as detecting objects in images, generate images from texts.
+
+Some key features of Triton are:
+
+- **Support for Multiple frameworks**: Triton can be used to deploy models from all major frameworks. Triton supports TensorFlow GraphDef, TensorFlow SavedModel, ONNX, PyTorch TorchScript, TensorRT, RAPIDS FIL for tree based models, and OpenVINO model formats. 
+- **Model pipelines**: Triton model ensemble (or BLS) represents a pipeline of one or more models or pre/post processing logic and the connection of input and output tensors between them. A single inference request to an ensemble will trigger the execution of the entire pipeline.
+- **Concurrent model execution**: Multiple models (or multiple instances of the same model) can run simultaneously on the same GPU or on multiple GPUs for different model management needs.
+- **Dynamic batching**: For models that support batching, Triton has multiple built-in scheduling and batching algorithms that combine individual inference requests together to improve inference throughput. These scheduling and batching decisions are transparent to the client requesting inference.
+- **Diverse CPUs and GPUs**: The models can be executed on CPUs or GPUs for maximum flexibility and to support heterogeneous computing requirements.
+
 
 TODO: add mermaid images about triton system
 
@@ -129,7 +138,7 @@ resnet/
 ├── 2  # different versions, required
 │   └── model.plan
 ├── config.pbtxt  # model configuration, required
-├── inception_labels.txt # optional
+├── inception_labels.txt # optional, for example, [ImageNetLabels.text](https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt)
 └── output_labels.txt # optional
 
 2 directories, 5 files
@@ -142,6 +151,7 @@ resnet/
 name: "resnet" # it must match the name of model folder if specified, optional
 backend: "tensorrt"  # [backend type](https://github.com/triton-inference-server/backend/blob/main/README.md#backends)
 platform: "tensorrt_plan"
+default_model_filename: "model.plan" # If not specified the default name is 'model.graphdef', 'model.savedmodel', 'model.plan' or 'model.pt' depending on the model type.
 
 # input schema
 input {
@@ -475,7 +485,7 @@ ensemble_scheduling {
 
 remember that:
 
--  When crafting the ensemble steps, it is useful to note the distinction between *key* and *value* on the `input_map`/`output_map`:
+-  When crafting the ensemble steps, it is useful to note the distinction between *key- and *value- on the `input_map`/`output_map`:
 
 > *key*: An `input`/`output` tensor name on the composing model.
 > *value*: A tensor name on the ensemble model, which acts as an identifier

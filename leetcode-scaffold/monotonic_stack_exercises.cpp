@@ -158,7 +158,23 @@ int Solution::largestRectangleArea(vector<int>& height) {
     find the area of largest rectangle in the histogram. for example, given height = [2,1,5,6,2,3], return 10.
 */
 
-{ // refined solution
+if (0) { // dp solution
+    // dp[i] means largestRectangleArea ending with  height[i]
+    // dp[i] = max((i-j+1)*min(height[j:i])) 0<=j<=i
+    int ans = INT32_MIN;
+    vector<int> dp = height; // initialization
+    for (int i=0; i<(int)height.size(); i++) {
+        int h = height[i];
+        for (int j=i-1; j>=0; j--) {
+            h = min(h, height[j]);
+            dp[i] = max(dp[i], h*(i-j+1));
+        }
+        ans = max(ans, dp[i]);
+    }
+    return ans;
+}
+
+if (0) { // refined solution
     stack<int> st;
     int sz = height.size();
     // aux[i] means if we use height[i] as the height, the rectangle wolud stretch over [left+1, right-1]
@@ -181,24 +197,26 @@ int Solution::largestRectangleArea(vector<int>& height) {
 }
 
 { // naive solution
-    stack<int> st;
     int sz = height.size();
     // aux[i] means if we use height[i] as the height, the rectangle wolud stretch over [left+1, right-1]
     vector<pair<int, int>> aux(sz, {-1, sz}); // (left, right), not inclusive
+    stack<int> right;
     for (int i=0; i<sz; ++i) {
-        while (!st.empty() && height[st.top()] > height[i]) {
-            aux[st.top()].second = i;
-            st.pop();
+        // use `height[st.top()]` as the right boundary
+        while (!right.empty() && height[right.top()] > height[i]) {
+            aux[right.top()].second = i;
+            right.pop();
         }
-        st.push(i);
+        right.push(i);
     }
-    stack<int> dummy; st.swap(dummy);
+    stack<int> left;
     for (int i=sz-1; i>=0; --i) {
-        while (!st.empty() && height[st.top()] > height[i]) {
-            aux[st.top()].first = i;
-            st.pop();
+        // use `height[st.top()]` as the left boundary
+        while (!left.empty() && height[left.top()] > height[i]) {
+            aux[left.top()].first = i;
+            left.pop();
         }
-        st.push(i);
+        left.push(i);
     }
     int ans = INT32_MIN;
     for (int i=0; i<sz; ++i) {
@@ -325,6 +343,7 @@ int StockSpanner::next(int price) {
     m_st.push(p);
     return p.second;
 }
+
 
 void StockSpanner_scaffold(string operations, string args, string expectedOutputs) {
     vector<string> funcOperations = stringTo1DArray<string>(operations);
