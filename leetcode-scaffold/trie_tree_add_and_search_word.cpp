@@ -2,7 +2,6 @@
 #include "util/trie_tree.h"
 
 using namespace std;
-using namespace osrm;
 
 /* 
 leetcode: 211
@@ -29,6 +28,7 @@ private:
     TrieTree m_tree;
 };
 
+
 void WordDictionary::addWord(const string& word) {
     m_tree.insert(word);
 }
@@ -44,7 +44,7 @@ bool WordDictionary::search(const std::string& word) {
         }
         if (word[u] == '.') {
             for (auto c: node->children) {
-                if (backtrace(c, u+1)) {
+                if (backtrace(c, u+1)) { // return true if there is a possible match
                     return true;
                 }
             }
@@ -65,27 +65,27 @@ void WordFilter_scaffold(string operations, string args, string expectedOutputs)
     for (int i=0; i<n; ++i) {
         if (funcOperations[i] == "addWord") {
             tm.addWord(funcArgs[i][0]);
+            SPDLOG_INFO("{}({}) passed", funcOperations[i], funcArgs[i][0]);
         } else if(funcOperations[i] == "search") {
             bool actual = tm.search(funcArgs[i][0]);
             string actual_str = actual ? "true" : "false";
-            if (actual_str != ans[i]) {
-                util::Log(logERROR) << funcOperations[i] << "(" << funcArgs[i][0] << ") failed, Expected: " << ans[i] << ", actual: " << actual_str;
+            if (actual_str == ans[i]) {
+                SPDLOG_INFO("{}({}) passed", funcOperations[i], funcArgs[i][0]);
             } else {
-                util::Log(logINFO) << funcOperations[i] << "(" << funcArgs[i][0] << ") passed";
+                SPDLOG_ERROR("{}({}) failed, expectedResult={}, actual={}", funcOperations[i], funcArgs[i][0], ans[i], actual_str);
             }
         }
     }
 }
 
+
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-    
-    util::Log(logESSENTIAL) << "Running WordDictionary tests:";
+    SPDLOG_WARN("Running WordDictionary tests:");
     TIMER_START(WordDictionary);
     WordFilter_scaffold(
         "[WordDictionary,addWord,addWord,addWord,search,search,search,search,search,search,search]",
         "[[],[bad],[dad],[mad],[pad],[bad],[.ad],[b..],[...][b.d][.a.]]",
         "[null,null,null,null,false,true,true,true,true,true,true]");
     TIMER_STOP(WordDictionary);
-    util::Log(logESSENTIAL) << "WordDictionary using " << TIMER_MSEC(WordDictionary) << " milliseconds";
+    SPDLOG_WARN("WordDictionary tests use {} ms", TIMER_MSEC(WordDictionary));
 }

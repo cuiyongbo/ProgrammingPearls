@@ -166,31 +166,31 @@ target_link_libraries(backtrace_partition_array spdlog::spdlog_header_only)
 
 add_executable(trie_tree_scaffold trie_tree_scaffold.cpp ${PUB_UTIL_FILES})
 target_compile_features(trie_tree_scaffold PUBLIC cxx_auto_type)
-target_link_libraries(trie_tree_scaffold)
+target_link_libraries(trie_tree_scaffold PRIVATE spdlog::spdlog_header_only)
 
 add_executable(trie_tree_replace_word trie_tree_replace_word.cpp ${PUB_UTIL_FILES})
 target_compile_features(trie_tree_replace_word PUBLIC cxx_auto_type)
-target_link_libraries(trie_tree_replace_word)
+target_link_libraries(trie_tree_replace_word PRIVATE spdlog::spdlog_header_only)
 
 add_executable(trie_tree_magic_word trie_tree_magic_word.cpp ${PUB_UTIL_FILES})
 target_compile_features(trie_tree_magic_word PUBLIC cxx_auto_type)
-target_link_libraries(trie_tree_magic_word)
+target_link_libraries(trie_tree_magic_word PRIVATE spdlog::spdlog_header_only)
 
 add_executable(trie_tree_map_sum_pairs trie_tree_map_sum_pairs.cpp ${PUB_UTIL_FILES})
 target_compile_features(trie_tree_map_sum_pairs PUBLIC cxx_auto_type)
-target_link_libraries(trie_tree_map_sum_pairs)
+target_link_libraries(trie_tree_map_sum_pairs PRIVATE spdlog::spdlog_header_only)
 
 add_executable(trie_tree_prefix_and_suffix_search trie_tree_prefix_and_suffix_search.cpp ${PUB_UTIL_FILES})
 target_compile_features(trie_tree_prefix_and_suffix_search PUBLIC cxx_std_20)
-target_link_libraries(trie_tree_prefix_and_suffix_search)
+target_link_libraries(trie_tree_prefix_and_suffix_search PRIVATE spdlog::spdlog_header_only)
 
 add_executable(trie_tree_add_and_search_word trie_tree_add_and_search_word.cpp ${PUB_UTIL_FILES})
 target_compile_features(trie_tree_add_and_search_word PUBLIC cxx_auto_type)
-target_link_libraries(trie_tree_add_and_search_word)
+target_link_libraries(trie_tree_add_and_search_word PRIVATE spdlog::spdlog_header_only)
 
 add_executable(advanced_topics_range_sum_query advanced_topics_range_sum_query.cpp ${PUB_UTIL_FILES})
 target_compile_features(advanced_topics_range_sum_query PUBLIC cxx_auto_type)
-target_link_libraries(advanced_topics_range_sum_query)
+target_link_libraries(advanced_topics_range_sum_query PRIVATE spdlog::spdlog_header_only)
 
 add_executable(lru_cache lru_cache.cpp ${PUB_UTIL_FILES})
 target_compile_features(lru_cache PUBLIC cxx_std_20)
@@ -204,27 +204,27 @@ target_link_libraries(lfu_cache PRIVATE spdlog::spdlog_header_only)
 
 add_executable(two_pointers_assign_cookies two_pointers_assign_cookies.cpp ${PUB_UTIL_FILES})
 target_compile_features(two_pointers_assign_cookies PUBLIC cxx_auto_type)
-target_link_libraries(two_pointers_assign_cookies)
+target_link_libraries(two_pointers_assign_cookies PRIVATE spdlog::spdlog_header_only)
 
 add_executable(two_pointers_trapping_water two_pointers_trapping_water.cpp ${PUB_UTIL_FILES})
 target_compile_features(two_pointers_trapping_water PUBLIC cxx_auto_type)
-target_link_libraries(two_pointers_trapping_water)
+target_link_libraries(two_pointers_trapping_water PRIVATE spdlog::spdlog_header_only)
 
 add_executable(two_pointers_squares_of_sorted_array two_pointers_squares_of_sorted_array.cpp ${PUB_UTIL_FILES})
 target_compile_features(two_pointers_squares_of_sorted_array PUBLIC cxx_auto_type)
-target_link_libraries(two_pointers_squares_of_sorted_array)
+target_link_libraries(two_pointers_squares_of_sorted_array PRIVATE spdlog::spdlog_header_only)
 
 add_executable(two_pointers_reverse_letters two_pointers_reverse_letters.cpp ${PUB_UTIL_FILES})
 target_compile_features(two_pointers_reverse_letters PUBLIC cxx_auto_type)
-target_link_libraries(two_pointers_reverse_letters)
+target_link_libraries(two_pointers_reverse_letters PRIVATE spdlog::spdlog_header_only)
 
 add_executable(two_pointers_two_sum two_pointers_two_sum.cpp ${PUB_UTIL_FILES})
 target_compile_features(two_pointers_two_sum PUBLIC cxx_auto_type)
-target_link_libraries(two_pointers_two_sum)
+target_link_libraries(two_pointers_two_sum PRIVATE spdlog::spdlog_header_only)
 
 add_executable(two_pointers_median_finder two_pointers_median_finder.cpp ${PUB_UTIL_FILES})
 target_compile_features(two_pointers_median_finder PUBLIC cxx_auto_type)
-target_link_libraries(two_pointers_median_finder)
+target_link_libraries(two_pointers_median_finder PRIVATE spdlog::spdlog_header_only)
 
 # DP
 
@@ -375,11 +375,11 @@ target_link_libraries(binary_search_tester)
 
 add_executable(misc_exercises misc_exercises.cpp ${PUB_UTIL_FILES})
 target_compile_features(misc_exercises PUBLIC cxx_auto_type)
-target_link_libraries(misc_exercises)
+target_link_libraries(misc_exercises PRIVATE spdlog::spdlog_header_only)
 
 add_executable(monotonic_stack_exercises monotonic_stack_exercises.cpp ${PUB_UTIL_FILES})
 target_compile_features(monotonic_stack_exercises PUBLIC cxx_auto_type)
-target_link_libraries(monotonic_stack_exercises)
+target_link_libraries(monotonic_stack_exercises PRIVATE spdlog::spdlog_header_only)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

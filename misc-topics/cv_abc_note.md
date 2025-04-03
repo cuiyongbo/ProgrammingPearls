@@ -1688,4 +1688,38 @@ def longest_palindromic_substring(s):
 
 通过以上步骤和策略，你可以更高效地应对没有思路的编程题，提高解题能力和自信心。如果你需要更多的帮助或具体问题的解答，欢迎继续咨询！
 
+Q: 简历里怎么说 “具备和海外同事协作经验, 可用英语进行工作沟通”?
+
+在简历中表达“具备和海外同事协作经验, 可用英语进行工作沟通”可以采用专业且简洁的描述，如下：
+
+### 中文版本：
+“具有与海外团队合作的丰富经验，能够使用英语进行有效工作沟通。”
+
+或者：
+
+### 英文版本：
+“Extensive experience in collaborating with overseas colleagues, proficient in professional communication in English.”
+
+### 示例：
+在简历中的具体写法可以结合个人经历展开，例如：
+
+#### 中文简历：
+```
+语言能力
+- 英语：流利，能够进行专业工作沟通。
+
+工作经验
+- 多次与海外团队合作项目，包括项目协调和沟通。能够使用英语进行会议讨论、电子邮件交流和报告撰写。
+```
+
+#### 英文简历：
+```
+Language Skills
+- English: Fluent, proficient in professional communication.
+
+Work Experience
+- Successfully collaborated with international teams on various projects. Skilled in conducting meetings, negotiating and drafting reports in English.
+```
+
+通过这种方式，能够全面且清晰地展示您的语言能力和跨文化协作经验。这对您在国际化团队中获得更多机会非常有帮助。
 ```
